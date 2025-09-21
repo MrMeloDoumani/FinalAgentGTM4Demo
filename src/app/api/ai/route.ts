@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GTM_CONTEXT } from '@/lib/data/gtm-context';
 import { styleLearningEngine } from '@/lib/style-learning';
+import { imageGenerationService } from '@/lib/image-generation';
 
 interface Product {
   id: string;
@@ -128,17 +129,53 @@ Upload documents to expand my knowledge base and I'll use that information to cr
         message.toLowerCase().includes('just create') ||
         message.toLowerCase().includes('quick response') ||
         message.toLowerCase().includes('comprehensive') ||
-        message.toLowerCase().includes('custom')) {
+        message.toLowerCase().includes('custom') ||
+        message.toLowerCase().includes('generate')) {
       
       // Generate intelligent content using GTM_CONTEXT
       const content = generateIntelligentContent(message, contentType, industry, uploadedFiles);
       
-      return NextResponse.json({
-        success: true,
-        response: content,
-        timestamp: new Date().toISOString(),
-        context: 'sales-enablement'
-      });
+      // Also generate a visual image
+      try {
+        const detectedIndustry = industry || extractIndustryFromMessage(message);
+        const detectedContentType = contentType || extractContentTypeFromMessage(message);
+        const title = extractTitleFromMessage(message) || `${detectedContentType} for ${detectedIndustry}`;
+        
+        // Get style recommendations if files were uploaded
+        let stylePattern = null;
+        if (uploadedFiles && uploadedFiles.length > 0) {
+          const recommendations = styleLearningEngine.getStyleRecommendations(detectedContentType);
+          if (recommendations.length > 0) {
+            stylePattern = recommendations[0];
+          }
+        }
+        
+        const generatedImage = await imageGenerationService.generateDocumentImage({
+          contentType: detectedContentType as any,
+          industry: detectedIndustry,
+          title,
+          content,
+          stylePattern
+        });
+        
+        return NextResponse.json({
+          success: true,
+          response: content,
+          image: generatedImage,
+          timestamp: new Date().toISOString(),
+          context: 'sales-enablement'
+        });
+      } catch (imageError) {
+        console.error('Image generation error:', imageError);
+        // Return content without image if generation fails
+        return NextResponse.json({
+          success: true,
+          response: content,
+          timestamp: new Date().toISOString(),
+          context: 'sales-enablement',
+          imageError: 'Image generation failed, but content was created successfully'
+        });
+      }
     }
 
     // Default intelligent response with GTM context
@@ -217,7 +254,27 @@ function extractContentTypeFromMessage(message: string): string {
   if (message.toLowerCase().includes('battlecard')) return 'battlecard';
   if (message.toLowerCase().includes('email')) return 'email';
   if (message.toLowerCase().includes('presentation') || message.toLowerCase().includes('deck')) return 'presentation';
+  if (message.toLowerCase().includes('whitepaper') || message.toLowerCase().includes('white paper')) return 'whitepaper';
   return 'brochure'; // Default
+}
+
+function extractTitleFromMessage(message: string): string | null {
+  // Try to extract title from common patterns
+  const titlePatterns = [
+    /title[:\s]+["']([^"']+)["']/i,
+    /"([^"]+)"\s+(?:brochure|battlecard|email|presentation|whitepaper)/i,
+    /(?:brochure|battlecard|email|presentation|whitepaper)\s+["']([^"']+)["']/i,
+    /for\s+["']([^"']+)["']/i
+  ];
+  
+  for (const pattern of titlePatterns) {
+    const match = message.match(pattern);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+  
+  return null;
 }
 
 function findRelevantProducts(industry: string): Product[] {

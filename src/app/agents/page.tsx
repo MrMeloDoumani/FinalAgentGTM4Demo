@@ -9,6 +9,14 @@ interface Message {
   type: "user" | "ai";
   content: string;
   timestamp: Date;
+  image?: {
+    id: string;
+    url: string;
+    type: string;
+    industry: string;
+    title: string;
+    generatedAt: string;
+  };
 }
 
 const actionOptions = [
@@ -84,6 +92,7 @@ export default function AgentsPage() {
           type: "ai",
           content: data.response,
           timestamp: new Date(),
+          image: data.image
         };
         setMessages(prev => [...prev, aiResponse]);
       } else {
@@ -216,6 +225,45 @@ export default function AgentsPage() {
               }`}
             >
               <p className="whitespace-pre-wrap">{message.content}</p>
+              
+              {/* Display generated image if available */}
+              {message.image && (
+                <div className="mt-4">
+                  <div className="bg-white rounded-lg p-4 border border-gray-200">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-semibold text-gray-900">{message.image.title}</h4>
+                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                        {message.image.type.toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="text-xs text-gray-600 mb-3">
+                      {message.image.industry} • Generated {new Date(message.image.generatedAt).toLocaleString()}
+                    </div>
+                    <img 
+                      src={message.image.url} 
+                      alt={message.image.title}
+                      className="w-full max-w-md mx-auto rounded border border-gray-200"
+                    />
+                    <div className="mt-3 flex space-x-2">
+                      <button 
+                        onClick={() => window.open(message.image!.url, '_blank')}
+                        className="flex items-center space-x-1 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                      >
+                        <Download className="h-3 w-3" />
+                        <span>Download</span>
+                      </button>
+                      <button 
+                        onClick={() => navigator.clipboard.writeText(message.image!.url)}
+                        className="flex items-center space-x-1 px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700"
+                      >
+                        <FileText className="h-3 w-3" />
+                        <span>Copy Link</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               <p className={`text-xs mt-2 ${
                 message.type === "user" ? "text-blue-100" : "text-gray-500"
               }`}>
