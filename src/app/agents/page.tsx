@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { ArrowLeft, Send, Upload, Save, Users, Calendar, X, FileText, Download } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Message {
   id: string;
@@ -239,9 +240,11 @@ export default function AgentsPage() {
                     <div className="text-xs text-gray-600 mb-3">
                       {message.image.industry} • Generated {new Date(message.image.generatedAt).toLocaleString()}
                     </div>
-                    <img 
+                    <Image 
                       src={message.image.url} 
                       alt={message.image.title}
+                      width={400}
+                      height={300}
                       className="w-full max-w-md mx-auto rounded border border-gray-200"
                     />
                     <div className="mt-3 flex space-x-2">

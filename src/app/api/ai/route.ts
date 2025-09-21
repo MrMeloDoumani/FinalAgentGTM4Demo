@@ -151,7 +151,7 @@ Upload documents to expand my knowledge base and I'll use that information to cr
         }
         
         const generatedImage = await imageGenerationService.generateDocumentImage({
-          contentType: detectedContentType as any,
+          contentType: detectedContentType as 'brochure' | 'whitepaper' | 'battlecard' | 'presentation' | 'email',
           industry: detectedIndustry,
           title,
           content,

@@ -133,7 +133,7 @@ class ImageGenerationService {
     return basePrompt;
   }
 
-  async generateBrochureImage(industry: string, title: string, content: string, stylePattern?: any): Promise<GeneratedImage> {
+  async generateBrochureImage(industry: string, title: string, content: string, stylePattern?: DocumentImageRequest['stylePattern']): Promise<GeneratedImage> {
     return this.generateDocumentImage({
       contentType: 'brochure',
       industry,
@@ -143,7 +143,7 @@ class ImageGenerationService {
     });
   }
 
-  async generateWhitePaperImage(industry: string, title: string, content: string, stylePattern?: any): Promise<GeneratedImage> {
+  async generateWhitePaperImage(industry: string, title: string, content: string, stylePattern?: DocumentImageRequest['stylePattern']): Promise<GeneratedImage> {
     return this.generateDocumentImage({
       contentType: 'whitepaper',
       industry,
@@ -153,7 +153,7 @@ class ImageGenerationService {
     });
   }
 
-  async generateBattlecardImage(industry: string, title: string, content: string, stylePattern?: any): Promise<GeneratedImage> {
+  async generateBattlecardImage(industry: string, title: string, content: string, stylePattern?: DocumentImageRequest['stylePattern']): Promise<GeneratedImage> {
     return this.generateDocumentImage({
       contentType: 'battlecard',
       industry,
@@ -163,7 +163,7 @@ class ImageGenerationService {
     });
   }
 
-  async generatePresentationImage(industry: string, title: string, content: string, stylePattern?: any): Promise<GeneratedImage> {
+  async generatePresentationImage(industry: string, title: string, content: string, stylePattern?: DocumentImageRequest['stylePattern']): Promise<GeneratedImage> {
     return this.generateDocumentImage({
       contentType: 'presentation',
       industry,
