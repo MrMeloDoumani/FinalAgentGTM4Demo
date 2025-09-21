@@ -5,6 +5,7 @@ import { Users, Calendar, BarChart3, FileText, ExternalLink, ChevronRight } from
 import Link from "next/link";
 
 const teamMembers = [
+  // Director
   {
     name: "Yasser Omar Zaki Shaaban",
     role: "DIRECTOR",
@@ -12,6 +13,8 @@ const teamMembers = [
     color: "bg-purple-100 text-purple-800",
     avatar: "YO",
   },
+  
+  // Senior Managers (alphabetically)
   {
     name: "Elham Husain Al Hammadi",
     role: "SENIOR MANAGER",
@@ -21,18 +24,27 @@ const teamMembers = [
   },
   {
     name: "Fawzia Abdalla",
-    role: "MANAGER",
+    role: "SENIOR MANAGER",
     status: "AI AVAILABLE",
-    color: "bg-blue-100 text-blue-800",
+    color: "bg-purple-100 text-purple-800",
     avatar: "FA",
   },
   {
-    name: "Stela Paneva",
-    role: "MANAGER",
+    name: "Khalid Riyad Badah",
+    role: "SENIOR MANAGER",
     status: "AI AVAILABLE",
-    color: "bg-blue-100 text-blue-800",
+    color: "bg-purple-100 text-purple-800",
+    avatar: "KB",
+  },
+  {
+    name: "Stela Paneva",
+    role: "SENIOR MANAGER",
+    status: "AI AVAILABLE",
+    color: "bg-purple-100 text-purple-800",
     avatar: "SP",
   },
+  
+  // Managers (alphabetically)
   {
     name: "Sara Mostafa",
     role: "MANAGER",
@@ -40,12 +52,14 @@ const teamMembers = [
     color: "bg-blue-100 text-blue-800",
     avatar: "SM",
   },
+  
+  // Specialists (alphabetically)
   {
-    name: "Khalid Riyad Badah",
+    name: "Maryam Bakhit Alsuwaidi",
     role: "SPECIALIST",
     status: "COMING SOON",
     color: "bg-teal-100 text-teal-800",
-    avatar: "KB",
+    avatar: "MA",
   },
   {
     name: "Mohammad Malkawi",
@@ -53,6 +67,13 @@ const teamMembers = [
     status: "COMING SOON",
     color: "bg-teal-100 text-teal-800",
     avatar: "MM",
+  },
+  {
+    name: "Sara Abdelaziz Alhammadi",
+    role: "SPECIALIST",
+    status: "COMING SOON",
+    color: "bg-teal-100 text-teal-800",
+    avatar: "SA",
   },
 ];
 
