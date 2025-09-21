@@ -60,7 +60,7 @@ class ImageGenerationService {
       });
 
       // Convert blob to base64
-      const arrayBuffer = await imageBlob.arrayBuffer();
+      const arrayBuffer = await (imageBlob as Blob).arrayBuffer();
       const base64 = Buffer.from(arrayBuffer).toString('base64');
       const dataUrl = `data:image/png;base64,${base64}`;
 
