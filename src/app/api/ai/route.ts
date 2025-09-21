@@ -192,7 +192,7 @@ function generateIntelligentContent(message: string, contentType?: string, indus
   // Generate content based on type
   switch (detectedContentType) {
     case 'brochure':
-      return generateBrochure(detectedIndustry, relevantProducts, sectorInfo, styleRecommendations);
+      return generateBrochure(detectedIndustry, relevantProducts, sectorInfo);
     case 'battlecard':
       return generateBattlecard(detectedIndustry, relevantProducts, sectorInfo);
     case 'email':
@@ -234,7 +234,7 @@ function findSectorInfo(industry: string): Sector | undefined {
   return GTM_CONTEXT.sectors.find(s => s.key === industry);
 }
 
-function generateBrochure(industry: string, products: Product[], sectorInfo: Sector | undefined, styleRecommendations?: unknown): string {
+function generateBrochure(industry: string, products: Product[], sectorInfo: Sector | undefined): string {
   const industryName = sectorInfo?.name || industry.charAt(0).toUpperCase() + industry.slice(1);
   
   return `# e& Business Solutions - ${industryName} Industry Brochure
@@ -325,7 +325,7 @@ function generateBattlecard(industry: string, products: Product[], sectorInfo: S
 ## Sales Talking Points
 
 ### For ${sectorInfo?.name || industry}:
-${sectorInfo?.gtm_plays?.map((play: any) => `
+${sectorInfo?.gtm_plays?.map((play) => `
 **${play.hypothesis}**
 • Recommended Solutions: ${play.recommend.join(', ')}
 • Proof Points: ${play.proof_points.join(', ')}

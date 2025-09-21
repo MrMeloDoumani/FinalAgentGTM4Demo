@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { ArrowLeft, Send, Upload, Save, Users, Calendar, X, FileText, Image, Download } from "lucide-react";
+import { ArrowLeft, Send, Upload, Save, Users, Calendar, X, FileText, Download } from "lucide-react";
 import Link from "next/link";
 
 interface Message {
