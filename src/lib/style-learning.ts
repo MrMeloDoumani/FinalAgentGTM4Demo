@@ -95,7 +95,7 @@ class StyleLearningEngineImpl implements StyleLearningEngine {
     const mockStyle: StylePattern = {
       id: styleId,
       name: `${file.name} Style`,
-      type: type as any,
+      type: type as StylePattern['type'],
       extractedAt: new Date().toISOString(),
       source: file.name,
       
