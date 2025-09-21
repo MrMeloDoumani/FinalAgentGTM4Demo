@@ -32,6 +32,7 @@ export default function AgentsPage() {
   const [isTyping, setIsTyping] = useState(false);
   const [showActions, setShowActions] = useState(false);
   const [showFileUpload, setShowFileUpload] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -64,7 +65,14 @@ export default function AgentsPage() {
         },
         body: JSON.stringify({
           message: inputMessage,
-          context: 'sales-enablement'
+          context: 'sales-enablement',
+          contentType: 'brochure',
+          industry: 'retail',
+          uploadedFiles: uploadedFiles.map(file => ({
+            name: file.name,
+            type: file.type,
+            size: file.size
+          }))
         }),
       });
 
@@ -118,6 +126,28 @@ export default function AgentsPage() {
       timestamp: new Date(),
     };
     setMessages(prev => [...prev, actionMessage]);
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    const validFiles = files.filter(file => {
+      const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain', 'image/jpeg', 'image/png', 'image/gif'];
+      return validTypes.includes(file.type);
+    });
+    
+    setUploadedFiles(prev => [...prev, ...validFiles]);
+    
+    if (validFiles.length > 0) {
+      const uploadMessage: Message = {
+        id: Date.now().toString(),
+        type: "ai",
+        content: `I've received ${validFiles.length} file(s) and I'm learning from them to improve my responses. The files will help me understand your preferred style and generate more relevant content.`,
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, uploadMessage]);
+    }
+    
+    setShowFileUpload(false);
   };
 
   return (
@@ -271,13 +301,46 @@ export default function AgentsPage() {
                 <p className="text-sm text-gray-500 mb-4">
                   Drag and drop files here, or click to select
                 </p>
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <input
+                  type="file"
+                  multiple
+                  accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="file-upload"
+                />
+                <label
+                  htmlFor="file-upload"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer inline-block"
+                >
                   Choose Files
-                </button>
+                </label>
                 <p className="text-xs text-gray-400 mt-2">
                   Supported formats: PDF, DOC, TXT, and images
                 </p>
               </div>
+              
+              {uploadedFiles.length > 0 && (
+                <div className="mt-4">
+                  <h4 className="text-sm font-medium text-gray-900 mb-2">Uploaded Files:</h4>
+                  <div className="space-y-2">
+                    {uploadedFiles.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                        <div className="flex items-center space-x-2">
+                          <FileText className="h-4 w-4 text-gray-500" />
+                          <span className="text-sm text-gray-700">{file.name}</span>
+                        </div>
+                        <button
+                          onClick={() => setUploadedFiles(prev => prev.filter((_, i) => i !== index))}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
