@@ -243,9 +243,33 @@ function generateIntelligentContent(message: string, contentType?: string, indus
 
 function extractIndustryFromMessage(message: string): string {
   const industries = GTM_CONTEXT.sectors.map(s => s.key);
+  
+  // Check for specific industry keywords first
+  const industryKeywords = {
+    'education': ['education', 'school', 'university', 'campus', 'learning', 'student'],
+    'retail': ['retail', 'shop', 'store', 'commerce', 'shopping'],
+    'healthcare': ['healthcare', 'health', 'medical', 'hospital', 'clinic', 'patient'],
+    'finance': ['finance', 'banking', 'financial', 'bank', 'fintech'],
+    'government': ['government', 'gov', 'public', 'citizen', 'municipal'],
+    'logistics': ['logistics', 'shipping', 'warehouse', 'supply', 'delivery'],
+    'manufacturing': ['manufacturing', 'factory', 'production', 'industrial'],
+    'agriculture': ['agriculture', 'farming', 'crop', 'rural'],
+    'tech_telecom': ['tech', 'technology', 'telecom', 'software', 'digital'],
+    'hospitality': ['hospitality', 'hotel', 'tourism', 'restaurant', 'guest']
+  };
+  
+  // Check for industry keywords
+  for (const [industry, keywords] of Object.entries(industryKeywords)) {
+    if (keywords.some(keyword => message.toLowerCase().includes(keyword))) {
+      return industry;
+    }
+  }
+  
+  // Fallback to exact key match
   const found = industries.find(industry => 
     message.toLowerCase().includes(industry.toLowerCase())
   );
+  
   return found || 'retail'; // Default to retail
 }
 
