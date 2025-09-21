@@ -18,6 +18,18 @@ interface Message {
     title: string;
     generatedAt: string;
   };
+  mediaAssets?: Array<{
+    id: string;
+    type: string;
+    title: string;
+    industry: string;
+    content: string;
+    fileUrl: string;
+    generatedAt: string;
+    styleUsed?: string;
+  }>;
+  jammyId?: string;
+  confidence?: number;
 }
 
 const actionOptions = [
@@ -33,7 +45,7 @@ export default function AgentsPage() {
     {
       id: "1",
       type: "ai",
-      content: "Hello Yasser! I'm your AI Sales Enablement Assistant. I'm here to help you with strategic planning, market analysis, and generating sales materials. What would you like to work on today?",
+      content: "Hello Yasser! I'm Jammy, your intelligent AI assistant for e& GTM. I can create media assets, analyze markets, learn from your uploads, and get smarter with every interaction. What would you like to work on today?",
       timestamp: new Date(),
     },
   ]);
@@ -67,7 +79,7 @@ export default function AgentsPage() {
     setIsTyping(true);
 
     try {
-      const response = await fetch('/api/ai', {
+      const response = await fetch('/api/jammy', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -75,8 +87,6 @@ export default function AgentsPage() {
         body: JSON.stringify({
           message: inputMessage,
           context: 'sales-enablement',
-          contentType: 'brochure',
-          industry: 'retail',
           uploadedFiles: uploadedFiles.map(file => ({
             name: file.name,
             type: file.type,
@@ -93,14 +103,17 @@ export default function AgentsPage() {
           type: "ai",
           content: data.response,
           timestamp: new Date(),
-          image: data.image
+          image: data.image,
+          mediaAssets: data.mediaAssets,
+          jammyId: data.jammyId,
+          confidence: data.confidence
         };
         setMessages(prev => [...prev, aiResponse]);
       } else {
-        throw new Error(data.error || 'Failed to get AI response');
+        throw new Error(data.error || 'Failed to get Jammy AI response');
       }
     } catch (error) {
-      console.error('AI API Error:', error);
+      console.error('Jammy AI Error:', error);
       const errorResponse: Message = {
         id: (Date.now() + 1).toString(),
         type: "ai",
@@ -175,7 +188,7 @@ export default function AgentsPage() {
             </Link>
             <div className="h-6 w-px bg-gray-300" />
             <div>
-              <h1 className="text-lg font-semibold text-gray-900">AI Sales Enablement Assistant</h1>
+              <h1 className="text-lg font-semibold text-gray-900">Jammy AI - Sales Enablement Assistant</h1>
               <p className="text-sm text-gray-500">Yasser Omar Zaki Shaaban - DIRECTOR</p>
             </div>
           </div>
@@ -264,6 +277,59 @@ export default function AgentsPage() {
                       </button>
                     </div>
                   </div>
+                </div>
+              )}
+
+              {/* Display media assets if available */}
+              {message.mediaAssets && message.mediaAssets.length > 0 && (
+                <div className="mt-4">
+                  <h4 className="font-semibold text-gray-900 mb-3">Generated Media Assets:</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {message.mediaAssets.map((asset, index) => (
+                      <div key={index} className="bg-white rounded-lg p-4 border border-gray-200">
+                        <div className="flex items-center justify-between mb-2">
+                          <h5 className="font-medium text-gray-900">{asset.title}</h5>
+                          <span className="text-xs text-gray-500 bg-blue-100 px-2 py-1 rounded">
+                            {asset.type.toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="text-xs text-gray-600 mb-3">
+                          {asset.industry} • {asset.styleUsed || 'e& Style'}
+                        </div>
+                        <div className="mt-3 flex space-x-2">
+                          <button 
+                            onClick={() => window.open(asset.fileUrl, '_blank')}
+                            className="flex items-center space-x-1 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                          >
+                            <Download className="h-3 w-3" />
+                            <span>Download PDF</span>
+                          </button>
+                          <button 
+                            onClick={() => navigator.clipboard.writeText(asset.fileUrl)}
+                            className="flex items-center space-x-1 px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700"
+                          >
+                            <FileText className="h-3 w-3" />
+                            <span>Copy Link</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Display Jammy AI confidence and ID */}
+              {message.jammyId && (
+                <div className="mt-2 text-xs text-gray-500">
+                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded mr-2">
+                    Jammy AI
+                  </span>
+                  {message.confidence && (
+                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded mr-2">
+                      Confidence: {Math.round(message.confidence * 100)}%
+                    </span>
+                  )}
+                  <span className="text-gray-400">ID: {message.jammyId}</span>
                 </div>
               )}
               

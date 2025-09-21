@@ -1,0 +1,78 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { jammyAI } from '@/lib/jammy-ai';
+
+export async function POST(request: NextRequest) {
+  try {
+    const { message, context, uploadedFiles } = await request.json();
+
+    if (!message) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Message is required' 
+        },
+        { status: 400 }
+      );
+    }
+
+    // Process message with Jammy AI
+    const response = await jammyAI.processMessage(message, context, uploadedFiles);
+
+    return NextResponse.json({
+      success: true,
+      response: response.content,
+      mediaAssets: response.mediaAssets,
+      learningData: response.learningData,
+      confidence: response.confidence,
+      timestamp: response.timestamp,
+      jammyId: response.id
+    });
+
+  } catch (error) {
+    console.error('Jammy AI Error:', error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Jammy AI processing failed',
+        response: "I apologize, but I'm experiencing technical difficulties. Please try again in a moment."
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET() {
+  try {
+    const memory = jammyAI.getMemory();
+    
+    return NextResponse.json({
+      success: true,
+      jammy: {
+        status: 'operational',
+        memory: {
+          conversations: memory.conversations.length,
+          learnedPatterns: memory.learnedPatterns.length,
+          knowledgeBase: memory.knowledgeBase.length
+        },
+        capabilities: [
+          'Intelligent content generation',
+          'Media asset creation',
+          'Learning from uploads',
+          'UAE market intelligence',
+          'Style pattern recognition',
+          'Conversation memory',
+          'Continuous improvement'
+        ]
+      }
+    });
+  } catch (error) {
+    console.error('Jammy AI Status Error:', error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Failed to get Jammy AI status' 
+      },
+      { status: 500 }
+    );
+  }
+}
