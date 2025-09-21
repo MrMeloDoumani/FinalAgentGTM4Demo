@@ -237,7 +237,7 @@ export default function AgentsPage() {
             <span>Upload files to build knowledge base</span>
           </div>
           <div className="flex items-center space-x-2">
-            <Image className="h-4 w-4" alt="Image upload" />
+            <Image className="h-4 w-4" />
             <span>Supports PDF, DOC, TXT, and images</span>
           </div>
         </div>
