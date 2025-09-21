@@ -239,7 +239,7 @@ class JammyAI {
   private async generateResponse(message: string, analysis: Record<string, unknown>, context: Record<string, unknown>): Promise<{content: string, confidence: number}> {
     // Get relevant GTM context
     const sectorInfo = GTM_CONTEXT.sectors.find(s => s.key === analysis.industry);
-    const relevantProducts = this.findRelevantProducts(analysis.industry);
+    const relevantProducts = this.findRelevantProducts(analysis.industry as string);
     
     // Generate intelligent response based on analysis
     let response = '';
