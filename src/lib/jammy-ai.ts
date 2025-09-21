@@ -704,7 +704,7 @@ What would you like to work on today? I'm here to help you succeed!
     return `Key insights from ${filename}: ${keywords.slice(0, 5).join(', ')}`;
   }
 
-  private storeConversation(userMessage: string, jammyResponse: string, context: any): void {
+  private storeConversation(userMessage: string, jammyResponse: string, context: Record<string, unknown>): void {
     this.memory.conversations.push({
       id: `conv_${Date.now()}`,
       userMessage,
