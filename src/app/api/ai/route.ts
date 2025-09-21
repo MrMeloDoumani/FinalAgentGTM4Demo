@@ -155,7 +155,7 @@ Upload documents to expand my knowledge base and I'll use that information to cr
           industry: detectedIndustry,
           title,
           content,
-          stylePattern
+          stylePattern: stylePattern || undefined
         });
         
         return NextResponse.json({
@@ -168,10 +168,10 @@ Upload documents to expand my knowledge base and I'll use that information to cr
       } catch (imageError) {
         console.error('Image generation error:', imageError);
         // Return content without image if generation fails
-        return NextResponse.json({
-          success: true,
-          response: content,
-          timestamp: new Date().toISOString(),
+      return NextResponse.json({
+        success: true,
+        response: content,
+        timestamp: new Date().toISOString(),
           context: 'sales-enablement',
           imageError: 'Image generation failed, but content was created successfully'
         });
