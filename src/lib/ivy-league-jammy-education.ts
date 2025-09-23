@@ -51,6 +51,140 @@ export class IvyLeagueJammyEducation {
     this.establishExpertPatterns();
   }
 
+  private buildKnowledgeGraph(): void {
+    // Build comprehensive knowledge graph from GTM_CONTEXT
+    console.log('🧠 Building comprehensive knowledge graph...');
+    
+    // Add product knowledge nodes
+    GTM_CONTEXT.offerings.categories.forEach(category => {
+      category.items.forEach(product => {
+        const node: KnowledgeNode = {
+          id: `product_${product.id}`,
+          concept: product.name,
+          definition: product.description,
+          relationships: [category.label, 'e&_products'],
+          examples: product.features || [],
+          visualMappings: this.generateVisualMappings(product),
+          industryContext: this.determineIndustryContext(product),
+          confidence: 0.9
+        };
+        this.knowledgeGraph.set(node.id, node);
+      });
+    });
+
+    // Add sector knowledge nodes
+    GTM_CONTEXT.sectors.forEach(sector => {
+      const node: KnowledgeNode = {
+        id: `sector_${sector.id}`,
+        concept: sector.name,
+        definition: sector.description,
+        relationships: ['market_segments', 'industry_analysis'],
+        examples: sector.opportunities || [],
+        visualMappings: this.generateSectorVisualMappings(sector),
+        industryContext: [sector.name],
+        confidence: 0.95
+      };
+      this.knowledgeGraph.set(node.id, node);
+    });
+
+    console.log(`✅ Knowledge graph built with ${this.knowledgeGraph.size} nodes`);
+  }
+
+  private establishExpertPatterns(): void {
+    // Establish expert-level patterns for advanced reasoning
+    console.log('🎓 Establishing expert patterns...');
+    
+    const expertPatterns = [
+      {
+        id: 'market_analysis',
+        pattern: 'analyze_market_context',
+        description: 'Deep market analysis with industry insights',
+        confidence: 0.95
+      },
+      {
+        id: 'product_mapping',
+        pattern: 'map_products_to_visuals',
+        description: 'Intelligent product to visual element mapping',
+        confidence: 0.9
+      },
+      {
+        id: 'context_awareness',
+        pattern: 'maintain_context_throughout',
+        description: 'Consistent context awareness across interactions',
+        confidence: 0.95
+      }
+    ];
+
+    expertPatterns.forEach(pattern => {
+      this.expertPatterns.set(pattern.id, pattern);
+    });
+
+    console.log(`✅ Established ${expertPatterns.length} expert patterns`);
+  }
+
+  private generateVisualMappings(product: any): string[] {
+    const mappings = ['office_building']; // Always include B2B context
+    
+    // Product-specific visual mappings
+    if (product.name.toLowerCase().includes('fiber') || product.name.toLowerCase().includes('internet')) {
+      mappings.push('network', 'router', 'wifi_signal');
+    }
+    if (product.name.toLowerCase().includes('mobile') || product.name.toLowerCase().includes('pos')) {
+      mappings.push('smartphone', 'payment_terminal');
+    }
+    if (product.name.toLowerCase().includes('security')) {
+      mappings.push('security_shield', 'server');
+    }
+    if (product.name.toLowerCase().includes('cloud')) {
+      mappings.push('cloud', 'server');
+    }
+    if (product.name.toLowerCase().includes('analytics')) {
+      mappings.push('analytics_dashboard', 'chart');
+    }
+    
+    return mappings;
+  }
+
+  private generateSectorVisualMappings(sector: any): string[] {
+    const mappings = ['office_building'];
+    
+    // Sector-specific visual mappings
+    if (sector.name.toLowerCase().includes('retail')) {
+      mappings.push('retail_store', 'smartphone');
+    }
+    if (sector.name.toLowerCase().includes('healthcare')) {
+      mappings.push('hospital', 'security_shield');
+    }
+    if (sector.name.toLowerCase().includes('education')) {
+      mappings.push('school', 'laptop');
+    }
+    if (sector.name.toLowerCase().includes('finance')) {
+      mappings.push('analytics_dashboard', 'chart');
+    }
+    
+    return mappings;
+  }
+
+  private determineIndustryContext(product: any): string[] {
+    const contexts = ['tech_telecom']; // Default B2B context
+    
+    // Determine specific industry context
+    if (product.name.toLowerCase().includes('retail') || product.name.toLowerCase().includes('pos')) {
+      contexts.push('retail');
+    }
+    if (product.name.toLowerCase().includes('healthcare') || product.name.toLowerCase().includes('medical')) {
+      contexts.push('healthcare');
+    }
+    if (product.name.toLowerCase().includes('education') || product.name.toLowerCase().includes('school')) {
+      contexts.push('education');
+    }
+    if (product.name.toLowerCase().includes('finance') || product.name.toLowerCase().includes('banking')) {
+      contexts.push('finance');
+    }
+    
+    return contexts;
+  }
+
   private initializeIvyLeagueCurriculum() {
     console.log('🎓 Initializing Ivy-League Jammy Education System...');
 
