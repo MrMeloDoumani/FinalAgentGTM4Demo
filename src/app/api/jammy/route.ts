@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     // Process message with Jammy AI
     console.log('🚀 API Route: Processing message:', message);
     const response = await jammyAI.processMessage(message, context, uploadedFiles);
-    console.log('✅ API Route: Response received:', response.learningData.industry);
+    console.log('✅ API Route: Response received:', response.industry || 'general');
 
     return NextResponse.json({
       success: true,

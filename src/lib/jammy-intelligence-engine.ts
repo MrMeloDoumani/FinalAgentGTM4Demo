@@ -199,8 +199,8 @@ class JammyIntelligenceEngine {
     for (const category of GTM_CONTEXT.offerings.categories) {
       for (const item of category.items) {
         // Check if the product matches the industry or general tech_telecom
-        const isIndustryMatch = item.target_segments.includes(industry) || 
-                               industry === 'tech_telecom' || 
+        const isIndustryMatch = item.target_segments.includes(analysis.industry) || 
+                               analysis.industry === 'tech_telecom' || 
                                lowerMessage.includes('product') ||
                                lowerMessage.includes('tech') ||
                                lowerMessage.includes('telecom');

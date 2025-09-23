@@ -1251,7 +1251,8 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
             styleUsed: visualResult.styleApplied
           });
         }
-        return; // Skip the rest of the visual generation logic
+      } else {
+        // Continue with other visual generation logic if no communication system command
       }
       
       // Priority 2: Use Ivy-League education system results if available and confident
