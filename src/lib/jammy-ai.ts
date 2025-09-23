@@ -137,6 +137,7 @@ class JammyAI {
     const intents = {
       'create': ['create', 'generate', 'make', 'build', 'design'],
       'analyze': ['analyze', 'review', 'examine', 'study', 'assess'],
+      'insights': ['insights', 'insight', 'market insights', 'industry insights', 'provide insights', 'give insights', 'connectivity', 'internet', 'market analysis', 'sector analysis'],
       'compare': ['compare', 'contrast', 'versus', 'vs', 'difference'],
       'learn': ['learn', 'teach', 'explain', 'understand', 'know'],
       'help': ['help', 'assist', 'support', 'guide', 'advice']
@@ -244,30 +245,19 @@ class JammyAI {
     const sectorInfo = GTM_CONTEXT.sectors.find(s => s.key === analysis.industry);
     const relevantProducts = this.findRelevantProducts(analysis.industry as string);
     
-    // Generate intelligent response based on analysis
+    // Generate intelligent response based on analysis and GTM context
     let response = '';
-    let confidence = 0.8;
-
-    switch (analysis.intent) {
-      case 'create':
-        response = await this.generateCreationResponse(analysis, sectorInfo, relevantProducts);
-        confidence = 0.9;
-        break;
-      case 'analyze':
-        response = await this.generateAnalysisResponse(analysis, sectorInfo, relevantProducts);
-        confidence = 0.85;
-        break;
-      case 'compare':
-        response = await this.generateComparisonResponse(analysis, sectorInfo, relevantProducts);
-        confidence = 0.8;
-        break;
-      case 'learn':
-        response = await this.generateLearningResponse(analysis, sectorInfo);
-        confidence = 0.9;
-        break;
-      default:
-        response = await this.generateGeneralResponse(analysis, sectorInfo, relevantProducts);
-        confidence = 0.7;
+    let confidence = 0.9;
+    
+    // Use GTM_CONTEXT to provide specific, relevant information
+    if (analysis.intent === 'insights' || analysis.intent === 'analysis') {
+      response = this.generateInsightsResponse(message, analysis, sectorInfo, relevantProducts);
+    } else if (analysis.intent === 'create' || analysis.intent === 'generate') {
+      response = this.generateCreationResponse(analysis, sectorInfo, relevantProducts);
+    } else if (analysis.intent === 'compare' || analysis.intent === 'competitor') {
+      response = this.generateComparisonResponse(analysis, sectorInfo, relevantProducts);
+    } else {
+      response = this.generateGeneralResponse(message, analysis, sectorInfo, relevantProducts);
     }
 
     // Add learning insights
@@ -277,6 +267,58 @@ class JammyAI {
     }
 
     return { content: response, confidence };
+  }
+
+  private generateInsightsResponse(message: string, analysis: Record<string, unknown>, sectorInfo: unknown, products: unknown[]): string {
+    const industry = (analysis.industry as string) || 'general';
+    const sector = sectorInfo as { name?: string; description?: string; opportunities?: string[]; challenges?: string[] };
+    
+    let response = `# Industry Insights for ${sector?.name || industry.charAt(0).toUpperCase() + industry.slice(1)} Sector\n\n`;
+    
+    if (sector?.description) {
+      response += `## Market Overview\n${sector.description}\n\n`;
+    }
+    
+    if (sector?.opportunities && sector.opportunities.length > 0) {
+      response += `## Key Opportunities\n`;
+      sector.opportunities.forEach(opportunity => {
+        response += `• ${opportunity}\n`;
+      });
+      response += '\n';
+    }
+    
+    if (sector?.challenges && sector.challenges.length > 0) {
+      response += `## Market Challenges\n`;
+      sector.challenges.forEach(challenge => {
+        response += `• ${challenge}\n`;
+      });
+      response += '\n';
+    }
+    
+    if (products && products.length > 0) {
+      response += `## e& Solutions for ${sector?.name || industry}\n`;
+      products.slice(0, 3).forEach((product: any) => {
+        response += `### ${product.name}\n`;
+        response += `${product.short_desc}\n\n`;
+        if (product.key_features && product.key_features.length > 0) {
+          response += `**Key Features:**\n`;
+          product.key_features.forEach((feature: string) => {
+            response += `• ${feature}\n`;
+          });
+          response += '\n';
+        }
+      });
+    }
+    
+    response += `## Strategic Recommendations\n`;
+    response += `• Focus on digital transformation initiatives\n`;
+    response += `• Leverage e&'s comprehensive solution portfolio\n`;
+    response += `• Target high-growth market segments\n`;
+    response += `• Implement data-driven decision making\n\n`;
+    
+    response += `*This analysis is based on e&'s market intelligence and industry expertise.*`;
+    
+    return response;
   }
 
   private async generateCreationResponse(analysis: Record<string, unknown>, sectorInfo: unknown, products: unknown[]): Promise<string> {

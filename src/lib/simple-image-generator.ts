@@ -18,9 +18,9 @@ class SimpleImageGenerator {
   ): Promise<GeneratedImage> {
     // Create a simple SVG image based on the content and style
     const svg = this.createSVGImage(content, industry, stylePattern);
-    // Properly encode SVG for data URL
-    const encodedSvg = encodeURIComponent(svg);
-    const dataUrl = `data:image/svg+xml;charset=utf-8,${encodedSvg}`;
+    // Use base64 encoding for better compatibility
+    const base64Svg = btoa(unescape(encodeURIComponent(svg)));
+    const dataUrl = `data:image/svg+xml;base64,${base64Svg}`;
     
     return {
       id: `img_${Date.now()}`,
