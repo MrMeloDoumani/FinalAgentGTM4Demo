@@ -1,33 +1,24 @@
-// Jammy AI Service - Intelligent AI for e& GTM
-// Custom AI service with learning capabilities and media asset generation
-
 import { GTM_CONTEXT } from './data/gtm-context';
-import { styleLearningEngine, StylePattern } from './style-learning';
-import { enhancedStyleLearningEngine } from './enhanced-style-learning';
-import { simpleImageGenerator } from './simple-image-generator';
-import { chinchillaImageAI, ChinchillaRequest } from './chinchilla-image-ai';
-import { jammyIntelligenceEngine } from './jammy-intelligence-engine';
-import { chinchillaVisualIntelligence, VisualSpecification } from './chinchilla-visual-intelligence';
-import { knowledgeVisualDictionary } from './knowledge-visual-dictionary';
-import { jammyWebIntelligence } from './jammy-web-intelligence';
-import { jammyEducationSystem } from './jammy-education-system';
-import { ivyLeagueJammyEducation } from './ivy-league-jammy-education';
 import { jammyCommunicationSystem } from './jammy-communication-system';
-import { Buffer } from 'buffer';
+import { jammyWebIntelligence } from './jammy-web-intelligence';
+import { chinchillaVisualIntelligence } from './chinchilla-visual-intelligence';
 
 export interface JammyResponse {
-  id: string;
-  content: string;
+  message: string;
   mediaAssets: MediaAsset[];
-  learningData: LearningData;
-  timestamp: string;
+  industry: string;
   confidence: number;
-  jammyId?: string;
+  jammyId: string;
+  learningData?: {
+    industry: string;
+    confidence: number;
+    insights: string[];
+  };
 }
 
 export interface MediaAsset {
   id: string;
-  type: 'brochure' | 'whitepaper' | 'battlecard' | 'presentation' | 'email' | 'sms' | 'infographic' | 'image';
+  type: 'pdf' | 'image' | 'presentation' | 'email' | 'sms' | 'infographic';
   title: string;
   industry: string;
   content: string;
@@ -38,1494 +29,374 @@ export interface MediaAsset {
 
 export interface LearningData {
   industry: string;
-  contentType: string;
-  userPreferences: Record<string, unknown>;
-  knowledgeExtracted: string[];
+  confidence: number;
+  insights: string[];
+  patterns: string[];
   improvements: string[];
 }
 
 export interface JammyMemory {
   conversations: Array<{
-    id: string;
-    userMessage: string;
-    jammyResponse: string;
     timestamp: string;
-    context: Record<string, unknown>;
-  }>;
-  learnedPatterns: StylePattern[];
-  userPreferences: Record<string, unknown>;
-  knowledgeBase: Array<{
-    id: string;
-    content: string;
-    source: string;
-    industry: string;
-    extractedAt: string;
-  }>;
-  conversationHistory: Array<{
     message: string;
-    response: any;
-    timestamp: string;
+    response: string;
+    industry: string;
+    confidence: number;
   }>;
-  learningProgress: {
-    totalInteractions: number;
-    successfulGenerations: number;
-    averageConfidence: number;
-    improvements: string[];
-  };
+  knowledge: Array<{
+    id: string;
+    type: string;
+    content: string;
+    industry: string;
+    confidence: number;
+  }>;
+  patterns: Array<{
+    pattern: string;
+    frequency: number;
+    success: number;
+  }>;
 }
 
-class JammyAI {
+export class JammyAI {
   private memory: JammyMemory;
   private isInitialized: boolean = false;
 
   constructor() {
     this.memory = {
       conversations: [],
-      learnedPatterns: [],
-      userPreferences: {},
-      knowledgeBase: [],
-      conversationHistory: [],
-      learningProgress: {
-        totalInteractions: 0,
-        successfulGenerations: 0,
-        averageConfidence: 0,
-        improvements: []
-      }
+      knowledge: [],
+      patterns: []
     };
   }
 
   async initialize(): Promise<void> {
     if (this.isInitialized) return;
     
-    // Initialize AI models and learning systems
     console.log('🤖 Jammy AI initializing...');
-    
-    // Template learning functionality integrated into enhanced style learning
-    console.log('🎨 Style learning engine initialized');
-    
-    // Load any existing memory from localStorage
     this.loadMemory();
-    
     this.isInitialized = true;
     console.log('✅ Jammy AI ready with creative learning capabilities!');
   }
 
   async processMessage(
     message: string, 
-    context: Record<string, unknown> = {}, 
-    uploadedFiles: File[] = []
+    context: { user: string; role: string }, 
+    uploadedFiles: any[] = []
   ): Promise<JammyResponse> {
     await this.initialize();
 
     console.log('🤖 Jammy AI processing message with intelligence system:', message);
 
     try {
-      // Step 1: Bi-lingual Communication System - Expert communication
-      console.log('🗣️ Starting Jammy Communication System for:', message);
-      const communicationResult = await jammyCommunicationSystem.communicate(message);
+      // Step 1: Process through communication system
+      const communicationResult = jammyCommunicationSystem.communicate(message, context);
       console.log('🗣️ Communication result:', communicationResult);
-      
-      // If we need more information, return the question response
+
+      // Step 2: If communication system says to ask questions, return the question
       if (communicationResult.nextAction === 'question') {
         return {
-          id: `jammy_${Date.now()}`,
-          content: communicationResult.message,
+          message: communicationResult.message,
           mediaAssets: [],
+          industry: 'general',
+          confidence: 0.5,
+          jammyId: `jammy_${Date.now()}`,
           learningData: {
             industry: 'general',
-            contentType: 'conversation',
-            userPreferences: {},
-            knowledgeExtracted: [],
-            improvements: []
-          },
-          confidence: 0.9,
-          timestamp: new Date().toISOString(),
-          jammyId: `jammy_${Date.now()}`
+            confidence: 0.5,
+            insights: ['User needs more information']
+          }
         };
       }
-      
-      // If we have a Chinchilla command, use it for visual generation
-      let productSearch = null;
+
+      // Step 3: If communication system has Chinchilla command, use it
       if (communicationResult.chinchillaTranslation) {
         console.log('🎨 Using Chinchilla command from communication system');
-        productSearch = {
-          industry: this.extractIndustryFromChinchillaCommand(communicationResult.chinchillaTranslation),
-          visualElements: this.extractElementsFromChinchillaCommand(communicationResult.chinchillaTranslation),
-          confidence: 0.95,
-          source: 'communication_system',
-          chinchillaCommand: communicationResult.chinchillaTranslation
-        };
-      } else {
-        // Fallback to Ivy-League Education System
-        console.log('🎓 Starting Ivy-League Jammy Education for:', message);
-        const educationResult = await ivyLeagueJammyEducation.educateJammy(message);
-        console.log('🎓 Ivy-League Education result:', educationResult);
-        
-        // Use web intelligence as backup
-        console.log('🚀 Starting web intelligence search for:', message);
-        const webSearch = await jammyWebIntelligence.searchProduct(message);
-        console.log('🔍 Web search result:', webSearch);
-        
-        // Use education result if higher confidence
-        if (educationResult.confidence > webSearch.confidence) {
-          productSearch = {
-            industry: educationResult.industry,
-            visualElements: educationResult.visualElements,
-            confidence: educationResult.confidence,
-            source: 'ivy_league_education'
-          };
-        } else {
-          productSearch = webSearch;
-        }
-      }
-      
-      // Step 2: Use the intelligence engine for structured thinking
-      const enhancedContext = {
-        ...context,
-        industry: productSearch.industry
-      };
-      const intelligenceResult = await jammyIntelligenceEngine.processIntelligently(message, enhancedContext);
-      console.log('🧠 Intelligence result industry:', intelligenceResult.analysis.industry);
-      
-      // Step 3: Enhance intelligence result with communication data
-      if (productSearch.confidence > 0.3) {
-        console.log('✅ Using communication data (confidence > 0.3)');
-        intelligenceResult.knowledgeSearch.internal.push({
-          type: 'offering',
-          data: productSearch,
-          relevance: productSearch.confidence
-        });
-        intelligenceResult.analysis.industry = productSearch.industry;
-        console.log('🔄 Updated intelligence industry to:', intelligenceResult.analysis.industry);
-      }
-      
-      // Store conversation in memory
-      jammyIntelligenceEngine.addConversation({
-        message,
-        response: intelligenceResult,
-        timestamp: new Date().toISOString()
-      });
-      
-      // Generate response based on communication and intelligence
-      return await this.generateIntelligentResponse(intelligenceResult, message, productSearch, communicationResult);
-
-    } catch (error) {
-      console.error('❌ Jammy AI intelligent processing failed:', error);
-      
-      // Fallback to basic processing
-      return this.fallbackProcessing(message, context, uploadedFiles);
-    }
-  }
-
-  // Fallback processing when smart execution fails
-  private async fallbackProcessing(
-    message: string, 
-    context: Record<string, unknown> = {}, 
-    uploadedFiles: File[] = []
-  ): Promise<JammyResponse> {
-    console.log('🔄 Using fallback processing...');
-    
-    try {
-      // Learn from uploaded files if any
-      if (uploadedFiles.length > 0) {
-        await this.learnFromFiles(uploadedFiles);
+        return await this.generateImageWithChinchilla(communicationResult, context);
       }
 
-      // Analyze the message and context
-      const analysis = this.analyzeMessage(message, context);
+      // Step 4: Fallback to web intelligence and general processing
+      const webResult = await jammyWebIntelligence.searchProduct(message, context);
+      console.log('🌐 Web intelligence result:', webResult);
+
+      // Step 5: Generate appropriate response
+      const response = await this.generateIntelligentResponse(message, context, webResult);
       
-      // Generate intelligent response
-      const response = await this.generateResponse(message, analysis, context);
-      
-      // Generate media assets
-      const mediaAssets = await this.generateMediaAssets(analysis, response);
-      
-      // Extract learning data
-      const learningData = this.extractLearningData(message, analysis, response);
-      
-      // Store in memory
-      this.storeConversation(message, response.content, context);
-      
-      // Save memory
-      this.saveMemory();
-
-      return {
-        id: `jammy_${Date.now()}`,
-        content: response.content,
-        mediaAssets,
-        learningData,
-        timestamp: new Date().toISOString(),
-        confidence: response.confidence
-      };
-
-    } catch (error) {
-      console.error('❌ Fallback processing also failed:', error);
-      
-      return {
-        id: `jammy_${Date.now()}`,
-        content: "I apologize, but I encountered an issue processing your request. Please try again or contact support if the problem persists.",
-        mediaAssets: [],
-        learningData: {
-          industry: 'general',
-          contentType: 'general',
-          userPreferences: {},
-          knowledgeExtracted: [],
-          improvements: []
-        },
-        confidence: 0.1,
-        timestamp: new Date().toISOString(),
-        jammyId: `jammy_${Date.now()}`
-      };
-    }
-  }
-
-  private analyzeMessage(message: string, context: Record<string, unknown>): Record<string, unknown> {
-    const analysis = {
-      intent: this.detectIntent(message),
-      industry: this.detectIndustry(message),
-      contentType: this.detectContentType(message),
-      urgency: this.detectUrgency(message),
-      complexity: this.detectComplexity(message),
-      keywords: this.extractKeywords(message),
-      sentiment: this.detectSentiment(message)
-    };
-
-    return analysis;
-  }
-
-  private detectIntent(message: string): string {
-    const intents = {
-      'create': ['create', 'generate', 'make', 'build', 'design'],
-      'analyze': ['analyze', 'review', 'examine', 'study', 'assess'],
-      'insights': ['insights', 'insight', 'market insights', 'industry insights', 'provide insights', 'give insights', 'connectivity', 'internet', 'market analysis', 'sector analysis', 'analyze markets', 'provide industry insights', 'uae market', 'market trends', 'industry trends', 'market intelligence', 'sector intelligence'],
-      'compare': ['compare', 'contrast', 'versus', 'vs', 'difference'],
-      'learn': ['learn', 'teach', 'explain', 'understand', 'know'],
-      'help': ['help', 'assist', 'support', 'guide', 'advice']
-    };
-
-    // Check for insights first with higher priority
-    if (intents.insights.some(keyword => message.toLowerCase().includes(keyword))) {
-      return 'insights';
-    }
-
-    for (const [intent, keywords] of Object.entries(intents)) {
-      if (intent !== 'insights' && keywords.some(keyword => message.toLowerCase().includes(keyword))) {
-        return intent;
-      }
-    }
-
-    return 'general';
-  }
-
-  private detectIndustry(message: string): string {
-    const industryKeywords = {
-      'education': ['education', 'school', 'university', 'campus', 'learning', 'student', 'academic'],
-      'retail': ['retail', 'shop', 'store', 'commerce', 'shopping', 'merchant', 'customer'],
-      'healthcare': ['healthcare', 'health', 'medical', 'hospital', 'clinic', 'patient', 'doctor'],
-      'finance': ['finance', 'banking', 'financial', 'bank', 'fintech', 'investment', 'money'],
-      'government': ['government', 'gov', 'public', 'citizen', 'municipal', 'official', 'policy'],
-      'logistics': ['logistics', 'shipping', 'warehouse', 'supply', 'delivery', 'transport', 'freight'],
-      'manufacturing': ['manufacturing', 'factory', 'production', 'industrial', 'plant', 'assembly'],
-      'agriculture': ['agriculture', 'farming', 'crop', 'rural', 'farm', 'agricultural'],
-      'tech_telecom': ['tech', 'technology', 'telecom', 'software', 'digital', 'IT', 'innovation', 'business pro', 'fiber', 'internet', 'connectivity', 'pro', 'business'],
-      'hospitality': ['hospitality', 'hotel', 'tourism', 'restaurant', 'guest', 'service', 'tourism']
-    };
-
-    // Check for specific industry keywords first
-    for (const [industry, keywords] of Object.entries(industryKeywords)) {
-      if (keywords.some(keyword => message.toLowerCase().includes(keyword))) {
-        return industry;
-      }
-    }
-
-    // If no specific industry detected, check for UAE market context
-    if (message.toLowerCase().includes('uae') || message.toLowerCase().includes('emirates') || 
-        message.toLowerCase().includes('dubai') || message.toLowerCase().includes('abu dhabi')) {
-      return 'tech_telecom'; // Default to tech/telecom for UAE market insights
-    }
-
-    // For general market analysis requests, default to tech_telecom
-    if (message.toLowerCase().includes('market') || message.toLowerCase().includes('industry') || 
-        message.toLowerCase().includes('insights') || message.toLowerCase().includes('analysis')) {
-      return 'tech_telecom';
-    }
-
-    return 'tech_telecom'; // Default fallback to tech_telecom instead of retail
-  }
-
-  private detectContentType(message: string): string {
-    const contentTypes = {
-      'image': ['image', 'picture', 'photo', 'visual', 'generate image', 'create image', 'draw', 'illustration'],
-      'brochure': ['brochure', 'flyer', 'leaflet', 'pamphlet'],
-      'whitepaper': ['whitepaper', 'white paper', 'report', 'study', 'analysis'],
-      'battlecard': ['battlecard', 'battle card', 'competitive', 'comparison', 'vs'],
-      'presentation': ['presentation', 'deck', 'slides', 'pitch', 'proposal'],
-      'email': ['email', 'edm', 'newsletter', 'campaign', 'mail'],
-      'sms': ['sms', 'text', 'message', 'mobile', 'notification'],
-      'infographic': ['infographic', 'infographic', 'chart', 'visual', 'diagram']
-    };
-
-    for (const [type, keywords] of Object.entries(contentTypes)) {
-      if (keywords.some(keyword => message.toLowerCase().includes(keyword))) {
-        return type;
-      }
-    }
-
-    return 'brochure'; // Default
-  }
-
-  private detectUrgency(message: string): 'low' | 'medium' | 'high' {
-    const urgentKeywords = ['urgent', 'asap', 'immediately', 'quick', 'fast', 'emergency'];
-    const mediumKeywords = ['soon', 'today', 'this week', 'priority'];
-    
-    if (urgentKeywords.some(keyword => message.toLowerCase().includes(keyword))) {
-      return 'high';
-    }
-    if (mediumKeywords.some(keyword => message.toLowerCase().includes(keyword))) {
-      return 'medium';
-    }
-    return 'low';
-  }
-
-  private detectComplexity(message: string): 'simple' | 'moderate' | 'complex' {
-    const complexKeywords = ['comprehensive', 'detailed', 'thorough', 'complete', 'extensive'];
-    const simpleKeywords = ['simple', 'basic', 'quick', 'brief', 'overview'];
-    
-    if (complexKeywords.some(keyword => message.toLowerCase().includes(keyword))) {
-      return 'complex';
-    }
-    if (simpleKeywords.some(keyword => message.toLowerCase().includes(keyword))) {
-      return 'simple';
-    }
-    return 'moderate';
-  }
-
-  private extractKeywords(message: string): string[] {
-    const words = message.toLowerCase().split(/\s+/);
-    const stopWords = ['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by'];
-    return words.filter(word => word.length > 3 && !stopWords.includes(word));
-  }
-
-  private detectSentiment(message: string): 'positive' | 'neutral' | 'negative' {
-    const positiveWords = ['good', 'great', 'excellent', 'amazing', 'wonderful', 'fantastic', 'love', 'like'];
-    const negativeWords = ['bad', 'terrible', 'awful', 'hate', 'dislike', 'problem', 'issue', 'wrong'];
-    
-    const positiveCount = positiveWords.filter(word => message.toLowerCase().includes(word)).length;
-    const negativeCount = negativeWords.filter(word => message.toLowerCase().includes(word)).length;
-    
-    if (positiveCount > negativeCount) return 'positive';
-    if (negativeCount > positiveCount) return 'negative';
-    return 'neutral';
-  }
-
-  private async generateResponse(message: string, analysis: Record<string, unknown>, context: Record<string, unknown>): Promise<{content: string, confidence: number}> {
-    try {
-      // Get relevant GTM context
-      const sectorInfo = GTM_CONTEXT.sectors.find(s => s.key === analysis.industry);
-      const relevantProducts = this.findRelevantProducts(analysis.industry as string);
-      
-      // Generate intelligent response based on analysis and GTM context
-      let response = '';
-      let confidence = 0.9;
-      
-      // Use GTM_CONTEXT to provide specific, relevant information
-      if (analysis.intent === 'insights' || analysis.intent === 'analysis') {
-        response = this.generateInsightsResponse(message, analysis, sectorInfo, relevantProducts);
-      } else if (analysis.intent === 'create' || analysis.intent === 'generate') {
-        response = await this.generateCreationResponse(analysis, sectorInfo, relevantProducts);
-      } else if (analysis.intent === 'compare' || analysis.intent === 'competitor') {
-        response = await this.generateComparisonResponse(analysis, sectorInfo, relevantProducts);
-      } else {
-        response = await this.generateGeneralResponse(message, analysis, sectorInfo, relevantProducts);
-      }
-
-      // Add learning insights
-      const learningInsights = this.getLearningInsights(analysis);
-      if (learningInsights.length > 0) {
-        response += `\n\n## Learning Insights\n${learningInsights.join('\n')}`;
-      }
-
-      return { content: response, confidence };
-    } catch (error) {
-      console.error('Error in generateResponse:', error);
-      return { 
-        content: `I apologize, but I encountered an error while processing your request. Please try again or rephrase your question.`, 
-        confidence: 0.1 
-      };
-    }
-  }
-
-  private generateInsightsResponse(message: string, analysis: Record<string, unknown>, sectorInfo: unknown, products: unknown[]): string {
-    try {
-      const industry = (analysis.industry as string) || 'general';
-      const sector = sectorInfo as { name?: string; description?: string; opportunities?: string[]; challenges?: string[] };
-      
-      let response = `# Industry Insights for ${sector?.name || industry.charAt(0).toUpperCase() + industry.slice(1)} Sector\n\n`;
-      
-      if (sector?.description) {
-        response += `## Market Overview\n${sector.description}\n\n`;
-      }
-      
-      if (sector?.opportunities && Array.isArray(sector.opportunities) && sector.opportunities.length > 0) {
-        response += `## Key Opportunities\n`;
-        sector.opportunities.forEach(opportunity => {
-          response += `• ${opportunity}\n`;
-        });
-        response += '\n';
-      }
-      
-      if (sector?.challenges && Array.isArray(sector.challenges) && sector.challenges.length > 0) {
-        response += `## Market Challenges\n`;
-        sector.challenges.forEach(challenge => {
-          response += `• ${challenge}\n`;
-        });
-        response += '\n';
-      }
-      
-      if (products && Array.isArray(products) && products.length > 0) {
-        response += `## e& Solutions for ${sector?.name || industry}\n`;
-        products.slice(0, 3).forEach((product: any) => {
-          if (product && product.name) {
-            response += `### ${product.name}\n`;
-            if (product.short_desc) {
-              response += `${product.short_desc}\n\n`;
-            }
-            if (product.key_features && Array.isArray(product.key_features) && product.key_features.length > 0) {
-              response += `**Key Features:**\n`;
-              product.key_features.forEach((feature: string) => {
-                response += `• ${feature}\n`;
-              });
-              response += '\n';
-            }
-          }
-        });
-      }
-      
-      response += `## Strategic Recommendations\n`;
-      response += `• Focus on digital transformation initiatives\n`;
-      response += `• Leverage e&'s comprehensive solution portfolio\n`;
-      response += `• Target high-growth market segments\n`;
-      response += `• Implement data-driven decision making\n\n`;
-      
-      response += `*This analysis is based on e&'s market intelligence and industry expertise.*`;
+      // Step 6: Store conversation
+      this.storeConversation(message, response.message, webResult.industry, response.confidence);
       
       return response;
+
     } catch (error) {
-      console.error('Error in generateInsightsResponse:', error);
-      return `# Industry Insights\n\nI apologize, but I encountered an error while generating insights. Please try again or rephrase your question.`;
-    }
-  }
-
-  private async generateCreationResponse(analysis: Record<string, unknown>, sectorInfo: unknown, products: unknown[]): Promise<string> {
-    const industryName = (sectorInfo as { name?: string })?.name || (analysis.industry as string).charAt(0).toUpperCase() + (analysis.industry as string).slice(1);
-    const contentType = (analysis.contentType as string).charAt(0).toUpperCase() + (analysis.contentType as string).slice(1);
-    
-    // Handle image generation requests
-    if (analysis.contentType === 'image') {
-      return `I'll generate a visual representation for the ${industryName} sector. Let me create an image that showcases e&'s solutions and capabilities for your industry.`;
-    }
-    
-    let response = `# e& Business Solutions - ${industryName} ${contentType}\n\n`;
-    
-    // Executive Summary
-    response += `## Executive Summary\n`;
-    response += `Transform your ${analysis.industry} operations with e&'s comprehensive digital solutions designed specifically for the ${industryName} sector. Our cutting-edge technology and expert support help businesses like yours achieve unprecedented growth and efficiency.\n\n`;
-    
-    // Industry-specific content
-    if (sectorInfo) {
-      response += `## Industry Challenges & Solutions\n\n`;
-      response += `### Key Pain Points for ${industryName}:\n`;
-      (sectorInfo as { pain_points?: string[] }).pain_points?.forEach((point: string) => {
-        response += `• ${point}\n`;
-      });
-      response += `\n### e& Solutions Address These Challenges:\n`;
-      (sectorInfo as { sector_goals?: string[] }).sector_goals?.forEach((goal: string) => {
-        response += `• ${goal}\n`;
-      });
-    }
-    
-    // Product recommendations
-    if (products.length > 0) {
-      response += `\n## Recommended Solutions\n\n`;
-      products.forEach(product => {
-        const p = product as { name: string; short_desc: string; key_features: string[]; target_segments: string[]; availability: string };
-        response += `### ${p.name}\n`;
-        response += `**${p.short_desc}**\n\n`;
-        response += `**Key Features:**\n`;
-        p.key_features.forEach((feature: string) => {
-          response += `• ${feature}\n`;
-        });
-        response += `\n**Target Segments:** ${p.target_segments.join(', ')}\n`;
-        response += `**Availability:** ${p.availability}\n\n`;
-      });
-    }
-    
-    // Benefits and next steps
-    response += `## Industry-Specific Benefits\n\n`;
-    response += `### For ${industryName} Sector:\n`;
-    response += `• **Enhanced Customer Experience**: Digital tools for better customer engagement\n`;
-    response += `• **Operational Efficiency**: Streamlined processes and automation\n`;
-    response += `• **Cost Optimization**: Reduced operational costs through smart technology\n`;
-    response += `• **Scalability**: Solutions that grow with your business\n`;
-    response += `• **Compliance**: Meet industry regulations effortlessly\n\n`;
-    
-    response += `## Success Metrics\n`;
-    response += `• 40% increase in operational efficiency\n`;
-    response += `• 60% reduction in IT costs\n`;
-    response += `• 95% customer satisfaction rate\n`;
-    response += `• 24/7 expert support\n\n`;
-    
-    response += `## Next Steps\n`;
-    response += `1. **Schedule Consultation**: Book a free business assessment\n`;
-    response += `2. **Custom Solution Design**: Tailored recommendations for your needs\n`;
-    response += `3. **Implementation Support**: Expert guidance throughout deployment\n`;
-    response += `4. **Ongoing Optimization**: Continuous improvement and support\n\n`;
-    
-    response += `## Contact Information\n`;
-    response += `• **Business Sales**: +971 4 123 4567\n`;
-    response += `• **Email**: business@etisalat.ae\n`;
-    response += `• **Website**: https://www.etisalat.ae/en/smb/index.html\n\n`;
-    
-    response += `---\n`;
-    response += `*This ${analysis.contentType} was generated by Jammy AI for e& GTM team. For customized solutions, please contact our business team.*`;
-    
-    return response;
-  }
-
-  private async generateAnalysisResponse(analysis: Record<string, unknown>, sectorInfo: unknown, products: unknown[]): Promise<string> {
-    const sectorName = (sectorInfo as { name?: string })?.name || (analysis.industry as string);
-    return `# Market Analysis - ${sectorName} Sector
-
-## Market Overview
-Based on current market trends and e&'s capabilities, here's my analysis of the ${sectorName} sector:
-
-## Key Opportunities
-• Digital transformation initiatives
-• Cloud adoption acceleration
-• Security and compliance requirements
-• Mobile-first customer engagement
-
-## Competitive Landscape
-• Market leaders and their positioning
-• Emerging competitors and threats
-• Technology trends and disruptions
-• Customer preference shifts
-
-## e& Competitive Advantages
-• Local market expertise
-• Comprehensive solution portfolio
-• Strong partner ecosystem
-• Proven track record
-
-## Recommendations
-• Focus on high-value use cases
-• Leverage local market knowledge
-• Emphasize security and compliance
-• Build strategic partnerships
-
----
-*Analysis generated by Jammy AI using GTM Context and market intelligence.*`;
-  }
-
-  private async generateComparisonResponse(analysis: Record<string, unknown>, sectorInfo: unknown, products: unknown[]): Promise<string> {
-    const sectorName = (sectorInfo as { name?: string })?.name || (analysis.industry as string);
-    return `# Competitive Analysis - ${sectorName} Sector
-
-## e& vs Competitors
-
-### e& Advantages
-• **Local Expertise**: Deep understanding of UAE market
-• **Integrated Solutions**: Single provider for all ICT needs
-• **SLA Guarantees**: 99.9%+ uptime commitments
-• **Compliance**: Full adherence to UAE regulations
-
-### Competitor Analysis
-• **Competitor A**: Strengths and weaknesses
-• **Competitor B**: Market positioning and gaps
-• **Competitor C**: Technology and service comparison
-
-## Key Differentiators
-• Comprehensive solution portfolio
-• Local support and expertise
-• Regulatory compliance
-• Proven success in UAE market
-
-## Recommendations
-• Emphasize local advantages
-• Highlight integrated approach
-• Focus on compliance and security
-• Leverage customer success stories
-
----
-*Competitive analysis generated by Jammy AI using GTM Context.*`;
-  }
-
-  private async generateLearningResponse(analysis: Record<string, unknown>, sectorInfo: unknown): Promise<string> {
-    const sectorName = (sectorInfo as { name?: string })?.name || (analysis.industry as string);
-    return `# Learning Center - ${sectorName} Sector
-
-## What I Know About ${sectorName}
-
-### Industry Insights
-• Key pain points and challenges
-• Growth opportunities and trends
-• Technology adoption patterns
-• Customer behavior and preferences
-
-### e& Solutions
-• Product portfolio and capabilities
-• Industry-specific use cases
-• Success stories and case studies
-• Implementation best practices
-
-### Market Intelligence
-• Competitive landscape
-• Regulatory requirements
-• Cultural considerations
-• Business practices and norms
-
-## How I Learn
-• From every conversation and interaction
-• From uploaded documents and files
-• From user feedback and preferences
-• From market data and trends
-
-## Continuous Improvement
-• I get smarter with every interaction
-• I learn from your specific needs
-• I adapt to your communication style
-• I improve my recommendations over time
-
----
-*Learning insights provided by Jammy AI - your intelligent GTM assistant.*`;
-  }
-
-  private async generateGeneralResponse(message: string, analysis: Record<string, unknown>, sectorInfo: unknown, products: unknown[]): Promise<string> {
-    const industry = analysis.industry as string;
-    const sector = sectorInfo as { name?: string; description?: string };
-    
-    // Get relevant products for the industry
-    const relevantProducts = this.findRelevantProducts(industry);
-    
-    let response = `# Jammy AI - Your GTM Assistant\n\n`;
-    
-    // Personalized greeting based on context
-    if (industry && industry !== 'general') {
-      response += `Hello! I see you're interested in the **${sector?.name || industry.charAt(0).toUpperCase() + industry.slice(1)}** sector. `;
-    } else {
-      response += `Hello! `;
-    }
-    
-    response += `I'm Jammy, your intelligent AI assistant for e& GTM team. I'm here to help you with:\n\n`;
-    
-    // Dynamic content based on industry
-    if (sector?.description) {
-      response += `## Market Overview for ${sector.name}\n`;
-      response += `${sector.description}\n\n`;
-    }
-    
-    // Show relevant products
-    if (relevantProducts.length > 0) {
-      response += `## Recommended Solutions for ${sector?.name || industry}\n`;
-      relevantProducts.slice(0, 3).forEach((product: any) => {
-        if (product && product.name) {
-          response += `### ${product.name}\n`;
-          if (product.short_desc) {
-            response += `${product.short_desc}\n\n`;
-          }
+      console.error('❌ Jammy AI processing error:', error);
+      return {
+        message: "I apologize, but I'm experiencing technical difficulties. Please try again in a moment.",
+        mediaAssets: [],
+        industry: 'general',
+        confidence: 0.1,
+        jammyId: `jammy_${Date.now()}`,
+        learningData: {
+          industry: 'general',
+          confidence: 0.1,
+          insights: ['System error occurred']
         }
-      });
-    }
-    
-    response += `## What I Can Do\n`;
-    response += `• **Create Content**: Brochures, white papers, battlecards, presentations\n`;
-    response += `• **Analyze Markets**: Industry insights, competitive analysis, opportunities\n`;
-    response += `• **Generate Assets**: Visual content, documents, templates\n`;
-    response += `• **Learn & Adapt**: I get smarter with every interaction\n\n`;
-    
-    response += `## My Knowledge\n`;
-    response += `• **e& Product Portfolio**: Complete understanding of all solutions\n`;
-    response += `• **Industry Expertise**: Deep knowledge of all 10 sectors\n`;
-    response += `• **UAE Market Focus**: Local insights and cultural understanding\n`;
-    response += `• **Learning Capabilities**: I learn from your uploads and conversations\n\n`;
-    
-    // Add conversation context
-    if (this.memory.conversations.length > 0) {
-      response += `## Our Conversation History\n`;
-      response += `• I've had ${this.memory.conversations.length} conversations with you\n`;
-      if (this.memory.knowledgeBase.length > 0) {
-        response += `• I've learned from ${this.memory.knowledgeBase.length} documents you've shared\n`;
-      }
-      response += `• I'm continuously improving based on our interactions\n\n`;
-    }
-    
-    // Personalized suggestions based on message content
-    const keywords = analysis.keywords as string[];
-    if (keywords && keywords.length > 0) {
-      response += `## Based on Your Interest\n`;
-      response += `I noticed you mentioned: ${keywords.slice(0, 3).join(', ')}\n\n`;
-      
-      if (keywords.some(k => ['brochure', 'flyer', 'marketing'].includes(k.toLowerCase()))) {
-        response += `Would you like me to create a professional brochure for the ${sector?.name || industry} sector?\n\n`;
-      } else if (keywords.some(k => ['analysis', 'insights', 'market'].includes(k.toLowerCase()))) {
-        response += `Would you like me to provide detailed market insights for the ${sector?.name || industry} sector?\n\n`;
-      } else if (keywords.some(k => ['image', 'visual', 'picture'].includes(k.toLowerCase()))) {
-        response += `Would you like me to generate a visual representation for the ${sector?.name || industry} sector?\n\n`;
-      }
-    }
-    
-    response += `What would you like to work on today? I'm here to help you succeed!\n\n`;
-    response += `---\n`;
-    response += `*Powered by Jammy AI - Intelligent GTM Assistant for e&*`;
-    
-    return response;
-  }
-
-  private findRelevantProducts(industry: string): unknown[] {
-    const sector = GTM_CONTEXT.sectors.find(s => s.key === industry);
-    if (!sector) return [];
-    
-    const productIds = sector.gtm_plays?.flatMap(play => play.recommend) || [];
-    const allProducts = GTM_CONTEXT.offerings.categories.flatMap(cat => cat.items);
-    
-    // Also search for products by name if no GTM plays found
-    let relevantProducts = productIds.map(id => allProducts.find(p => p.id === id)).filter(Boolean);
-    
-    // If no products found through GTM plays, search by industry keywords
-    if (relevantProducts.length === 0) {
-      const industryKeywords = {
-        'tech_telecom': ['fiber', 'internet', 'connectivity', 'business pro', 'network', 'cloud'],
-        'retail': ['pos', 'payment', 'checkout', 'merchant'],
-        'healthcare': ['medical', 'clinic', 'patient', 'health'],
-        'education': ['school', 'campus', 'learning', 'student'],
-        'finance': ['banking', 'financial', 'payment', 'security'],
-        'government': ['government', 'public', 'citizen', 'secure'],
-        'logistics': ['shipping', 'warehouse', 'delivery', 'transport'],
-        'manufacturing': ['factory', 'production', 'industrial', 'plant'],
-        'agriculture': ['farming', 'crop', 'rural', 'farm'],
-        'hospitality': ['hotel', 'tourism', 'restaurant', 'guest']
       };
-      
-      const keywords = industryKeywords[industry as keyof typeof industryKeywords] || [];
-      relevantProducts = allProducts.filter(product => 
-        keywords.some(keyword => 
-          (product as any).name?.toLowerCase().includes(keyword) ||
-          (product as any).short_desc?.toLowerCase().includes(keyword) ||
-          (product as any).key_features?.some((feature: string) => feature.toLowerCase().includes(keyword))
-        )
-      );
     }
-    
-    return relevantProducts;
   }
 
-  private getLearningInsights(analysis: Record<string, unknown>): string[] {
-    const insights = [];
+  private async generateImageWithChinchilla(
+    communicationResult: any, 
+    context: { user: string; role: string }
+  ): Promise<JammyResponse> {
+    console.log('🎨 Generating image with Chinchilla...');
     
-    if (this.memory.knowledgeBase.length > 0) {
-      insights.push(`• I've learned from ${this.memory.knowledgeBase.length} documents`);
+    try {
+      const imageResult = await chinchillaVisualIntelligence.generateIntelligentImage({
+        prompt: communicationResult.chinchillaTranslation,
+        industry: 'tech_telecom',
+        contentType: 'product_visualization',
+        style: 'professional_b2b',
+        requirements: ['e& branding', 'B2B focus', 'professional layout'],
+        context
+      });
+
+      if (imageResult.success) {
+        const mediaAsset: MediaAsset = {
+          id: `image_${Date.now()}`,
+          type: 'image',
+          title: 'Generated Visual',
+          industry: 'tech_telecom',
+          content: imageResult.description || 'Professional business visualization',
+          fileUrl: imageResult.imageUrl,
+          generatedAt: new Date().toISOString(),
+          styleUsed: 'e& B2B Professional'
+        };
+
+        return {
+          message: communicationResult.message,
+          mediaAssets: [mediaAsset],
+          industry: 'tech_telecom',
+          confidence: 0.9,
+          jammyId: `jammy_${Date.now()}`,
+          learningData: {
+            industry: 'tech_telecom',
+            confidence: 0.9,
+            insights: ['Image generated successfully', 'Chinchilla executed command']
+          }
+        };
+      }
+    } catch (error) {
+      console.error('❌ Chinchilla image generation error:', error);
     }
-    
-    if (this.memory.learnedPatterns.length > 0) {
-      insights.push(`• I've identified ${this.memory.learnedPatterns.length} style patterns`);
+
+    // Fallback response
+    return {
+      message: communicationResult.message,
+      mediaAssets: [],
+      industry: 'tech_telecom',
+      confidence: 0.7,
+      jammyId: `jammy_${Date.now()}`,
+      learningData: {
+        industry: 'tech_telecom',
+        confidence: 0.7,
+        insights: ['Image generation attempted']
+      }
+    };
+  }
+
+  private async generateIntelligentResponse(
+    message: string, 
+    context: { user: string; role: string }, 
+    webResult: any
+  ): Promise<JammyResponse> {
+    const industry = webResult.industry || 'tech_telecom';
+    const confidence = webResult.confidence || 0.8;
+
+    // Generate contextual response based on message content
+    let responseMessage = '';
+    let mediaAssets: MediaAsset[] = [];
+
+    if (message.toLowerCase().includes('hello') || message.toLowerCase().includes('hi')) {
+      responseMessage = `Hello! I'm Jammy, your expert AI assistant for e& GTM team. It's wonderful to meet you!`;
+    } else if (message.toLowerCase().includes('what can you do') || message.toLowerCase().includes('capabilities')) {
+      responseMessage = this.generateCapabilitiesResponse();
+    } else if (message.toLowerCase().includes('generate') || message.toLowerCase().includes('create') || message.toLowerCase().includes('image')) {
+      responseMessage = `I'll generate a visual representation for the ${industry} sector. Let me create an image that showcases e&'s solutions and capabilities for your industry.`;
+      // Generate image asset
+      mediaAssets = await this.generateImageAsset(industry);
+    } else {
+      responseMessage = this.generateGeneralResponse(message, industry, webResult);
     }
+
+    return {
+      message: responseMessage,
+      mediaAssets,
+      industry,
+      confidence,
+      jammyId: `jammy_${Date.now()}`,
+      learningData: {
+        industry,
+        confidence,
+        insights: this.generateInsights(industry, webResult)
+      }
+    };
+  }
+
+  private generateCapabilitiesResponse(): string {
+    return `# Jammy AI - Your GTM Assistant
+
+Hello! I'm Jammy, your intelligent AI assistant for e& GTM team. I'm here to help you with:
+
+## What I Can Do
+• **Create Content**: Brochures, white papers, battlecards, presentations
+• **Analyze Markets**: Industry insights, competitive analysis, opportunities
+• **Generate Assets**: Visual content, documents, templates
+• **Learn & Adapt**: I get smarter with every interaction
+
+## My Knowledge
+• **e& Product Portfolio**: Complete understanding of all solutions
+• **Industry Expertise**: Deep knowledge of all 10 sectors
+• **UAE Market Focus**: Local insights and cultural understanding
+• **Learning Capabilities**: I learn from your uploads and conversations
+
+## Our Conversation History
+• I've had ${this.memory.conversations.length} conversations with you
+• I'm continuously improving based on our interactions
+
+What would you like to work on today? I'm here to help you succeed!
+
+---
+*Powered by Jammy AI - Intelligent GTM Assistant for e&*`;
+  }
+
+  private generateGeneralResponse(message: string, industry: string, webResult: any): string {
+    const insights = this.generateInsights(industry, webResult);
     
-    if (this.memory.conversations.length > 0) {
-      insights.push(`• I've had ${this.memory.conversations.length} conversations with you`);
+    return `Hello! I'm Jammy, your intelligent GTM assistant for e&. I see you're interested in the ${industry} sector. Let me share some insights:
+
+**My recommendations for you:**
+• Focus on ${industry} sector-specific solutions
+• Leverage e& competitive advantages
+• Consider partnership opportunities
+• Develop targeted marketing strategy
+
+**Here's how we can approach this:**
+1. Research ${industry} market trends and opportunities
+2. Identify key stakeholders and decision makers
+3. Develop comprehensive solution strategy
+4. Create implementation timeline and milestones
+5. Establish success metrics and KPIs
+
+**Things to keep in mind:**
+• Market growth in ${industry} sector over next 12 months
+• Competitive landscape changes and new entrants
+• Technology adoption trends in ${industry}
+• Regulatory changes affecting ${industry} operations
+
+Is there anything specific you'd like me to elaborate on, or would you like me to help you with something else?`;
+  }
+
+  private generateInsights(industry: string, webResult: any): string[] {
+    const insights = [
+      `Industry focus: ${industry}`,
+      `Confidence level: ${(webResult.confidence || 0.8) * 100}%`,
+      `Knowledge source: ${webResult.source || 'GTM_CONTEXT'}`
+    ];
+
+    if (webResult.features && webResult.features.length > 0) {
+      insights.push(`Key features identified: ${webResult.features.join(', ')}`);
     }
-    
+
+    if (webResult.visualElements && webResult.visualElements.length > 0) {
+      insights.push(`Visual elements: ${webResult.visualElements.join(', ')}`);
+    }
+
     return insights;
   }
 
-  private async generateMediaAssets(analysis: Record<string, unknown>, response: Record<string, unknown>): Promise<MediaAsset[]> {
-    const assets: MediaAsset[] = [];
-    
-    // Generate appropriate media assets based on content type
-    switch (analysis.contentType) {
-      case 'image':
-        assets.push(await this.generateImageAsset(analysis, response));
-        break;
-      case 'brochure':
-        // Generate both image and brochure asset
-        assets.push(await this.generateImageAsset(analysis, response));
-        assets.push(await this.generateBrochureAsset(analysis, response));
-        break;
-      case 'whitepaper':
-        assets.push(await this.generateWhitePaperAsset(analysis, response));
-        break;
-      case 'battlecard':
-        assets.push(await this.generateBattlecardAsset(analysis, response));
-        break;
-      case 'presentation':
-        assets.push(await this.generatePresentationAsset(analysis, response));
-        break;
-      case 'email':
-        assets.push(await this.generateEmailAsset(analysis, response));
-        break;
-      case 'sms':
-        assets.push(await this.generateSMSAsset(analysis, response));
-        break;
-      case 'infographic':
-        assets.push(await this.generateInfographicAsset(analysis, response));
-        break;
-    }
-    
-    return assets;
-  }
-
-  private async generateImageAsset(analysis: Record<string, unknown>, response: Record<string, unknown>): Promise<MediaAsset> {
-    // Generate an image using the creative learning system
+  private async generateImageAsset(industry: string): Promise<MediaAsset[]> {
     try {
-      const industry = analysis.industry as string;
-      const contentType = analysis.contentType as string;
-      
-      console.log('🎨 Generating creative image for:', industry, contentType);
-      
-      // Analyze the user's specific image request
-      const imagePrompt = this.analyzeImageRequest(analysis.prompt as string || 'image request', industry, contentType);
-      
-      // Delegate to Chinchilla with specific instructions
-      const chinchillaRequest: ChinchillaRequest = {
-        prompt: imagePrompt,
-        industry: industry,
-        contentType: contentType,
-        style: 'professional',
-        recommendations: response.content as string
-      };
-      
-      const chinchillaResponse = await chinchillaImageAI.generateImage(chinchillaRequest);
-      
-      if (!chinchillaResponse.success) {
-        throw new Error('Chinchilla failed to generate image');
+      const imageResult = await chinchillaVisualIntelligence.generateIntelligentImage({
+        prompt: `Create a professional business solution visualization for ${industry} sector with e& B2B branding`,
+        industry,
+        contentType: 'product_visualization',
+        style: 'professional_b2b',
+        requirements: ['e& branding', 'B2B focus', 'professional layout'],
+        context: { user: 'Yasser Omar Zaki Shaaban', role: 'DIRECTOR' }
+      });
+
+      if (imageResult.success) {
+        return [{
+          id: `image_${Date.now()}`,
+          type: 'image',
+          title: `${industry} Business Solution`,
+          industry,
+          content: imageResult.description || 'Professional business visualization',
+          fileUrl: imageResult.imageUrl,
+          generatedAt: new Date().toISOString(),
+          styleUsed: 'e& B2B Professional'
+        }];
       }
-      
-      console.log('✅ Server-side image generated successfully');
-      
-      return {
-        id: `image_${Date.now()}`,
-        type: 'image',
-        title: chinchillaResponse.title,
-        industry: industry,
-        content: response.content as string,
-        fileUrl: chinchillaResponse.imageUrl,
-        generatedAt: new Date().toISOString(),
-        styleUsed: 'Chinchilla Generated'
-      };
     } catch (error) {
-      console.error('❌ Creative image generation failed:', error);
-      
-      // Fallback to simple generator
-      try {
-        const industry = analysis.industry as string;
-        const contentType = analysis.contentType as string;
-        
-        // Fallback to Chinchilla with basic request
-        const fallbackRequest: ChinchillaRequest = {
-          prompt: `Generate a simple image for ${industry}`,
-          industry: industry,
-          contentType: 'visual',
-          style: 'simple',
-          recommendations: 'Basic visual representation'
-        };
-        
-        const fallbackResponse = await chinchillaImageAI.generateImage(fallbackRequest);
-        
-        return {
-          id: `image_${Date.now()}`,
-          type: 'image',
-          title: fallbackResponse.title,
-          industry: industry,
-          content: response.content as string,
-          fileUrl: fallbackResponse.imageUrl,
-          generatedAt: new Date().toISOString(),
-          styleUsed: 'Chinchilla Fallback'
-        };
-      } catch (fallbackError) {
-        console.error('❌ Fallback image generation also failed:', fallbackError);
-        
-        // Ultimate fallback - simple SVG
-        const simpleSvg = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
-          <rect width="400" height="300" fill="#FFFFFF"/>
-          <rect x="0" y="0" width="400" height="60" fill="#e30613"/>
-          <text x="20" y="35" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white">e& (Etisalat)</text>
-          <text x="20" y="50" font-family="Arial, sans-serif" font-size="12" fill="white">Business Solutions</text>
-          <rect x="20" y="80" width="360" height="180" fill="#FFFFFF" stroke="#e30613" stroke-width="2" rx="8"/>
-          <text x="40" y="110" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#1A1A1A">${analysis.industry} Industry Brochure</text>
-          <text x="40" y="130" font-family="Arial, sans-serif" font-size="14" fill="#666666">Transform your business with e& digital solutions</text>
-          <text x="40" y="150" font-family="Arial, sans-serif" font-size="12" fill="#1A1A1A">Comprehensive ICT solutions for ${analysis.industry} sector</text>
-          <rect x="40" y="170" width="80" height="25" fill="#e30613" rx="4"/>
-          <text x="50" y="185" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="white">${(analysis.industry as string).toUpperCase()}</text>
-          <circle cx="320" cy="200" r="25" fill="#e30613"/>
-          <text x="310" y="205" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white">e&</text>
-          <text x="20" y="280" font-family="Arial, sans-serif" font-size="10" fill="#666666">Generated by Jammy AI • ${new Date().toLocaleDateString()}</text>
-        </svg>`;
-        
-        const simpleBase64 = Buffer.from(simpleSvg).toString('base64');
-        
-        return {
-          id: `image_${Date.now()}`,
-          type: 'image',
-          title: `${analysis.industry} Visual Content`,
-          industry: analysis.industry as string,
-          content: response.content as string,
-          fileUrl: `data:image/svg+xml;base64,${simpleBase64}`,
-          generatedAt: new Date().toISOString(),
-          styleUsed: 'Simple Fallback'
-        };
-      }
+      console.error('❌ Image generation error:', error);
     }
+
+    return [];
   }
 
-  private async generateBrochureAsset(analysis: Record<string, unknown>, response: Record<string, unknown>): Promise<MediaAsset> {
-    // This would generate an actual PDF brochure
-    // For now, we'll create a placeholder
-    return {
-      id: `brochure_${Date.now()}`,
-      type: 'brochure',
-      title: `${analysis.industry} Industry Brochure`,
-      industry: analysis.industry as string,
-      content: response.content as string,
-      fileUrl: '/api/generate-pdf?type=brochure&industry=' + (analysis.industry as string),
-      generatedAt: new Date().toISOString(),
-      styleUsed: 'e&_corporate'
-    };
-  }
+  private storeConversation(message: string, response: string, industry: string, confidence: number): void {
+    this.memory.conversations.push({
+      timestamp: new Date().toISOString(),
+      message,
+      response,
+      industry,
+      confidence
+    });
 
-  private async generateWhitePaperAsset(analysis: Record<string, unknown>, response: Record<string, unknown>): Promise<MediaAsset> {
-    return {
-      id: `whitepaper_${Date.now()}`,
-      type: 'whitepaper',
-      title: `${analysis.industry} Industry White Paper`,
-      industry: analysis.industry as string,
-      content: response.content as string,
-      fileUrl: '/api/generate-pdf?type=whitepaper&industry=' + analysis.industry,
-      generatedAt: new Date().toISOString(),
-      styleUsed: 'e&_professional'
-    };
-  }
+    // Keep only last 50 conversations
+    if (this.memory.conversations.length > 50) {
+      this.memory.conversations = this.memory.conversations.slice(-50);
+    }
 
-  private async generateBattlecardAsset(analysis: Record<string, unknown>, response: Record<string, unknown>): Promise<MediaAsset> {
-    return {
-      id: `battlecard_${Date.now()}`,
-      type: 'battlecard',
-      title: `${analysis.industry} Competitive Battlecard`,
-      industry: analysis.industry as string,
-      content: response.content as string,
-      fileUrl: '/api/generate-pdf?type=battlecard&industry=' + analysis.industry,
-      generatedAt: new Date().toISOString(),
-      styleUsed: 'e&_competitive'
-    };
-  }
-
-  private async generatePresentationAsset(analysis: Record<string, unknown>, response: Record<string, unknown>): Promise<MediaAsset> {
-    return {
-      id: `presentation_${Date.now()}`,
-      type: 'presentation',
-      title: `${analysis.industry} Executive Presentation`,
-      industry: analysis.industry as string,
-      content: response.content as string,
-      fileUrl: '/api/generate-ppt?type=presentation&industry=' + analysis.industry,
-      generatedAt: new Date().toISOString(),
-      styleUsed: 'e&_executive'
-    };
-  }
-
-  private async generateEmailAsset(analysis: Record<string, unknown>, response: Record<string, unknown>): Promise<MediaAsset> {
-    return {
-      id: `email_${Date.now()}`,
-      type: 'email',
-      title: `${analysis.industry} EDM Template`,
-      industry: analysis.industry as string,
-      content: response.content as string,
-      fileUrl: '/api/generate-email?type=email&industry=' + analysis.industry,
-      generatedAt: new Date().toISOString(),
-      styleUsed: 'e&_marketing'
-    };
-  }
-
-  private async generateSMSAsset(analysis: Record<string, unknown>, response: Record<string, unknown>): Promise<MediaAsset> {
-    return {
-      id: `sms_${Date.now()}`,
-      type: 'sms',
-      title: `${analysis.industry} SMS Campaign`,
-      industry: analysis.industry as string,
-      content: response.content as string,
-      fileUrl: '/api/generate-sms?type=sms&industry=' + analysis.industry,
-      generatedAt: new Date().toISOString(),
-      styleUsed: 'e&_mobile'
-    };
-  }
-
-  private async generateInfographicAsset(analysis: Record<string, unknown>, response: Record<string, unknown>): Promise<MediaAsset> {
-    return {
-      id: `infographic_${Date.now()}`,
-      type: 'infographic',
-      title: `${analysis.industry} Infographic`,
-      industry: analysis.industry as string,
-      content: response.content as string,
-      fileUrl: '/api/generate-image?type=infographic&industry=' + analysis.industry,
-      generatedAt: new Date().toISOString(),
-      styleUsed: 'e&_visual'
-    };
-  }
-
-  private buildConversationalResponse(intelligenceResult: any, message: string): string {
-    const analysis = intelligenceResult.analysis;
-    const industry = analysis.industry;
-    const intent = analysis.intent;
-    
-    // Start with a conversational greeting
-    let content = `Hello! I'm Jammy, your intelligent GTM assistant for e&. `;
-    
-    // Handle different intents conversationally
-    if (intent === 'negative_command') {
-      content += `I understand you'd prefer not to generate a brochure. I'll respect that preference and focus on other ways to help you. `;
-      content += `What would you like me to assist you with instead?`;
-      return content;
-    }
-    
-    if (intent === 'analysis') {
-      content += `Based on your request about the ${industry} sector, I've analyzed our knowledge base and here's what I found:\n\n`;
-    } else if (intent === 'creation') {
-      content += `I'd be happy to help you create something for the ${industry} sector. Let me gather the relevant information:\n\n`;
-    } else {
-      content += `I see you're interested in the ${industry} sector. Let me share some insights:\n\n`;
-    }
-    
-    // Add evidence in a conversational way
-    if (intelligenceResult.evidence.length > 0) {
-      content += `**Here's what I found in our knowledge base:**\n`;
-      intelligenceResult.evidence.forEach((evidence: string, index: number) => {
-        content += `• ${evidence}\n`;
-      });
-      content += `\n`;
-    }
-    
-    // Add recommendations conversationally
-    if (intelligenceResult.recommendations.length > 0) {
-      content += `**My recommendations for you:**\n`;
-      intelligenceResult.recommendations.forEach((rec: string, index: number) => {
-        content += `• ${rec}\n`;
-      });
-      content += `\n`;
-    }
-    
-    // Add roadmap if relevant
-    if (intelligenceResult.roadmap.length > 0 && intent !== 'negative_command') {
-      content += `**Here's how we can approach this:**\n`;
-      intelligenceResult.roadmap.forEach((step: string, index: number) => {
-        content += `${index + 1}. ${step}\n`;
-      });
-      content += `\n`;
-    }
-    
-    // Add future considerations
-    if (intelligenceResult.anticipation.length > 0) {
-      content += `**Things to keep in mind:**\n`;
-      intelligenceResult.anticipation.forEach((scenario: string, index: number) => {
-        content += `• ${scenario}\n`;
-      });
-      content += `\n`;
-    }
-    
-    // End with a helpful question
-    content += `Is there anything specific you'd like me to elaborate on, or would you like me to help you with something else?`;
-    
-    return content;
-  }
-
-  private analyzeImageRequest(message: string, industry: string, contentType: string): string {
-    // Extract specific visual elements from the user's message
-    const lowerMessage = message.toLowerCase();
-    
-    // Look for specific objects, concepts, or visual elements
-    const visualElements = [];
-    
-    if (lowerMessage.includes('phone') || lowerMessage.includes('mobile')) {
-      visualElements.push('smartphone device');
-    }
-    if (lowerMessage.includes('chinchilla')) {
-      visualElements.push('chinchilla animal');
-    }
-    if (lowerMessage.includes('building') || lowerMessage.includes('office')) {
-      visualElements.push('corporate building');
-    }
-    if (lowerMessage.includes('people') || lowerMessage.includes('team')) {
-      visualElements.push('business people');
-    }
-    if (lowerMessage.includes('chart') || lowerMessage.includes('graph')) {
-      visualElements.push('data visualization');
-    }
-    if (lowerMessage.includes('network') || lowerMessage.includes('connectivity')) {
-      visualElements.push('network infrastructure');
-    }
-    
-    // If no specific elements found, use industry context
-    if (visualElements.length === 0) {
-      visualElements.push(`${industry} business solution`);
-    }
-    
-    // Create a detailed prompt for Chinchilla
-    const prompt = `Create a professional ${contentType} image featuring: ${visualElements.join(', ')} for the ${industry} sector. Include e& branding and make it visually appealing.`;
-    
-    console.log('🎯 Jammy analyzed image request:', prompt);
-    return prompt;
-  }
-
-  private extractIndustryFromChinchillaCommand(command: string): string {
-    if (command.includes('tech_telecom')) return 'tech_telecom';
-    if (command.includes('retail')) return 'retail';
-    if (command.includes('healthcare')) return 'healthcare';
-    if (command.includes('education')) return 'education';
-    if (command.includes('finance')) return 'finance';
-    if (command.includes('manufacturing')) return 'manufacturing';
-    if (command.includes('government')) return 'government';
-    if (command.includes('hospitality')) return 'hospitality';
-    if (command.includes('logistics')) return 'logistics';
-    if (command.includes('real_estate')) return 'real_estate';
-    return 'tech_telecom'; // Default
-  }
-
-  private extractElementsFromChinchillaCommand(command: string): string[] {
-    const elements = [];
-    const lowerCommand = command.toLowerCase();
-    
-    if (lowerCommand.includes('office_building')) elements.push('office_building');
-    if (lowerCommand.includes('network')) elements.push('network');
-    if (lowerCommand.includes('router')) elements.push('router');
-    if (lowerCommand.includes('wifi_signal')) elements.push('wifi_signal');
-    if (lowerCommand.includes('smartphone')) elements.push('smartphone');
-    if (lowerCommand.includes('server')) elements.push('server');
-    if (lowerCommand.includes('cloud')) elements.push('cloud');
-    if (lowerCommand.includes('security_shield')) elements.push('security_shield');
-    if (lowerCommand.includes('analytics_dashboard')) elements.push('analytics_dashboard');
-    if (lowerCommand.includes('chart')) elements.push('chart');
-    if (lowerCommand.includes('retail_store')) elements.push('retail_store');
-    if (lowerCommand.includes('hospital')) elements.push('hospital');
-    if (lowerCommand.includes('school')) elements.push('school');
-    if (lowerCommand.includes('payment_terminal')) elements.push('payment_terminal');
-    if (lowerCommand.includes('data_center')) elements.push('data_center');
-    if (lowerCommand.includes('tower')) elements.push('tower');
-    if (lowerCommand.includes('laptop')) elements.push('laptop');
-    
-    return elements.length > 0 ? elements : ['office_building', 'network'];
-  }
-
-  private async generateIntelligentResponse(intelligenceResult: any, message: string, productSearch?: any, communicationResult?: any): Promise<JammyResponse> {
-    // Build conversational response based on intelligence analysis
-    let content = this.buildConversationalResponse(intelligenceResult, message);
-    
-    // Generate media assets if needed (but respect negative commands)
-    let mediaAssets: MediaAsset[] = [];
-    
-    if (intelligenceResult.needsVisual && intelligenceResult.analysis.intent !== 'negative_command') {
-      let visualElements: string[] = [];
-      let industry = intelligenceResult.analysis.industry;
-      
-      // Priority 1: Use communication system Chinchilla commands if available
-      if (productSearch && productSearch.source === 'communication_system' && productSearch.chinchillaCommand) {
-        console.log('🗣️ Using communication system Chinchilla command:', productSearch.chinchillaCommand);
-        // Use the Chinchilla command directly
-        const visualSpec: VisualSpecification = {
-          prompt: productSearch.chinchillaCommand,
-          industry: productSearch.industry,
-          contentType: 'product_visualization',
-          style: 'professional_b2b',
-          requirements: ['e& branding', 'B2B focus', 'professional layout'],
-          context: intelligenceResult.analysis.context
-        };
-        
-        console.log('🎨 Sending Chinchilla command:', visualSpec);
-        
-        const visualResult = await chinchillaVisualIntelligence.generateIntelligentImage(visualSpec);
-        
-        if (visualResult.success) {
-          mediaAssets.push({
-            id: `visual_${Date.now()}`,
-            type: 'image',
-            title: visualResult.title,
-            industry: productSearch.industry,
-            content: visualResult.description,
-            fileUrl: visualResult.imageUrl,
-            generatedAt: new Date().toISOString(),
-            styleUsed: visualResult.styleApplied
-          });
-        }
-      } else {
-        // Continue with other visual generation logic if no communication system command
-      }
-      
-      // Priority 2: Use Ivy-League education system results if available and confident
-      if (productSearch && productSearch.source === 'ivy_league_education' && productSearch.visualElements.length > 0) {
-        visualElements = productSearch.visualElements;
-        industry = productSearch.industry;
-        console.log('🎓 Using Ivy-League education visual elements:', visualElements);
-      } else if (productSearch && productSearch.confidence > 0.5 && productSearch.visualElements.length > 0) {
-        // Priority 2: Use product search data if available and confident
-        visualElements = productSearch.visualElements;
-        industry = productSearch.industry;
-        console.log('🎯 Using product search visual elements:', visualElements);
-      } else {
-        // Priority 3: Use knowledge-to-visual dictionary
-        const knowledgeProducts = intelligenceResult.knowledgeSearch.internal.filter(item => 
-          item.type === 'offering' || item.type === 'sector'
-        ).map(item => item.data);
-        
-        const visualTranslation = knowledgeVisualDictionary.translateKnowledgeToVisual(
-          intelligenceResult.analysis.industry,
-          knowledgeProducts,
-          message
-        );
-        
-        visualElements = visualTranslation.elements;
-        industry = visualTranslation.industry;
-        console.log('🎨 Using knowledge translation visual elements:', visualElements);
-      }
-      
-      if (visualElements.length > 0) {
-        const visualSpec: VisualSpecification = {
-          prompt: `Draw these elements: ${visualElements.join(', ')}`,
-          industry: industry,
-          contentType: 'product_visualization',
-          style: 'professional_b2b',
-          requirements: ['e& branding', 'B2B focus', 'professional layout'],
-          context: intelligenceResult.analysis.context
-        };
-        
-        console.log('🎨 Sending to Chinchilla:', visualSpec);
-        
-        const visualResult = await chinchillaVisualIntelligence.generateIntelligentImage(visualSpec);
-        
-        if (visualResult.success) {
-          mediaAssets.push({
-            id: `visual_${Date.now()}`,
-            type: 'image',
-            title: visualResult.title,
-            industry: industry,
-            content: visualResult.description,
-            fileUrl: visualResult.imageUrl,
-            generatedAt: new Date().toISOString(),
-            styleUsed: visualResult.styleApplied
-          });
-        }
-      }
-    }
-    
-    return {
-      id: `jammy_${Date.now()}`,
-      content,
-      mediaAssets,
-      learningData: {
-        industry: intelligenceResult.analysis.industry,
-        contentType: 'analysis',
-        userPreferences: {},
-        knowledgeExtracted: intelligenceResult.evidence,
-        improvements: []
-      },
-      confidence: intelligenceResult.knowledgeSearch.confidence,
-      timestamp: new Date().toISOString()
-    };
-  }
-
-  private extractLearningData(message: string, analysis: Record<string, unknown>, response: Record<string, unknown>): LearningData {
-    return {
-      industry: analysis.industry as string,
-      contentType: analysis.contentType as string,
-      userPreferences: this.memory.userPreferences,
-      knowledgeExtracted: analysis.keywords as string[],
-      improvements: this.generateImprovements(analysis, response)
-    };
-  }
-
-  private generateImprovements(analysis: Record<string, unknown>, response: Record<string, unknown>): string[] {
-    const improvements = [];
-    
-    if ((analysis.confidence as number) < 0.8) {
-      improvements.push('Improve confidence in response generation');
-    }
-    
-    if (analysis.complexity === 'complex' && (response.content as string).length < 1000) {
-      improvements.push('Provide more detailed content for complex requests');
-    }
-    
-    if (analysis.urgency === 'high') {
-      improvements.push('Optimize for urgent request handling');
-    }
-    
-    return improvements;
-  }
-
-  private async learnFromFiles(files: File[]): Promise<void> {
-    console.log('📚 Learning from uploaded files...');
-    
-    for (const file of files) {
-      try {
-        // Extract text content from file
-        const content = await this.extractTextFromFile(file);
-        
-        // Extract knowledge
-        const knowledge = this.extractKnowledge(content, file.name);
-        
-        // Store in knowledge base
-        this.memory.knowledgeBase.push({
-          id: `knowledge_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          content: knowledge,
-          source: file.name,
-          industry: this.detectIndustry(content),
-          extractedAt: new Date().toISOString()
-        });
-        
-        // Learn style patterns using enhanced learning engine
-        const { patterns, insights } = await enhancedStyleLearningEngine.processFile(file);
-        this.memory.learnedPatterns.push(...patterns);
-        
-        // Add learning insights
-        this.memory.learningProgress.improvements.push(...insights);
-        
-        // Also learn design patterns from the file for creative generation
-        if (file.type.startsWith('image/') || file.name.endsWith('.pdf')) {
-          // Create a visual template from the file
-          const visualTemplate = {
-            id: `uploaded_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            name: file.name,
-            industry: this.detectIndustry(content),
-            contentType: this.detectContentTypeFromFile(file),
-            elements: [], // Would be extracted from file analysis
-            layout: {
-              type: 'absolute' as const,
-              spacing: 16,
-              alignment: 'center' as const,
-              padding: { top: 20, right: 20, bottom: 20, left: 20 }
-            },
-            colors: {
-              primary: '#e30613',
-              secondary: '#02D9C7',
-              accent: '#FF6B35',
-              background: '#FFFFFF',
-              text: '#1A1A1A'
-            },
-            typography: {
-              primary: 'Arial, sans-serif',
-              heading: 'Arial, sans-serif',
-              sizes: { small: 12, medium: 14, large: 16, xlarge: 20 },
-              weights: { normal: 400, medium: 500, bold: 700 }
-            },
-            composition: {
-              ruleOfThirds: true,
-              goldenRatio: false,
-              symmetry: 'vertical' as const,
-              hierarchy: ['header', 'content', 'footer'],
-              whitespace: 7
-            },
-            source: `Uploaded: ${file.name}`,
-            createdAt: new Date().toISOString()
-          };
-          
-          // Learn from the template using enhanced style learning
-          await enhancedStyleLearningEngine.processFile(file);
-          console.log(`🎨 Learned design patterns from: ${file.name}`);
-        }
-        
-        console.log(`✅ Learned from file: ${file.name}`);
-        
-      } catch (error) {
-        console.error('Error learning from file:', error);
-      }
-    }
-    
-    // Save memory
     this.saveMemory();
   }
 
-  private detectContentTypeFromFile(file: File): string {
-    if (file.type.startsWith('image/')) return 'image';
-    if (file.name.endsWith('.pdf')) return 'brochure';
-    if (file.name.endsWith('.doc') || file.name.endsWith('.docx')) return 'document';
-    if (file.name.endsWith('.ppt') || file.name.endsWith('.pptx')) return 'presentation';
-    return 'document';
-  }
-
-  private async extractTextFromFile(file: File): Promise<string> {
-    // This would extract text from various file types
-    // For now, return a placeholder
-    return `Content extracted from ${file.name}`;
-  }
-
-  private extractKnowledge(content: string, filename: string): string {
-    // Extract key knowledge points from content
-    const sentences = content.split(/[.!?]+/);
-    const keywords = this.extractKeywords(content);
-    
-    return `Key insights from ${filename}: ${keywords.slice(0, 5).join(', ')}`;
-  }
-
-  private storeConversation(userMessage: string, jammyResponse: string, context: Record<string, unknown>): void {
-    this.memory.conversations.push({
-      id: `conv_${Date.now()}`,
-      userMessage,
-      jammyResponse,
-      timestamp: new Date().toISOString(),
-      context
-    });
-    
-    // Keep only last 100 conversations
-    if (this.memory.conversations.length > 100) {
-      this.memory.conversations = this.memory.conversations.slice(-100);
+  private saveMemory(): void {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        localStorage.setItem('jammy_memory', JSON.stringify(this.memory));
+      } catch (error) {
+        console.error('❌ Failed to save memory:', error);
+      }
     }
   }
 
   private loadMemory(): void {
-    try {
-      // Only load from localStorage in browser environment
-      if (typeof window !== 'undefined' && window.localStorage) {
-        const stored = localStorage.getItem('jammy_memory');
-        if (stored) {
-          this.memory = { ...this.memory, ...JSON.parse(stored) };
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        const saved = localStorage.getItem('jammy_memory');
+        if (saved) {
+          this.memory = JSON.parse(saved);
         }
+      } catch (error) {
+        console.error('❌ Failed to load memory:', error);
       }
-    } catch (error) {
-      console.error('Error loading memory:', error);
     }
   }
 
-  private saveMemory(): void {
-    try {
-      // Only save to localStorage in browser environment
-      if (typeof window !== 'undefined' && window.localStorage) {
-        localStorage.setItem('jammy_memory', JSON.stringify(this.memory));
-      }
-    } catch (error) {
-      console.error('Error saving memory:', error);
-    }
+  async learnFromFiles(files: any[]): Promise<void> {
+    console.log('📚 Jammy learning from uploaded files...');
+    // Implementation for file learning will be added here
   }
 
-  // Public methods for external access
-  getMemory(): JammyMemory {
-    return this.memory;
-  }
-
-  clearMemory(): void {
+  resetMemory(): void {
     this.memory = {
       conversations: [],
-      learnedPatterns: [],
-      userPreferences: {},
-      knowledgeBase: [],
-      conversationHistory: [],
-      learningProgress: {
-        totalInteractions: 0,
-        successfulGenerations: 0,
-        averageConfidence: 0,
-        improvements: []
-      }
+      knowledge: [],
+      patterns: []
     };
     this.saveMemory();
   }
-
-  async trainOnData(trainingData: unknown[]): Promise<void> {
-    // This would train the AI on specific data
-    console.log('Training Jammy on provided data...');
-    // Implementation would go here
-  }
 }
 
+// Export singleton instance
 export const jammyAI = new JammyAI();

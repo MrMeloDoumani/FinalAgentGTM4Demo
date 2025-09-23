@@ -33,12 +33,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      response: response.content,
+      response: response.message,
       mediaAssets: response.mediaAssets,
       learningData: response.learningData,
       confidence: response.confidence,
-      timestamp: response.timestamp,
-      jammyId: response.id
+      jammyId: response.jammyId,
+      industry: response.industry
     }, {
       headers: {
         'Access-Control-Allow-Origin': '*',
