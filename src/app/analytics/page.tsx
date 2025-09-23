@@ -1,47 +1,45 @@
 "use client";
 
-import { ArrowLeft, TrendingUp, Users, Clock, CheckCircle, BarChart3, Calendar } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ArrowLeft, TrendingUp, Users, Clock, CheckCircle, BarChart3, Calendar, RefreshCw } from "lucide-react";
 import Link from "next/link";
-
-const analyticsData = {
-  loginStats: {
-    totalLogins: 247,
-    uniqueSessions: 89,
-    peakConcurrent: 12,
-    averageSessionTime: "2h 34m",
-    lastLogin: "2024-01-15 14:30",
-  },
-  taskStats: {
-    totalTasks: 156,
-    completedTasks: 89,
-    inProgressTasks: 45,
-    overdueTasks: 22,
-    completionRate: 57.1,
-  },
-  aiUsage: {
-    totalRequests: 1247,
-    successfulRequests: 1198,
-    failedRequests: 49,
-    averageResponseTime: "2.3s",
-    mostUsedFeature: "Content Generation",
-  },
-  teamActivity: [
-    { name: "Yasser Omar Zaki Shaaban", requests: 456, lastActive: "2 hours ago" },
-    { name: "Elham Husain Al Hammadi", requests: 234, lastActive: "1 day ago" },
-    { name: "Fawzia Abdalla", requests: 189, lastActive: "3 hours ago" },
-    { name: "Stela Paneva", requests: 156, lastActive: "5 hours ago" },
-    { name: "Khalid Riyad Badah", requests: 98, lastActive: "2 days ago" },
-  ],
-  recentActivity: [
-    { action: "Generated Sales Brochure", user: "Yasser Omar Zaki Shaaban", time: "2 hours ago", type: "success" },
-    { action: "Uploaded Knowledge Base", user: "Elham Husain Al Hammadi", time: "4 hours ago", type: "info" },
-    { action: "Created Project Plan", user: "Fawzia Abdalla", time: "6 hours ago", type: "success" },
-    { action: "AI Request Failed", user: "Stela Paneva", time: "8 hours ago", type: "error" },
-    { action: "Completed Task", user: "Yasser Omar Zaki Shaaban", time: "1 day ago", type: "success" },
-  ],
-};
+import { analyticsTracker, AnalyticsData } from "@/lib/analytics-tracker";
 
 export default function AnalyticsPage() {
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  useEffect(() => {
+    // Generate demo data on first load
+    analyticsTracker.generateDemoData();
+    loadAnalyticsData();
+    
+    // Update data every 30 seconds
+    const interval = setInterval(loadAnalyticsData, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const loadAnalyticsData = () => {
+    const data = analyticsTracker.getAnalyticsData();
+    setAnalyticsData(data);
+  };
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    loadAnalyticsData();
+    setTimeout(() => setIsRefreshing(false), 1000);
+  };
+
+  if (!analyticsData) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading analytics...</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -62,6 +60,15 @@ export default function AnalyticsPage() {
                 <p className="text-sm text-gray-500">GTM Portal usage and performance metrics</p>
               </div>
             </div>
+            
+            <button
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            >
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
+            </button>
           </div>
         </div>
       </header>

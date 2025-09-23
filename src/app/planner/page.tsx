@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, Plus, Calendar, Flag, User, Clock, MoreVertical, CheckCircle, Circle } from "lucide-react";
+import { ArrowLeft, Plus, Calendar, Flag, User, Clock, MoreVertical, CheckCircle, Circle, X, Save } from "lucide-react";
 import Link from "next/link";
 
 interface Task {
@@ -80,6 +80,14 @@ export default function PlannerPage() {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [showNewTask, setShowNewTask] = useState(false);
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);
+  const [newTask, setNewTask] = useState({
+    title: "",
+    description: "",
+    assignee: "",
+    dueDate: "",
+    priority: "medium" as "high" | "medium" | "low",
+    milestone: false
+  });
 
   const handleDragStart = (task: Task) => {
     setDraggedTask(task);
@@ -110,6 +118,48 @@ export default function PlannerPage() {
   const getPriorityCount = (priority: string) => {
     return tasks.filter(task => task.priority === priority).length;
   };
+
+  const handleCreateTask = () => {
+    if (newTask.title.trim() && newTask.assignee.trim() && newTask.dueDate) {
+      const task: Task = {
+        id: `task_${Date.now()}`,
+        title: newTask.title,
+        description: newTask.description,
+        assignee: newTask.assignee,
+        dueDate: newTask.dueDate,
+        priority: newTask.priority,
+        status: "todo",
+        milestone: newTask.milestone
+      };
+      
+      setTasks(prev => [...prev, task]);
+      setNewTask({
+        title: "",
+        description: "",
+        assignee: "",
+        dueDate: "",
+        priority: "medium",
+        milestone: false
+      });
+      setShowNewTask(false);
+    }
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+    setTasks(prev => prev.filter(task => task.id !== taskId));
+  };
+
+  const teamMembers = [
+    "Yasser Omar Zaki Shaaban",
+    "Elham Husain Al Hammadi", 
+    "Fawzia Abdalla",
+    "Stela Paneva",
+    "Mohammad Malkawi",
+    "Maryam Bakhit Alsuwaidi",
+    "Sara Abdelaziz Alhammadi",
+    "Khalid Riayd Badah",
+    "Sara Mostafa"
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -225,7 +275,13 @@ export default function PlannerPage() {
                             {task.milestone && (
                               <Flag className="h-4 w-4 text-orange-500" />
                             )}
-                            <MoreVertical className="h-4 w-4 text-gray-400" />
+                            <button
+                              onClick={() => handleDeleteTask(task.id)}
+                              className="text-red-400 hover:text-red-600 transition-colors"
+                              title="Delete project"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
                           </div>
                         </div>
                         
@@ -268,6 +324,129 @@ export default function PlannerPage() {
           ))}
         </div>
       </div>
+
+      {/* New Project Modal */}
+      {showNewTask && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-gray-900">Create New Project</h3>
+                <button
+                  onClick={() => setShowNewTask(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Project Title *
+                </label>
+                <input
+                  type="text"
+                  value={newTask.title}
+                  onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter project title"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={newTask.description}
+                  onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  rows={3}
+                  placeholder="Enter project description"
+                />
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Assignee *
+                  </label>
+                  <select
+                    value={newTask.assignee}
+                    onChange={(e) => setNewTask(prev => ({ ...prev, assignee: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">Select team member</option>
+                    {teamMembers.map(member => (
+                      <option key={member} value={member}>{member}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Due Date *
+                  </label>
+                  <input
+                    type="date"
+                    value={newTask.dueDate}
+                    onChange={(e) => setNewTask(prev => ({ ...prev, dueDate: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Priority
+                  </label>
+                  <select
+                    value={newTask.priority}
+                    onChange={(e) => setNewTask(prev => ({ ...prev, priority: e.target.value as "high" | "medium" | "low" }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="milestone"
+                    checked={newTask.milestone}
+                    onChange={(e) => setNewTask(prev => ({ ...prev, milestone: e.target.checked }))}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="milestone" className="text-sm font-medium text-gray-700">
+                    Mark as Milestone
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-6 border-t border-gray-200 flex justify-end space-x-3">
+              <button
+                onClick={() => setShowNewTask(false)}
+                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateTask}
+                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <Save className="h-4 w-4" />
+                <span>Create Project</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

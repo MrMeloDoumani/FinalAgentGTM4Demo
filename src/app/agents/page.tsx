@@ -141,13 +141,70 @@ export default function AgentsPage() {
       return;
     }
     
-    // Simulate action execution
-    const actionMessage: Message = {
-      id: Date.now().toString(),
-      type: "ai",
-      content: `Action "${actionOptions.find(a => a.id === actionId)?.label}" has been executed. The content has been processed according to your request.`,
-      timestamp: new Date(),
-    };
+    // Get the last AI message to work with
+    const lastAIMessage = messages.filter(m => m.type === "ai").pop();
+    if (!lastAIMessage) return;
+    
+    let actionMessage: Message;
+    
+    switch (actionId) {
+      case "save":
+        actionMessage = {
+          id: Date.now().toString(),
+          type: "ai",
+          content: `✅ Content saved to your knowledge base. This will help me learn and provide better responses in the future.`,
+          timestamp: new Date(),
+        };
+        break;
+        
+      case "send-team":
+        actionMessage = {
+          id: Date.now().toString(),
+          type: "ai",
+          content: `📤 Content shared with the GTM team. Team members will be notified and can access this content in the Planner section.`,
+          timestamp: new Date(),
+        };
+        break;
+        
+      case "send-planner":
+        actionMessage = {
+          id: Date.now().toString(),
+          type: "ai",
+          content: `📋 Content added to Planner as a new project. You can track progress and assign team members in the Planner section.`,
+          timestamp: new Date(),
+        };
+        break;
+        
+      case "download":
+        // Create downloadable content
+        const content = lastAIMessage.content;
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `jammy-ai-content-${Date.now()}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        actionMessage = {
+          id: Date.now().toString(),
+          type: "ai",
+          content: `💾 Content downloaded successfully. The file has been saved to your device.`,
+          timestamp: new Date(),
+        };
+        break;
+        
+      default:
+        actionMessage = {
+          id: Date.now().toString(),
+          type: "ai",
+          content: `Action "${actionOptions.find(a => a.id === actionId)?.label}" has been executed. The content has been processed according to your request.`,
+          timestamp: new Date(),
+        };
+    }
+    
     setMessages(prev => [...prev, actionMessage]);
   };
 

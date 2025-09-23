@@ -1,18 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, FileText, Mail, MessageSquare, Download, Upload, Plus } from "lucide-react";
+import { ArrowLeft, FileText, Mail, MessageSquare, Download, Upload, Plus, Save, X } from "lucide-react";
 import Link from "next/link";
+import { templateGenerator, Template, TemplateRequest } from "@/lib/template-generator";
 
-interface Template {
-  id: string;
-  name: string;
-  type: "edm" | "sms" | "brochure" | "flyer" | "whitepaper" | "welcome";
-  industry: string;
-  description: string;
-  content: string;
-  createdAt: string;
-}
+// Template interface is imported from template-generator
 
 const templates: Template[] = [
   {
@@ -91,13 +84,46 @@ const templateTypes = {
 };
 
 export default function MethodPage() {
+  const [templates, setTemplates] = useState<Template[]>(templates);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [selectedIndustry, setSelectedIndustry] = useState("All Industries");
   const [showNewTemplate, setShowNewTemplate] = useState(false);
+  const [newTemplate, setNewTemplate] = useState<TemplateRequest>({
+    type: "edm",
+    industry: "retail",
+    title: "",
+    description: ""
+  });
 
   const filteredTemplates = templates.filter(template => 
     selectedIndustry === "All Industries" || template.industry === selectedIndustry
   );
+
+  const handleGenerateTemplate = () => {
+    if (newTemplate.title.trim() && newTemplate.industry) {
+      const generatedTemplate = templateGenerator.generateTemplate(newTemplate);
+      setTemplates(prev => [generatedTemplate, ...prev]);
+      setNewTemplate({
+        type: "edm",
+        industry: "retail",
+        title: "",
+        description: ""
+      });
+      setShowNewTemplate(false);
+    }
+  };
+
+  const handleDownloadTemplate = (template: Template) => {
+    const blob = new Blob([template.content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${template.name}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -276,6 +302,103 @@ export default function MethodPage() {
                 </div>
                 <span className="text-sm text-gray-500">Created: {selectedTemplate.createdAt}</span>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* New Template Modal */}
+      {showNewTemplate && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-gray-900">Generate New Template</h3>
+                <button
+                  onClick={() => setShowNewTemplate(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Template Title *
+                </label>
+                <input
+                  type="text"
+                  value={newTemplate.title}
+                  onChange={(e) => setNewTemplate(prev => ({ ...prev, title: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter template title"
+                />
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Template Type *
+                  </label>
+                  <select
+                    value={newTemplate.type}
+                    onChange={(e) => setNewTemplate(prev => ({ ...prev, type: e.target.value as any }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    {templateGenerator.getTemplateTypes().map(type => (
+                      <option key={type.value} value={type.value}>{type.label}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Industry *
+                  </label>
+                  <select
+                    value={newTemplate.industry}
+                    onChange={(e) => setNewTemplate(prev => ({ ...prev, industry: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    {templateGenerator.getAvailableIndustries().map(industry => (
+                      <option key={industry} value={industry}>
+                        {industry.charAt(0).toUpperCase() + industry.slice(1).replace('_', ' ')}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={newTemplate.description}
+                  onChange={(e) => setNewTemplate(prev => ({ ...prev, description: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  rows={3}
+                  placeholder="Enter template description (optional)"
+                />
+              </div>
+            </div>
+            
+            <div className="p-6 border-t border-gray-200 flex justify-end space-x-3">
+              <button
+                onClick={() => setShowNewTemplate(false)}
+                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleGenerateTemplate}
+                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <Save className="h-4 w-4" />
+                <span>Generate Template</span>
+              </button>
             </div>
           </div>
         </div>
