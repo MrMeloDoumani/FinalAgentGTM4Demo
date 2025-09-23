@@ -348,10 +348,11 @@ class JammyAI {
   }
 
   private async generateAnalysisResponse(analysis: Record<string, unknown>, sectorInfo: unknown, products: unknown[]): Promise<string> {
-    return `# Market Analysis - ${sectorInfo?.name || analysis.industry} Sector
+    const sectorName = (sectorInfo as { name?: string })?.name || (analysis.industry as string);
+    return `# Market Analysis - ${sectorName} Sector
 
 ## Market Overview
-Based on current market trends and e&'s capabilities, here's my analysis of the ${sectorInfo?.name || analysis.industry} sector:
+Based on current market trends and e&'s capabilities, here's my analysis of the ${sectorName} sector:
 
 ## Key Opportunities
 • Digital transformation initiatives
@@ -382,7 +383,8 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
   }
 
   private async generateComparisonResponse(analysis: Record<string, unknown>, sectorInfo: unknown, products: unknown[]): Promise<string> {
-    return `# Competitive Analysis - ${sectorInfo?.name || analysis.industry} Sector
+    const sectorName = (sectorInfo as { name?: string })?.name || (analysis.industry as string);
+    return `# Competitive Analysis - ${sectorName} Sector
 
 ## e& vs Competitors
 
@@ -414,9 +416,10 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
   }
 
   private async generateLearningResponse(analysis: Record<string, unknown>, sectorInfo: unknown): Promise<string> {
-    return `# Learning Center - ${sectorInfo?.name || analysis.industry} Sector
+    const sectorName = (sectorInfo as { name?: string })?.name || (analysis.industry as string);
+    return `# Learning Center - ${sectorName} Sector
 
-## What I Know About ${sectorInfo?.name || analysis.industry}
+## What I Know About ${sectorName}
 
 ### Industry Insights
 • Key pain points and challenges
