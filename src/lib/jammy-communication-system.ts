@@ -342,28 +342,35 @@ What specific task would you like to work on? I can create marketing materials, 
     const missing = [];
     const lowerMessage = message.toLowerCase();
     
-    // Check for product/service specification - be more lenient
-    const hasProduct = lowerMessage.includes('business pro fiber') || 
-                      lowerMessage.includes('business pro') ||
-                      lowerMessage.includes('mobile pos') || 
-                      lowerMessage.includes('pos solution') ||
-                      lowerMessage.includes('mobile pos solution') ||
-                      lowerMessage.includes('security') || 
-                      lowerMessage.includes('cloud') || 
-                      lowerMessage.includes('analytics') ||
-                      lowerMessage.includes('fiber') ||
-                      lowerMessage.includes('internet') ||
-                      lowerMessage.includes('connectivity') ||
-                      lowerMessage.includes('pos') ||
-                      lowerMessage.includes('solution') ||
-                      lowerMessage.includes('service') ||
-                      lowerMessage.includes('pro'); // "pro" indicates business product
+    // For basic image requests, be VERY lenient - only ask questions if absolutely necessary
+    const hasAnyProduct = lowerMessage.includes('business pro fiber') || 
+                         lowerMessage.includes('business pro') ||
+                         lowerMessage.includes('mobile pos') || 
+                         lowerMessage.includes('pos solution') ||
+                         lowerMessage.includes('mobile pos solution') ||
+                         lowerMessage.includes('security') || 
+                         lowerMessage.includes('cloud') || 
+                         lowerMessage.includes('analytics') ||
+                         lowerMessage.includes('fiber') ||
+                         lowerMessage.includes('internet') ||
+                         lowerMessage.includes('connectivity') ||
+                         lowerMessage.includes('pos') ||
+                         lowerMessage.includes('solution') ||
+                         lowerMessage.includes('service') ||
+                         lowerMessage.includes('pro') ||
+                         lowerMessage.includes('image') || // "generate image" is enough
+                         lowerMessage.includes('visual') || // "create visual" is enough
+                         lowerMessage.includes('generate') || // "generate" is enough
+                         lowerMessage.includes('create') || // "create" is enough
+                         lowerMessage.includes('make') || // "make" is enough
+                         lowerMessage.includes('show'); // "show" is enough
     
-    if (!hasProduct) {
+    // Only ask for product if there's NO indication of what to create
+    if (!hasAnyProduct) {
       missing.push('product_or_service');
     }
     
-    // Check for industry context - be more lenient
+    // For industry, be VERY lenient - assume business context for most requests
     const hasIndustry = lowerMessage.includes('retail') || 
                        lowerMessage.includes('healthcare') || 
                        lowerMessage.includes('education') || 
@@ -377,24 +384,19 @@ What specific task would you like to work on? I can create marketing materials, 
                        lowerMessage.includes('hospitality') ||
                        lowerMessage.includes('logistics') ||
                        lowerMessage.includes('real estate') ||
-                       lowerMessage.includes('solution') || // Mobile POS solution implies business context
-                       lowerMessage.includes('pro'); // "pro" indicates business context
+                       lowerMessage.includes('solution') ||
+                       lowerMessage.includes('pro') ||
+                       lowerMessage.includes('image') || // "generate image" implies business context
+                       lowerMessage.includes('visual') || // "create visual" implies business context
+                       lowerMessage.includes('generate') || // "generate" implies business context
+                       lowerMessage.includes('create') || // "create" implies business context
+                       lowerMessage.includes('make') || // "make" implies business context
+                       lowerMessage.includes('show'); // "show" implies business context
     
+    // Only ask for industry if there's NO indication of context
     if (!hasIndustry) {
       missing.push('industry_context');
     }
-    
-    // Only require visual type if it's very specific
-    const hasVisualType = lowerMessage.includes('brochure') || 
-                         lowerMessage.includes('infographic') || 
-                         lowerMessage.includes('diagram') || 
-                         lowerMessage.includes('chart') ||
-                         lowerMessage.includes('dashboard');
-    
-    // Don't require visual type for basic image requests
-    // if (!hasVisualType) {
-    //   missing.push('visual_type');
-    // }
     
     return missing;
   }
