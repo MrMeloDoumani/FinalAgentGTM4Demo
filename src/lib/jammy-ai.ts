@@ -13,6 +13,7 @@ import { knowledgeVisualDictionary } from './knowledge-visual-dictionary';
 import { jammyWebIntelligence } from './jammy-web-intelligence';
 import { jammyEducationSystem } from './jammy-education-system';
 import { ivyLeagueJammyEducation } from './ivy-league-jammy-education';
+import { jammyCommunicationSystem } from './jammy-communication-system';
 // import { smartExecutionEngine } from './smart-execution-engine';
 import { Buffer } from 'buffer';
 
@@ -122,37 +123,76 @@ class JammyAI {
     console.log('🤖 Jammy AI processing message with intelligence system:', message);
 
     try {
-      // Step 1: Ivy-League Education System - Multi-level analysis
-      console.log('🎓 Starting Ivy-League Jammy Education for:', message);
-      const educationResult = await ivyLeagueJammyEducation.educateJammy(message);
-      console.log('🎓 Ivy-League Education result:', educationResult);
+      // Step 1: Bi-lingual Communication System - Expert communication
+      console.log('🗣️ Starting Jammy Communication System for:', message);
+      const communicationResult = await jammyCommunicationSystem.communicate(message);
+      console.log('🗣️ Communication result:', communicationResult);
       
-      // Step 2: Use web intelligence to search for products (with education context)
-      console.log('🚀 Starting web intelligence search for:', message);
-      const productSearch = await jammyWebIntelligence.searchProduct(message);
-      console.log('🔍 Product search result:', productSearch);
-      
-      // Step 3: Use Ivy-League education result to enhance product search
-      if (educationResult.confidence > productSearch.confidence) {
-        console.log('🎓 Using Ivy-League education result (higher confidence)');
-        productSearch.industry = educationResult.industry;
-        productSearch.visualElements = educationResult.visualElements;
-        productSearch.confidence = educationResult.confidence;
-        productSearch.source = 'ivy_league_education';
-        console.log('🎓 Ivy-League mastery level:', educationResult.masteryLevel);
+      // If we need more information, return the question response
+      if (communicationResult.nextAction === 'question') {
+        return {
+          id: `jammy_${Date.now()}`,
+          content: communicationResult.message,
+          mediaAssets: [],
+          learningData: {
+            industry: 'general',
+            contentType: 'conversation',
+            userPreferences: {},
+            knowledgeExtracted: [],
+            improvements: []
+          },
+          confidence: 0.9,
+          timestamp: new Date().toISOString(),
+          jammyId: `jammy_${Date.now()}`
+        };
       }
       
-      // Step 4: Use the intelligence engine for structured thinking
+      // If we have a Chinchilla command, use it for visual generation
+      let productSearch = null;
+      if (communicationResult.chinchillaTranslation) {
+        console.log('🎨 Using Chinchilla command from communication system');
+        productSearch = {
+          industry: this.extractIndustryFromChinchillaCommand(communicationResult.chinchillaTranslation),
+          visualElements: this.extractElementsFromChinchillaCommand(communicationResult.chinchillaTranslation),
+          confidence: 0.95,
+          source: 'communication_system',
+          chinchillaCommand: communicationResult.chinchillaTranslation
+        };
+      } else {
+        // Fallback to Ivy-League Education System
+        console.log('🎓 Starting Ivy-League Jammy Education for:', message);
+        const educationResult = await ivyLeagueJammyEducation.educateJammy(message);
+        console.log('🎓 Ivy-League Education result:', educationResult);
+        
+        // Use web intelligence as backup
+        console.log('🚀 Starting web intelligence search for:', message);
+        const webSearch = await jammyWebIntelligence.searchProduct(message);
+        console.log('🔍 Web search result:', webSearch);
+        
+        // Use education result if higher confidence
+        if (educationResult.confidence > webSearch.confidence) {
+          productSearch = {
+            industry: educationResult.industry,
+            visualElements: educationResult.visualElements,
+            confidence: educationResult.confidence,
+            source: 'ivy_league_education'
+          };
+        } else {
+          productSearch = webSearch;
+        }
+      }
+      
+      // Step 2: Use the intelligence engine for structured thinking
       const enhancedContext = {
         ...context,
-        industry: productSearch.industry // Pass the industry from education/web intelligence
+        industry: productSearch.industry
       };
       const intelligenceResult = await jammyIntelligenceEngine.processIntelligently(message, enhancedContext);
       console.log('🧠 Intelligence result industry:', intelligenceResult.analysis.industry);
       
-      // Step 5: Enhance intelligence result with education and product data
-      if (productSearch.confidence > 0.3) { // Lowered threshold to include education results
-        console.log('✅ Using enhanced data (confidence > 0.3)');
+      // Step 3: Enhance intelligence result with communication data
+      if (productSearch.confidence > 0.3) {
+        console.log('✅ Using communication data (confidence > 0.3)');
         intelligenceResult.knowledgeSearch.internal.push({
           type: 'offering',
           data: productSearch,
@@ -160,8 +200,6 @@ class JammyAI {
         });
         intelligenceResult.analysis.industry = productSearch.industry;
         console.log('🔄 Updated intelligence industry to:', intelligenceResult.analysis.industry);
-      } else {
-        console.log('❌ Enhanced data confidence too low:', productSearch.confidence);
       }
       
       // Store conversation in memory
@@ -171,8 +209,8 @@ class JammyAI {
         timestamp: new Date().toISOString()
       });
       
-      // Generate response based on intelligence analysis with education data
-      return await this.generateIntelligentResponse(intelligenceResult, message, productSearch);
+      // Generate response based on communication and intelligence
+      return await this.generateIntelligentResponse(intelligenceResult, message, productSearch, communicationResult);
 
     } catch (error) {
       console.error('❌ Jammy AI intelligent processing failed:', error);
@@ -1109,7 +1147,46 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
     return prompt;
   }
 
-  private async generateIntelligentResponse(intelligenceResult: any, message: string, productSearch?: any): Promise<JammyResponse> {
+  private extractIndustryFromChinchillaCommand(command: string): string {
+    if (command.includes('tech_telecom')) return 'tech_telecom';
+    if (command.includes('retail')) return 'retail';
+    if (command.includes('healthcare')) return 'healthcare';
+    if (command.includes('education')) return 'education';
+    if (command.includes('finance')) return 'finance';
+    if (command.includes('manufacturing')) return 'manufacturing';
+    if (command.includes('government')) return 'government';
+    if (command.includes('hospitality')) return 'hospitality';
+    if (command.includes('logistics')) return 'logistics';
+    if (command.includes('real_estate')) return 'real_estate';
+    return 'tech_telecom'; // Default
+  }
+
+  private extractElementsFromChinchillaCommand(command: string): string[] {
+    const elements = [];
+    const lowerCommand = command.toLowerCase();
+    
+    if (lowerCommand.includes('office_building')) elements.push('office_building');
+    if (lowerCommand.includes('network')) elements.push('network');
+    if (lowerCommand.includes('router')) elements.push('router');
+    if (lowerCommand.includes('wifi_signal')) elements.push('wifi_signal');
+    if (lowerCommand.includes('smartphone')) elements.push('smartphone');
+    if (lowerCommand.includes('server')) elements.push('server');
+    if (lowerCommand.includes('cloud')) elements.push('cloud');
+    if (lowerCommand.includes('security_shield')) elements.push('security_shield');
+    if (lowerCommand.includes('analytics_dashboard')) elements.push('analytics_dashboard');
+    if (lowerCommand.includes('chart')) elements.push('chart');
+    if (lowerCommand.includes('retail_store')) elements.push('retail_store');
+    if (lowerCommand.includes('hospital')) elements.push('hospital');
+    if (lowerCommand.includes('school')) elements.push('school');
+    if (lowerCommand.includes('payment_terminal')) elements.push('payment_terminal');
+    if (lowerCommand.includes('data_center')) elements.push('data_center');
+    if (lowerCommand.includes('tower')) elements.push('tower');
+    if (lowerCommand.includes('laptop')) elements.push('laptop');
+    
+    return elements.length > 0 ? elements : ['office_building', 'network'];
+  }
+
+  private async generateIntelligentResponse(intelligenceResult: any, message: string, productSearch?: any, communicationResult?: any): Promise<JammyResponse> {
     // Build conversational response based on intelligence analysis
     let content = this.buildConversationalResponse(intelligenceResult, message);
     
@@ -1120,7 +1197,39 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
       let visualElements: string[] = [];
       let industry = intelligenceResult.analysis.industry;
       
-      // Priority 1: Use Ivy-League education system results if available and confident
+      // Priority 1: Use communication system Chinchilla commands if available
+      if (productSearch && productSearch.source === 'communication_system' && productSearch.chinchillaCommand) {
+        console.log('🗣️ Using communication system Chinchilla command:', productSearch.chinchillaCommand);
+        // Use the Chinchilla command directly
+        const visualSpec: VisualSpecification = {
+          prompt: productSearch.chinchillaCommand,
+          industry: productSearch.industry,
+          contentType: 'product_visualization',
+          style: 'professional_b2b',
+          requirements: ['e& branding', 'B2B focus', 'professional layout'],
+          context: intelligenceResult.analysis.context
+        };
+        
+        console.log('🎨 Sending Chinchilla command:', visualSpec);
+        
+        const visualResult = await chinchillaVisualIntelligence.generateIntelligentImage(visualSpec);
+        
+        if (visualResult.success) {
+          mediaAssets.push({
+            id: `visual_${Date.now()}`,
+            type: 'image',
+            title: visualResult.title,
+            industry: productSearch.industry,
+            content: visualResult.description,
+            fileUrl: visualResult.imageUrl,
+            generatedAt: new Date().toISOString(),
+            styleUsed: visualResult.styleApplied
+          });
+        }
+        return; // Skip the rest of the visual generation logic
+      }
+      
+      // Priority 2: Use Ivy-League education system results if available and confident
       if (productSearch && productSearch.source === 'ivy_league_education' && productSearch.visualElements.length > 0) {
         visualElements = productSearch.visualElements;
         industry = productSearch.industry;
