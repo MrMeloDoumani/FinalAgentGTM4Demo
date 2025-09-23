@@ -269,6 +269,39 @@ What would you like to work on today? I'm here to help you succeed!
   }
 
   private generateGeneralResponse(message: string, industry: string, webResult: any): string {
+    // If we found a specific product, provide detailed information
+    if (webResult.name && webResult.name !== message && webResult.confidence > 0.1) {
+      return this.generateProductResponse(webResult);
+    }
+    
+    // If user is asking about a specific product but we didn't find it
+    if (message.toLowerCase().includes('business pro') || 
+        message.toLowerCase().includes('fiber') || 
+        message.toLowerCase().includes('cloud') ||
+        message.toLowerCase().includes('security') ||
+        message.toLowerCase().includes('mobile')) {
+      return `I understand you're asking about ${message}. Let me search our knowledge base for the most relevant e& solutions for you.
+
+Based on your query, here are some e& solutions that might interest you:
+
+**Business Connectivity:**
+• Business Pro Fiber - All-in-one SME bundle with fiber internet and collaboration tools
+• Business Pro Fiber 1 Gbps - Gigabit-capable bundle for multi-user sites
+• Dedicated Internet Access (DIA) - Dedicated fiber connectivity for enterprises
+
+**Cloud & Security:**
+• Cloud Connect - Private connectivity to major clouds from UAE
+• Secure Access Service Edge (SASE) - Advanced security with CASB, DLP, and threat protection
+• Microsoft 365 Business - Productivity and collaboration suite
+
+**Mobile Solutions:**
+• Business Mobile Starter - Essential mobile connectivity for small teams
+• Business Mobile Unlimited - Comprehensive mobile solution for growing businesses
+
+Would you like me to provide more details about any of these solutions, or help you find the best fit for your specific needs?`;
+    }
+    
+    // Generic response for other queries
     const insights = this.generateInsights(industry, webResult);
     
     return `Hello! I'm Jammy, your intelligent GTM assistant for e&. I see you're interested in the ${industry} sector. Let me share some insights:
@@ -293,6 +326,34 @@ What would you like to work on today? I'm here to help you succeed!
 • Regulatory changes affecting ${industry} operations
 
 Is there anything specific you'd like me to elaborate on, or would you like me to help you with something else?`;
+  }
+
+  private generateProductResponse(webResult: any): string {
+    const product = webResult;
+    
+    return `# ${product.name}
+
+${product.description}
+
+**Key Features:**
+${product.features.map((feature: string) => `• ${feature}`).join('\n')}
+
+**Target Segments:**
+${product.targetSegments.map((segment: string) => `• ${segment}`).join('\n')}
+
+**Industry Focus:** ${product.industry}
+**Confidence Level:** ${Math.round(product.confidence * 100)}%
+**Source:** ${product.source}
+
+This solution is part of e&'s comprehensive portfolio designed to meet the specific needs of businesses in the ${product.industry} sector. 
+
+Would you like me to:
+• Generate a visual representation of this solution?
+• Create marketing materials for this product?
+• Provide competitive analysis?
+• Help you develop a sales strategy?
+
+I'm here to help you succeed with e&'s solutions!`;
   }
 
   private generateInsights(industry: string, webResult: any): string[] {

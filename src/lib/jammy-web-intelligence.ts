@@ -116,7 +116,7 @@ export class JammyWebIntelligence {
 
     // Search through all offerings
     for (const category of GTM_CONTEXT.offerings.categories) {
-      console.log('🔍 Checking category:', category.name);
+      console.log('🔍 Checking category:', category.label);
       for (const item of category.items) {
         const score = this.calculateRelevanceScore(item, lowerQuery);
         console.log(`  - ${item.name}: score ${score}`);
@@ -184,8 +184,11 @@ export class JammyWebIntelligence {
   private calculateRelevanceScore(item: any, query: string): number {
     let score = 0;
     
-    // Name match
+    // Name match (exact)
     if (item.name.toLowerCase().includes(query)) score += 0.8;
+    
+    // Short description match
+    if (item.short_desc && item.short_desc.toLowerCase().includes(query)) score += 0.6;
     
     // Description match
     if (item.description && item.description.toLowerCase().includes(query)) score += 0.6;
@@ -198,8 +201,25 @@ export class JammyWebIntelligence {
       score += featureMatches * 0.3;
     }
     
+    // Target segments match
+    if (item.target_segments) {
+      const segmentMatches = item.target_segments.filter((segment: string) => 
+        segment.toLowerCase().includes(query)
+      ).length;
+      score += segmentMatches * 0.2;
+    }
+    
     // Category match
     if (item.category && item.category.toLowerCase().includes(query)) score += 0.4;
+    
+    // Partial word matches for better discovery
+    const queryWords = query.split(' ');
+    for (const word of queryWords) {
+      if (word.length > 2) { // Only match words longer than 2 characters
+        if (item.name.toLowerCase().includes(word)) score += 0.2;
+        if (item.short_desc && item.short_desc.toLowerCase().includes(word)) score += 0.1;
+      }
+    }
     
     return Math.min(1, score);
   }
