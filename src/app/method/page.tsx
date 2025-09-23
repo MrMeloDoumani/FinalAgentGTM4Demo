@@ -7,7 +7,7 @@ import { templateGenerator, Template, TemplateRequest } from "@/lib/template-gen
 
 // Template interface is imported from template-generator
 
-const templates: Template[] = [
+const initialTemplates: Template[] = [
   {
     id: "1",
     name: "Enterprise Solutions EDM",
@@ -84,7 +84,7 @@ const templateTypes = {
 };
 
 export default function MethodPage() {
-  const [templates, setTemplates] = useState<Template[]>(templates);
+  const [templates, setTemplates] = useState<Template[]>(initialTemplates);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [selectedIndustry, setSelectedIndustry] = useState("All Industries");
   const [showNewTemplate, setShowNewTemplate] = useState(false);
