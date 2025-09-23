@@ -649,11 +649,11 @@ What would you like to work on today? I'm here to help you succeed!
   private generateImprovements(analysis: Record<string, unknown>, response: Record<string, unknown>): string[] {
     const improvements = [];
     
-    if (analysis.confidence < 0.8) {
+    if ((analysis.confidence as number) < 0.8) {
       improvements.push('Improve confidence in response generation');
     }
     
-    if (analysis.complexity === 'complex' && response.content.length < 1000) {
+    if (analysis.complexity === 'complex' && (response.content as string).length < 1000) {
       improvements.push('Provide more detailed content for complex requests');
     }
     
