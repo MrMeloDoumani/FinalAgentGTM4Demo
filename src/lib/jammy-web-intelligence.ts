@@ -1,4 +1,4 @@
-import { GTM_CONTEXT } from './gtm-context';
+import { GTM_CONTEXT } from './data/gtm-context';
 
 export interface ProductSearchResult {
   name: string;
