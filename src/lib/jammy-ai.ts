@@ -550,9 +550,9 @@ What would you like to work on today? I'm here to help you succeed!
       id: `brochure_${Date.now()}`,
       type: 'brochure',
       title: `${analysis.industry} Industry Brochure`,
-      industry: analysis.industry,
-      content: response.content,
-      fileUrl: '/api/generate-pdf?type=brochure&industry=' + analysis.industry,
+      industry: analysis.industry as string,
+      content: response.content as string,
+      fileUrl: '/api/generate-pdf?type=brochure&industry=' + (analysis.industry as string),
       generatedAt: new Date().toISOString(),
       styleUsed: 'e&_corporate'
     };
