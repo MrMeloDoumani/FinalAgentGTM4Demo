@@ -241,84 +241,101 @@ class JammyAI {
   }
 
   private async generateResponse(message: string, analysis: Record<string, unknown>, context: Record<string, unknown>): Promise<{content: string, confidence: number}> {
-    // Get relevant GTM context
-    const sectorInfo = GTM_CONTEXT.sectors.find(s => s.key === analysis.industry);
-    const relevantProducts = this.findRelevantProducts(analysis.industry as string);
-    
-    // Generate intelligent response based on analysis and GTM context
-    let response = '';
-    let confidence = 0.9;
-    
-    // Use GTM_CONTEXT to provide specific, relevant information
-    if (analysis.intent === 'insights' || analysis.intent === 'analysis') {
-      response = this.generateInsightsResponse(message, analysis, sectorInfo, relevantProducts);
-    } else if (analysis.intent === 'create' || analysis.intent === 'generate') {
-      response = this.generateCreationResponse(analysis, sectorInfo, relevantProducts);
-    } else if (analysis.intent === 'compare' || analysis.intent === 'competitor') {
-      response = this.generateComparisonResponse(analysis, sectorInfo, relevantProducts);
-    } else {
-      response = this.generateGeneralResponse(message, analysis, sectorInfo, relevantProducts);
-    }
+    try {
+      // Get relevant GTM context
+      const sectorInfo = GTM_CONTEXT.sectors.find(s => s.key === analysis.industry);
+      const relevantProducts = this.findRelevantProducts(analysis.industry as string);
+      
+      // Generate intelligent response based on analysis and GTM context
+      let response = '';
+      let confidence = 0.9;
+      
+      // Use GTM_CONTEXT to provide specific, relevant information
+      if (analysis.intent === 'insights' || analysis.intent === 'analysis') {
+        response = this.generateInsightsResponse(message, analysis, sectorInfo, relevantProducts);
+      } else if (analysis.intent === 'create' || analysis.intent === 'generate') {
+        response = await this.generateCreationResponse(analysis, sectorInfo, relevantProducts);
+      } else if (analysis.intent === 'compare' || analysis.intent === 'competitor') {
+        response = await this.generateComparisonResponse(analysis, sectorInfo, relevantProducts);
+      } else {
+        response = await this.generateGeneralResponse(message, analysis, sectorInfo, relevantProducts);
+      }
 
-    // Add learning insights
-    const learningInsights = this.getLearningInsights(analysis);
-    if (learningInsights.length > 0) {
-      response += `\n\n## Learning Insights\n${learningInsights.join('\n')}`;
-    }
+      // Add learning insights
+      const learningInsights = this.getLearningInsights(analysis);
+      if (learningInsights.length > 0) {
+        response += `\n\n## Learning Insights\n${learningInsights.join('\n')}`;
+      }
 
-    return { content: response, confidence };
+      return { content: response, confidence };
+    } catch (error) {
+      console.error('Error in generateResponse:', error);
+      return { 
+        content: `I apologize, but I encountered an error while processing your request. Please try again or rephrase your question.`, 
+        confidence: 0.1 
+      };
+    }
   }
 
   private generateInsightsResponse(message: string, analysis: Record<string, unknown>, sectorInfo: unknown, products: unknown[]): string {
-    const industry = (analysis.industry as string) || 'general';
-    const sector = sectorInfo as { name?: string; description?: string; opportunities?: string[]; challenges?: string[] };
-    
-    let response = `# Industry Insights for ${sector?.name || industry.charAt(0).toUpperCase() + industry.slice(1)} Sector\n\n`;
-    
-    if (sector?.description) {
-      response += `## Market Overview\n${sector.description}\n\n`;
+    try {
+      const industry = (analysis.industry as string) || 'general';
+      const sector = sectorInfo as { name?: string; description?: string; opportunities?: string[]; challenges?: string[] };
+      
+      let response = `# Industry Insights for ${sector?.name || industry.charAt(0).toUpperCase() + industry.slice(1)} Sector\n\n`;
+      
+      if (sector?.description) {
+        response += `## Market Overview\n${sector.description}\n\n`;
+      }
+      
+      if (sector?.opportunities && Array.isArray(sector.opportunities) && sector.opportunities.length > 0) {
+        response += `## Key Opportunities\n`;
+        sector.opportunities.forEach(opportunity => {
+          response += `• ${opportunity}\n`;
+        });
+        response += '\n';
+      }
+      
+      if (sector?.challenges && Array.isArray(sector.challenges) && sector.challenges.length > 0) {
+        response += `## Market Challenges\n`;
+        sector.challenges.forEach(challenge => {
+          response += `• ${challenge}\n`;
+        });
+        response += '\n';
+      }
+      
+      if (products && Array.isArray(products) && products.length > 0) {
+        response += `## e& Solutions for ${sector?.name || industry}\n`;
+        products.slice(0, 3).forEach((product: any) => {
+          if (product && product.name) {
+            response += `### ${product.name}\n`;
+            if (product.short_desc) {
+              response += `${product.short_desc}\n\n`;
+            }
+            if (product.key_features && Array.isArray(product.key_features) && product.key_features.length > 0) {
+              response += `**Key Features:**\n`;
+              product.key_features.forEach((feature: string) => {
+                response += `• ${feature}\n`;
+              });
+              response += '\n';
+            }
+          }
+        });
+      }
+      
+      response += `## Strategic Recommendations\n`;
+      response += `• Focus on digital transformation initiatives\n`;
+      response += `• Leverage e&'s comprehensive solution portfolio\n`;
+      response += `• Target high-growth market segments\n`;
+      response += `• Implement data-driven decision making\n\n`;
+      
+      response += `*This analysis is based on e&'s market intelligence and industry expertise.*`;
+      
+      return response;
+    } catch (error) {
+      console.error('Error in generateInsightsResponse:', error);
+      return `# Industry Insights\n\nI apologize, but I encountered an error while generating insights. Please try again or rephrase your question.`;
     }
-    
-    if (sector?.opportunities && sector.opportunities.length > 0) {
-      response += `## Key Opportunities\n`;
-      sector.opportunities.forEach(opportunity => {
-        response += `• ${opportunity}\n`;
-      });
-      response += '\n';
-    }
-    
-    if (sector?.challenges && sector.challenges.length > 0) {
-      response += `## Market Challenges\n`;
-      sector.challenges.forEach(challenge => {
-        response += `• ${challenge}\n`;
-      });
-      response += '\n';
-    }
-    
-    if (products && products.length > 0) {
-      response += `## e& Solutions for ${sector?.name || industry}\n`;
-      products.slice(0, 3).forEach((product: any) => {
-        response += `### ${product.name}\n`;
-        response += `${product.short_desc}\n\n`;
-        if (product.key_features && product.key_features.length > 0) {
-          response += `**Key Features:**\n`;
-          product.key_features.forEach((feature: string) => {
-            response += `• ${feature}\n`;
-          });
-          response += '\n';
-        }
-      });
-    }
-    
-    response += `## Strategic Recommendations\n`;
-    response += `• Focus on digital transformation initiatives\n`;
-    response += `• Leverage e&'s comprehensive solution portfolio\n`;
-    response += `• Target high-growth market segments\n`;
-    response += `• Implement data-driven decision making\n\n`;
-    
-    response += `*This analysis is based on e&'s market intelligence and industry expertise.*`;
-    
-    return response;
   }
 
   private async generateCreationResponse(analysis: Record<string, unknown>, sectorInfo: unknown, products: unknown[]): Promise<string> {
