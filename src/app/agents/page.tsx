@@ -310,7 +310,7 @@ export default function AgentsPage() {
                     <div className="text-xs text-gray-600 mb-3">
                       {message.image.industry} • Generated {new Date(message.image.generatedAt).toLocaleString()}
                     </div>
-                    <Image 
+                    <img 
                       src={message.image.url} 
                       alt={message.image.title}
                       width={400}
@@ -357,7 +357,7 @@ export default function AgentsPage() {
                         {/* Display image inline if it's an image type */}
                         {asset.type === 'image' ? (
                           <div className="mt-3">
-                            <Image 
+                            <img 
                               src={asset.fileUrl} 
                               alt={asset.title}
                               width={400}
