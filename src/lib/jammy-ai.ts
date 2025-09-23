@@ -11,6 +11,7 @@ import { jammyIntelligenceEngine } from './jammy-intelligence-engine';
 import { chinchillaVisualIntelligence, VisualSpecification } from './chinchilla-visual-intelligence';
 import { knowledgeVisualDictionary } from './knowledge-visual-dictionary';
 import { jammyWebIntelligence } from './jammy-web-intelligence';
+import { jammyEducationSystem } from './jammy-education-system';
 // import { smartExecutionEngine } from './smart-execution-engine';
 import { Buffer } from 'buffer';
 
@@ -120,25 +121,36 @@ class JammyAI {
     console.log('🤖 Jammy AI processing message with intelligence system:', message);
 
     try {
-      // Step 1: Use web intelligence to search for products
+      // Step 1: Educate Jammy on the knowledge base and website
+      console.log('🎓 Starting Jammy Education System for:', message);
+      const educationResult = await jammyEducationSystem.educateJammy(message);
+      console.log('🎓 Education result:', educationResult);
+      
+      // Step 2: Use web intelligence to search for products (with education context)
       console.log('🚀 Starting web intelligence search for:', message);
       const productSearch = await jammyWebIntelligence.searchProduct(message);
       console.log('🔍 Product search result:', productSearch);
-      console.log('🔍 Product search confidence:', productSearch.confidence);
-      console.log('🔍 Product search industry:', productSearch.industry);
-      console.log('🔍 Product search visual elements:', productSearch.visualElements);
       
-      // Step 2: Use the new intelligence engine for structured thinking
+      // Step 3: Use education result to enhance product search
+      if (educationResult.confidence > productSearch.confidence) {
+        console.log('🎓 Using education result (higher confidence)');
+        productSearch.industry = educationResult.industry;
+        productSearch.visualElements = educationResult.visualElements;
+        productSearch.confidence = educationResult.confidence;
+        productSearch.source = 'education_system';
+      }
+      
+      // Step 4: Use the intelligence engine for structured thinking
       const enhancedContext = {
         ...context,
-        industry: productSearch.industry // Pass the industry from web intelligence
+        industry: productSearch.industry // Pass the industry from education/web intelligence
       };
       const intelligenceResult = await jammyIntelligenceEngine.processIntelligently(message, enhancedContext);
       console.log('🧠 Intelligence result industry:', intelligenceResult.analysis.industry);
       
-      // Step 3: Enhance intelligence result with product search data
-      if (productSearch.confidence > 0.5) {
-        console.log('✅ Using product search data (confidence > 0.5)');
+      // Step 5: Enhance intelligence result with education and product data
+      if (productSearch.confidence > 0.3) { // Lowered threshold to include education results
+        console.log('✅ Using enhanced data (confidence > 0.3)');
         intelligenceResult.knowledgeSearch.internal.push({
           type: 'offering',
           data: productSearch,
@@ -147,7 +159,7 @@ class JammyAI {
         intelligenceResult.analysis.industry = productSearch.industry;
         console.log('🔄 Updated intelligence industry to:', intelligenceResult.analysis.industry);
       } else {
-        console.log('❌ Product search confidence too low:', productSearch.confidence);
+        console.log('❌ Enhanced data confidence too low:', productSearch.confidence);
       }
       
       // Store conversation in memory
@@ -157,7 +169,7 @@ class JammyAI {
         timestamp: new Date().toISOString()
       });
       
-      // Generate response based on intelligence analysis with product data
+      // Generate response based on intelligence analysis with education data
       return await this.generateIntelligentResponse(intelligenceResult, message, productSearch);
 
     } catch (error) {
@@ -1106,13 +1118,18 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
       let visualElements: string[] = [];
       let industry = intelligenceResult.analysis.industry;
       
-      // Priority 1: Use product search data if available and confident
-      if (productSearch && productSearch.confidence > 0.5 && productSearch.visualElements.length > 0) {
+      // Priority 1: Use education system results if available and confident
+      if (productSearch && productSearch.source === 'education_system' && productSearch.visualElements.length > 0) {
+        visualElements = productSearch.visualElements;
+        industry = productSearch.industry;
+        console.log('🎓 Using education system visual elements:', visualElements);
+      } else if (productSearch && productSearch.confidence > 0.5 && productSearch.visualElements.length > 0) {
+        // Priority 2: Use product search data if available and confident
         visualElements = productSearch.visualElements;
         industry = productSearch.industry;
         console.log('🎯 Using product search visual elements:', visualElements);
       } else {
-        // Priority 2: Use knowledge-to-visual dictionary
+        // Priority 3: Use knowledge-to-visual dictionary
         const knowledgeProducts = intelligenceResult.knowledgeSearch.internal.filter(item => 
           item.type === 'offering' || item.type === 'sector'
         ).map(item => item.data);
