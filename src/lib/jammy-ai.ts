@@ -174,6 +174,7 @@ class JammyAI {
 
   private detectContentType(message: string): string {
     const contentTypes = {
+      'image': ['image', 'picture', 'photo', 'visual', 'generate image', 'create image', 'draw', 'illustration'],
       'brochure': ['brochure', 'flyer', 'leaflet', 'pamphlet'],
       'whitepaper': ['whitepaper', 'white paper', 'report', 'study', 'analysis'],
       'battlecard': ['battlecard', 'battle card', 'competitive', 'comparison', 'vs'],
@@ -279,6 +280,11 @@ class JammyAI {
   private async generateCreationResponse(analysis: Record<string, unknown>, sectorInfo: unknown, products: unknown[]): Promise<string> {
     const industryName = (sectorInfo as { name?: string })?.name || (analysis.industry as string).charAt(0).toUpperCase() + (analysis.industry as string).slice(1);
     const contentType = (analysis.contentType as string).charAt(0).toUpperCase() + (analysis.contentType as string).slice(1);
+    
+    // Handle image generation requests
+    if (analysis.contentType === 'image') {
+      return `I'll generate a visual representation for the ${industryName} sector. Let me create an image that showcases e&'s solutions and capabilities for your industry.`;
+    }
     
     let response = `# e& Business Solutions - ${industryName} ${contentType}\n\n`;
     
@@ -517,6 +523,9 @@ What would you like to work on today? I'm here to help you succeed!
     
     // Generate appropriate media assets based on content type
     switch (analysis.contentType) {
+      case 'image':
+        assets.push(await this.generateImageAsset(analysis, response));
+        break;
       case 'brochure':
         assets.push(await this.generateBrochureAsset(analysis, response));
         break;
@@ -541,6 +550,44 @@ What would you like to work on today? I'm here to help you succeed!
     }
     
     return assets;
+  }
+
+  private async generateImageAsset(analysis: Record<string, unknown>, response: Record<string, unknown>): Promise<MediaAsset> {
+    // Generate an image using the image generation service
+    try {
+      const imageRequest = {
+        content: response.content as string,
+        type: 'document',
+        industry: analysis.industry as string,
+        style: 'e&_corporate'
+      };
+      
+      const generatedImage = await imageGenerationService.generateDocumentImage(imageRequest);
+      
+      return {
+        id: `image_${Date.now()}`,
+        type: 'image',
+        title: `${analysis.industry} Visual Content`,
+        industry: analysis.industry as string,
+        content: response.content as string,
+        fileUrl: generatedImage.url,
+        generatedAt: new Date().toISOString(),
+        styleUsed: 'e&_corporate'
+      };
+    } catch (error) {
+      console.error('Image generation failed:', error);
+      // Fallback to a placeholder
+      return {
+        id: `image_${Date.now()}`,
+        type: 'image',
+        title: `${analysis.industry} Visual Content`,
+        industry: analysis.industry as string,
+        content: response.content as string,
+        fileUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzM3NDE1MSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIEdlbmVyYXRpb24gVW5hdmFpbGFibGU8L3RleHQ+PC9zdmc+',
+        generatedAt: new Date().toISOString(),
+        styleUsed: 'e&_corporate'
+      };
+    }
   }
 
   private async generateBrochureAsset(analysis: Record<string, unknown>, response: Record<string, unknown>): Promise<MediaAsset> {
