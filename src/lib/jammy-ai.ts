@@ -754,9 +754,12 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
       
       console.log('🎨 Generating creative image for:', industry, contentType);
       
-      // Delegate to Chinchilla - the image specialist
+      // Analyze the user's specific image request
+      const imagePrompt = this.analyzeImageRequest(message, industry, contentType);
+      
+      // Delegate to Chinchilla with specific instructions
       const chinchillaRequest: ChinchillaRequest = {
-        prompt: `Generate a ${contentType} for ${industry} sector`,
+        prompt: imagePrompt,
         industry: industry,
         contentType: contentType,
         style: 'professional',
@@ -937,6 +940,44 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
       generatedAt: new Date().toISOString(),
       styleUsed: 'e&_visual'
     };
+  }
+
+  private analyzeImageRequest(message: string, industry: string, contentType: string): string {
+    // Extract specific visual elements from the user's message
+    const lowerMessage = message.toLowerCase();
+    
+    // Look for specific objects, concepts, or visual elements
+    const visualElements = [];
+    
+    if (lowerMessage.includes('phone') || lowerMessage.includes('mobile')) {
+      visualElements.push('smartphone device');
+    }
+    if (lowerMessage.includes('chinchilla')) {
+      visualElements.push('chinchilla animal');
+    }
+    if (lowerMessage.includes('building') || lowerMessage.includes('office')) {
+      visualElements.push('corporate building');
+    }
+    if (lowerMessage.includes('people') || lowerMessage.includes('team')) {
+      visualElements.push('business people');
+    }
+    if (lowerMessage.includes('chart') || lowerMessage.includes('graph')) {
+      visualElements.push('data visualization');
+    }
+    if (lowerMessage.includes('network') || lowerMessage.includes('connectivity')) {
+      visualElements.push('network infrastructure');
+    }
+    
+    // If no specific elements found, use industry context
+    if (visualElements.length === 0) {
+      visualElements.push(`${industry} business solution`);
+    }
+    
+    // Create a detailed prompt for Chinchilla
+    const prompt = `Create a professional ${contentType} image featuring: ${visualElements.join(', ')} for the ${industry} sector. Include e& branding and make it visually appealing.`;
+    
+    console.log('🎯 Jammy analyzed image request:', prompt);
+    return prompt;
   }
 
   private extractLearningData(message: string, analysis: Record<string, unknown>, response: Record<string, unknown>): LearningData {
