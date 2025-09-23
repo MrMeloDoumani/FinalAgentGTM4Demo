@@ -9,6 +9,7 @@ import { templateLearningEngine } from './template-learning-engine';
 import { chinchillaImageAI, ChinchillaRequest } from './chinchilla-image-ai';
 import { jammyIntelligenceEngine } from './jammy-intelligence-engine';
 import { chinchillaVisualIntelligence, VisualSpecification } from './chinchilla-visual-intelligence';
+import { knowledgeVisualDictionary } from './knowledge-visual-dictionary';
 // import { smartExecutionEngine } from './smart-execution-engine';
 import { Buffer } from 'buffer';
 
@@ -1084,12 +1085,25 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
     let mediaAssets: MediaAsset[] = [];
     
     if (intelligenceResult.needsVisual && intelligenceResult.analysis.intent !== 'negative_command') {
+      // Use knowledge-to-visual dictionary to translate knowledge into visual elements
+      const knowledgeProducts = intelligenceResult.knowledgeSearch.internal.filter(item => 
+        item.type === 'offering' || item.type === 'sector'
+      ).map(item => item.data);
+      
+      const visualTranslation = knowledgeVisualDictionary.translateKnowledgeToVisual(
+        intelligenceResult.analysis.industry,
+        knowledgeProducts,
+        message
+      );
+      
+      console.log('🎨 Jammy translated knowledge to visual elements:', visualTranslation.elements);
+      
       const visualSpec: VisualSpecification = {
-        prompt: message,
-        industry: intelligenceResult.analysis.industry,
-        contentType: 'visual',
-        style: 'professional',
-        requirements: intelligenceResult.analysis.intent === 'creation' ? ['creative', 'professional'] : ['informative'],
+        prompt: `Draw these elements: ${visualTranslation.elements.join(', ')}`,
+        industry: visualTranslation.industry,
+        contentType: visualTranslation.contentType,
+        style: visualTranslation.style,
+        requirements: visualTranslation.requirements,
         context: intelligenceResult.analysis.context
       };
       
