@@ -10,6 +10,7 @@ import { chinchillaImageAI, ChinchillaRequest } from './chinchilla-image-ai';
 import { jammyIntelligenceEngine } from './jammy-intelligence-engine';
 import { chinchillaVisualIntelligence, VisualSpecification } from './chinchilla-visual-intelligence';
 import { knowledgeVisualDictionary } from './knowledge-visual-dictionary';
+import { jammyWebIntelligence } from './jammy-web-intelligence';
 // import { smartExecutionEngine } from './smart-execution-engine';
 import { Buffer } from 'buffer';
 
@@ -119,18 +120,22 @@ class JammyAI {
     console.log('🤖 Jammy AI processing message with intelligence system:', message);
 
     try {
-      // Use the smart execution engine for intelligent processing
-      const executionContext = {
-        query: message,
-        industry: context.industry as string,
-        contentType: context.contentType as string,
-        userPreferences: context.userPreferences as Record<string, unknown> || {},
-        conversationHistory: this.memory.conversationHistory || [],
-        uploadedFiles: uploadedFiles
-      };
-
-      // Use the new intelligence engine for structured thinking
+      // Step 1: Use web intelligence to search for products
+      const productSearch = await jammyWebIntelligence.searchProduct(message);
+      console.log('🔍 Product search result:', productSearch);
+      
+      // Step 2: Use the new intelligence engine for structured thinking
       const intelligenceResult = await jammyIntelligenceEngine.processIntelligently(message, context);
+      
+      // Step 3: Enhance intelligence result with product search data
+      if (productSearch.confidence > 0.5) {
+        intelligenceResult.knowledgeSearch.internal.push({
+          type: 'offering',
+          data: productSearch,
+          relevance: productSearch.confidence
+        });
+        intelligenceResult.analysis.industry = productSearch.industry;
+      }
       
       // Store conversation in memory
       jammyIntelligenceEngine.addConversation({
@@ -139,8 +144,8 @@ class JammyAI {
         timestamp: new Date().toISOString()
       });
       
-      // Generate response based on intelligence analysis
-      return await this.generateIntelligentResponse(intelligenceResult, message);
+      // Generate response based on intelligence analysis with product data
+      return await this.generateIntelligentResponse(intelligenceResult, message, productSearch);
 
     } catch (error) {
       console.error('❌ Jammy AI intelligent processing failed:', error);
@@ -1077,7 +1082,7 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
     return prompt;
   }
 
-  private async generateIntelligentResponse(intelligenceResult: any, message: string): Promise<JammyResponse> {
+  private async generateIntelligentResponse(intelligenceResult: any, message: string, productSearch?: any): Promise<JammyResponse> {
     // Build conversational response based on intelligence analysis
     let content = this.buildConversationalResponse(intelligenceResult, message);
     
@@ -1085,41 +1090,57 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
     let mediaAssets: MediaAsset[] = [];
     
     if (intelligenceResult.needsVisual && intelligenceResult.analysis.intent !== 'negative_command') {
-      // Use knowledge-to-visual dictionary to translate knowledge into visual elements
-      const knowledgeProducts = intelligenceResult.knowledgeSearch.internal.filter(item => 
-        item.type === 'offering' || item.type === 'sector'
-      ).map(item => item.data);
+      let visualElements: string[] = [];
+      let industry = intelligenceResult.analysis.industry;
       
-      const visualTranslation = knowledgeVisualDictionary.translateKnowledgeToVisual(
-        intelligenceResult.analysis.industry,
-        knowledgeProducts,
-        message
-      );
+      // Priority 1: Use product search data if available and confident
+      if (productSearch && productSearch.confidence > 0.5 && productSearch.visualElements.length > 0) {
+        visualElements = productSearch.visualElements;
+        industry = productSearch.industry;
+        console.log('🎯 Using product search visual elements:', visualElements);
+      } else {
+        // Priority 2: Use knowledge-to-visual dictionary
+        const knowledgeProducts = intelligenceResult.knowledgeSearch.internal.filter(item => 
+          item.type === 'offering' || item.type === 'sector'
+        ).map(item => item.data);
+        
+        const visualTranslation = knowledgeVisualDictionary.translateKnowledgeToVisual(
+          intelligenceResult.analysis.industry,
+          knowledgeProducts,
+          message
+        );
+        
+        visualElements = visualTranslation.elements;
+        industry = visualTranslation.industry;
+        console.log('🎨 Using knowledge translation visual elements:', visualElements);
+      }
       
-      console.log('🎨 Jammy translated knowledge to visual elements:', visualTranslation.elements);
-      
-      const visualSpec: VisualSpecification = {
-        prompt: `Draw these elements: ${visualTranslation.elements.join(', ')}`,
-        industry: visualTranslation.industry,
-        contentType: visualTranslation.contentType,
-        style: visualTranslation.style,
-        requirements: visualTranslation.requirements,
-        context: intelligenceResult.analysis.context
-      };
-      
-      const visualResult = await chinchillaVisualIntelligence.generateIntelligentImage(visualSpec);
-      
-      if (visualResult.success) {
-        mediaAssets.push({
-          id: `visual_${Date.now()}`,
-          type: 'image',
-          title: visualResult.title,
-          industry: intelligenceResult.analysis.industry,
-          content: visualResult.description,
-          fileUrl: visualResult.imageUrl,
-          generatedAt: new Date().toISOString(),
-          styleUsed: visualResult.styleApplied
-        });
+      if (visualElements.length > 0) {
+        const visualSpec: VisualSpecification = {
+          prompt: `Draw these elements: ${visualElements.join(', ')}`,
+          industry: industry,
+          contentType: 'product_visualization',
+          style: 'professional_b2b',
+          requirements: ['e& branding', 'B2B focus', 'professional layout'],
+          context: intelligenceResult.analysis.context
+        };
+        
+        console.log('🎨 Sending to Chinchilla:', visualSpec);
+        
+        const visualResult = await chinchillaVisualIntelligence.generateIntelligentImage(visualSpec);
+        
+        if (visualResult.success) {
+          mediaAssets.push({
+            id: `visual_${Date.now()}`,
+            type: 'image',
+            title: visualResult.title,
+            industry: industry,
+            content: visualResult.description,
+            fileUrl: visualResult.imageUrl,
+            generatedAt: new Date().toISOString(),
+            styleUsed: visualResult.styleApplied
+          });
+        }
       }
     }
     
