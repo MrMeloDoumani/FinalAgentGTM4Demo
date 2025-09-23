@@ -63,11 +63,21 @@ class ChinchillaVisualIntelligence {
     if (lowerPrompt.includes('chinchilla')) elements.push('chinchilla');
     if (lowerPrompt.includes('building') || lowerPrompt.includes('office')) elements.push('building');
     if (lowerPrompt.includes('people') || lowerPrompt.includes('team')) elements.push('people');
-    if (lowerPrompt.includes('chart') || lowerPrompt.includes('graph')) elements.push('chart');
+    if (lowerPrompt.includes('chart') || lowerPrompt.includes('graph') || lowerPrompt.includes('analytics')) elements.push('chart');
     if (lowerPrompt.includes('network')) elements.push('network');
-    if (lowerPrompt.includes('data_visualization') || lowerPrompt.includes('data')) elements.push('data_visualization');
-    if (lowerPrompt.includes('security')) elements.push('security');
+    if (lowerPrompt.includes('router') || lowerPrompt.includes('equipment')) elements.push('router');
+    if (lowerPrompt.includes('server') || lowerPrompt.includes('data_center')) elements.push('server');
+    if (lowerPrompt.includes('laptop') || lowerPrompt.includes('computer')) elements.push('laptop');
+    if (lowerPrompt.includes('tower') || lowerPrompt.includes('antenna')) elements.push('tower');
+    if (lowerPrompt.includes('wifi') || lowerPrompt.includes('signal')) elements.push('wifi_signal');
+    if (lowerPrompt.includes('security') || lowerPrompt.includes('shield')) elements.push('security_shield');
     if (lowerPrompt.includes('cloud')) elements.push('cloud');
+    if (lowerPrompt.includes('office_building') || lowerPrompt.includes('corporate')) elements.push('office_building');
+    if (lowerPrompt.includes('retail') || lowerPrompt.includes('store')) elements.push('retail_store');
+    if (lowerPrompt.includes('hospital') || lowerPrompt.includes('medical')) elements.push('hospital');
+    if (lowerPrompt.includes('school') || lowerPrompt.includes('education')) elements.push('school');
+    if (lowerPrompt.includes('analytics_dashboard') || lowerPrompt.includes('dashboard')) elements.push('analytics_dashboard');
+    if (lowerPrompt.includes('data_center')) elements.push('data_center');
     
     // Also check for "draw these elements:" pattern from Jammy
     if (lowerPrompt.includes('draw these elements:')) {
@@ -80,6 +90,19 @@ class ChinchillaVisualIntelligence {
           if (element === 'people' && !elements.includes('people')) elements.push('people');
           if (element === 'chart' && !elements.includes('chart')) elements.push('chart');
           if (element === 'network' && !elements.includes('network')) elements.push('network');
+          if (element === 'router' && !elements.includes('router')) elements.push('router');
+          if (element === 'server' && !elements.includes('server')) elements.push('server');
+          if (element === 'laptop' && !elements.includes('laptop')) elements.push('laptop');
+          if (element === 'tower' && !elements.includes('tower')) elements.push('tower');
+          if (element === 'wifi_signal' && !elements.includes('wifi_signal')) elements.push('wifi_signal');
+          if (element === 'security_shield' && !elements.includes('security_shield')) elements.push('security_shield');
+          if (element === 'cloud' && !elements.includes('cloud')) elements.push('cloud');
+          if (element === 'office_building' && !elements.includes('office_building')) elements.push('office_building');
+          if (element === 'retail_store' && !elements.includes('retail_store')) elements.push('retail_store');
+          if (element === 'hospital' && !elements.includes('hospital')) elements.push('hospital');
+          if (element === 'school' && !elements.includes('school')) elements.push('school');
+          if (element === 'analytics_dashboard' && !elements.includes('analytics_dashboard')) elements.push('analytics_dashboard');
+          if (element === 'data_center' && !elements.includes('data_center')) elements.push('data_center');
           if (element === 'chinchilla' && !elements.includes('chinchilla')) elements.push('chinchilla');
         });
       }
@@ -254,41 +277,69 @@ class ChinchillaVisualIntelligence {
     
     let svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">`;
     
-    // Background with brand colors
-    svg += `<rect width="${width}" height="${height}" fill="${brand.backgroundColor}"/>`;
-    svg += `<rect x="0" y="0" width="${width}" height="60" fill="${brand.primaryColor}"/>`;
+    // e& Professional B2B Background
+    svg += `<rect width="${width}" height="${height}" fill="white"/>`;
+    svg += `<rect x="0" y="0" width="${width}" height="60" fill="#e30613"/>`;
     
-    // e& branding
-    svg += `<text x="20" y="35" font-family="${brand.fonts.primary}" font-size="18" font-weight="bold" fill="white">${brand.logo}</text>`;
+    // e& Branding with B2B focus
+    svg += `<text x="20" y="35" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white">e& (Etisalat)</text>`;
+    svg += `<text x="20" y="50" font-family="Arial, sans-serif" font-size="12" fill="white">B2B Solutions</text>`;
     
-    // Main content area
-    svg += `<rect x="20" y="80" width="${width-40}" height="${height-100}" fill="white" stroke="${brand.primaryColor}" stroke-width="2" rx="8"/>`;
+    // Main content area with professional styling
+    svg += `<rect x="20" y="80" width="${width-40}" height="${height-100}" fill="white" stroke="#e30613" stroke-width="2" rx="8"/>`;
     
-    // Add visual elements based on research
-    let x = 50;
-    let y = 120;
-    
-    for (const element of interpretedSpec.elements) {
-      svg += this.drawElement(element, x, y, brand);
-      x += 80;
-      if (x > width - 100) {
-        x = 50;
-        y += 80;
+    // Professional B2B Layout
+    if (interpretedSpec.elements.length === 0) {
+      // Fallback: Show industry context
+      svg += `<text x="${width/2}" y="${height/2-20}" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#333">${interpretedSpec.industry.toUpperCase()}</text>`;
+      svg += `<text x="${width/2}" y="${height/2+10}" font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="#666">Business Solutions</text>`;
+    } else {
+      // Create professional composition for B2B
+      const layout = this.createProfessionalB2BLayout(interpretedSpec.elements, width, height);
+      
+      // Add elements with proper positioning
+      interpretedSpec.elements.forEach((element: string, index: number) => {
+        const position = layout.positions[index] || { x: 50, y: 120 };
+        svg += this.drawElement(element, position.x, position.y, brand);
+      });
+      
+      // Add product context
+      if (interpretedSpec.industry) {
+        svg += `<text x="${width/2}" y="${height-30}" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#666">${interpretedSpec.industry} Business Solutions</text>`;
       }
     }
     
-    // Add industry patterns
-    const patterns = research.industryPatterns;
-    for (let i = 0; i < Math.min(patterns.length, 3); i++) {
-      const pattern = patterns[i];
-      svg += `<text x="${width - 100 + i * 30}" y="${height - 40}" font-size="20" fill="${pattern.color}">${pattern.icon}</text>`;
-    }
-    
-    // Footer
-    svg += `<text x="${width/2}" y="${height-10}" font-family="${brand.fonts.primary}" font-size="12" text-anchor="middle" fill="${brand.textColor}">Generated by Chinchilla AI • ${Math.round(research.confidence * 100)}% confidence</text>`;
+    // Professional footer
+    svg += `<text x="${width/2}" y="${height-10}" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#999">Generated by Chinchilla AI for e& B2B • ${Math.round(research.confidence * 100)}% confidence</text>`;
     
     svg += `</svg>`;
     return svg;
+  }
+
+  private createProfessionalB2BLayout(elements: string[], width: number, height: number): { positions: { x: number, y: number }[] } {
+    const positions: { x: number, y: number }[] = [];
+    const startY = 120;
+    const spacing = 80;
+    
+    // Professional grid layout for B2B
+    if (elements.length === 1) {
+      positions.push({ x: width/2 - 30, y: startY });
+    } else if (elements.length === 2) {
+      positions.push({ x: width/2 - 60, y: startY });
+      positions.push({ x: width/2 + 20, y: startY });
+    } else if (elements.length === 3) {
+      positions.push({ x: width/2 - 60, y: startY });
+      positions.push({ x: width/2 - 10, y: startY });
+      positions.push({ x: width/2 + 40, y: startY });
+    } else {
+      // 4+ elements: 2x2 grid
+      positions.push({ x: width/2 - 80, y: startY });
+      positions.push({ x: width/2 - 20, y: startY });
+      positions.push({ x: width/2 - 80, y: startY + spacing });
+      positions.push({ x: width/2 - 20, y: startY + spacing });
+    }
+    
+    return { positions };
   }
 
   private drawElement(element: string, x: number, y: number, brand: any): string {
@@ -336,6 +387,112 @@ class ChinchillaVisualIntelligence {
           <line x1="${x+15}" y1="${y+20}" x2="${x+35}" y2="${y+10}" stroke="${brand.primaryColor}" stroke-width="2"/>
           <line x1="${x+35}" y1="${y+10}" x2="${x+55}" y2="${y+25}" stroke="${brand.primaryColor}" stroke-width="2"/>
           <line x1="${x+15}" y1="${y+20}" x2="${x+55}" y2="${y+25}" stroke="${brand.primaryColor}" stroke-width="2"/>
+        `;
+      case 'router':
+        return `
+          <rect x="${x}" y="${y}" width="50" height="30" fill="${brand.primaryColor}" rx="3"/>
+          <rect x="${x+5}" y="${y+5}" width="40" height="20" fill="white" rx="2"/>
+          <circle cx="${x+10}" cy="${y+15}" r="2" fill="${brand.primaryColor}"/>
+          <circle cx="${x+20}" cy="${y+15}" r="2" fill="${brand.primaryColor}"/>
+          <circle cx="${x+30}" cy="${y+15}" r="2" fill="${brand.primaryColor}"/>
+          <circle cx="${x+40}" cy="${y+15}" r="2" fill="${brand.primaryColor}"/>
+        `;
+      case 'server':
+        return `
+          <rect x="${x}" y="${y}" width="60" height="40" fill="#333" rx="2"/>
+          <rect x="${x+5}" y="${y+5}" width="50" height="8" fill="${brand.primaryColor}"/>
+          <rect x="${x+5}" y="${y+15}" width="50" height="8" fill="${brand.primaryColor}"/>
+          <rect x="${x+5}" y="${y+25}" width="50" height="8" fill="${brand.primaryColor}"/>
+          <circle cx="${x+55}" cy="${y+10}" r="3" fill="green"/>
+        `;
+      case 'laptop':
+        return `
+          <rect x="${x}" y="${y+15}" width="50" height="30" fill="#333" rx="2"/>
+          <rect x="${x+5}" y="${y+20}" width="40" height="20" fill="white" rx="1"/>
+          <rect x="${x+10}" y="${y+25}" width="30" height="10" fill="${brand.primaryColor}"/>
+          <rect x="${x+20}" y="${y+5}" width="10" height="15" fill="#666" rx="1"/>
+        `;
+      case 'tower':
+        return `
+          <rect x="${x+20}" y="${y}" width="8" height="50" fill="#333"/>
+          <rect x="${x+15}" y="${y+10}" width="18" height="8" fill="${brand.primaryColor}"/>
+          <rect x="${x+12}" y="${y+20}" width="24" height="8" fill="${brand.primaryColor}"/>
+          <rect x="${x+10}" y="${y+30}" width="28" height="8" fill="${brand.primaryColor}"/>
+        `;
+      case 'wifi_signal':
+        return `
+          <path d="M${x+20} ${y+30} Q${x+10} ${y+20} ${x+20} ${y+10}" stroke="${brand.primaryColor}" stroke-width="3" fill="none"/>
+          <path d="M${x+20} ${y+30} Q${x+15} ${y+25} ${x+20} ${y+20}" stroke="${brand.primaryColor}" stroke-width="2" fill="none"/>
+          <circle cx="${x+20}" cy="${y+30}" r="2" fill="${brand.primaryColor}"/>
+        `;
+      case 'security_shield':
+        return `
+          <path d="M${x+20} ${y+5} L${x+10} ${y+15} L${x+10} ${y+25} Q${x+10} ${y+35} ${x+20} ${y+35} Q${x+30} ${y+35} ${x+30} ${y+25} L${x+30} ${y+15} Z" fill="${brand.primaryColor}"/>
+          <path d="M${x+15} ${y+20} L${x+18} ${y+23} L${x+25} ${y+16}" stroke="white" stroke-width="2" fill="none"/>
+        `;
+      case 'cloud':
+        return `
+          <path d="M${x+10} ${y+20} Q${x+5} ${y+15} ${x+10} ${y+10} Q${x+15} ${y+5} ${x+25} ${y+5} Q${x+35} ${y+5} ${x+40} ${y+10} Q${x+45} ${y+15} ${x+40} ${y+20} L${x+10} ${y+20} Z" fill="${brand.primaryColor}"/>
+          <circle cx="${x+20}" cy="${y+15}" r="2" fill="white"/>
+          <circle cx="${x+30}" cy="${y+15}" r="2" fill="white"/>
+        `;
+      case 'office_building':
+        return `
+          <rect x="${x}" y="${y+20}" width="60" height="40" fill="#666"/>
+          <rect x="${x+5}" y="${y+5}" width="50" height="15" fill="${brand.primaryColor}"/>
+          <rect x="${x+10}" y="${y+25}" width="15" height="10" fill="#999"/>
+          <rect x="${x+30}" y="${y+25}" width="15" height="10" fill="#999"/>
+          <rect x="${x+10}" y="${y+40}" width="15" height="10" fill="#999"/>
+          <rect x="${x+30}" y="${y+40}" width="15" height="10" fill="#999"/>
+        `;
+      case 'retail_store':
+        return `
+          <rect x="${x}" y="${y+20}" width="60" height="40" fill="#e30613"/>
+          <rect x="${x+5}" y="${y+5}" width="50" height="15" fill="white"/>
+          <text x="${x+30}" y="${y+15}" font-family="Arial" font-size="8" text-anchor="middle" fill="#e30613">e&</text>
+          <rect x="${x+10}" y="${y+30}" width="40" height="25" fill="white" opacity="0.8"/>
+          <rect x="${x+15}" y="${y+35}" width="8" height="8" fill="${brand.primaryColor}"/>
+          <rect x="${x+25}" y="${y+35}" width="8" height="8" fill="${brand.primaryColor}"/>
+          <rect x="${x+35}" y="${y+35}" width="8" height="8" fill="${brand.primaryColor}"/>
+        `;
+      case 'hospital':
+        return `
+          <rect x="${x}" y="${y+20}" width="60" height="40" fill="white" stroke="#1976D2" stroke-width="2"/>
+          <rect x="${x+5}" y="${y+5}" width="50" height="15" fill="#1976D2"/>
+          <circle cx="${x+30}" cy="${y+12}" r="8" fill="white"/>
+          <path d="M${x+25} ${y+8} L${x+30} ${y+12} L${x+35} ${y+8}" stroke="#1976D2" stroke-width="2" fill="none"/>
+          <rect x="${x+10}" y="${y+30}" width="15" height="10" fill="#f0f0f0"/>
+          <rect x="${x+30}" y="${y+30}" width="15" height="10" fill="#f0f0f0"/>
+        `;
+      case 'school':
+        return `
+          <rect x="${x}" y="${y+20}" width="60" height="40" fill="white" stroke="#2E7D32" stroke-width="2"/>
+          <rect x="${x+5}" y="${y+5}" width="50" height="15" fill="#2E7D32"/>
+          <circle cx="${x+30}" cy="${y+12}" r="6" fill="white"/>
+          <text x="${x+30}" y="${y+16}" font-family="Arial" font-size="8" text-anchor="middle" fill="#2E7D32">e&</text>
+          <rect x="${x+10}" y="${y+30}" width="15" height="10" fill="#f0f0f0"/>
+          <rect x="${x+30}" y="${y+30}" width="15" height="10" fill="#f0f0f0"/>
+          <rect x="${x+10}" y="${y+45}" width="15" height="10" fill="#f0f0f0"/>
+          <rect x="${x+30}" y="${y+45}" width="15" height="10" fill="#f0f0f0"/>
+        `;
+      case 'analytics_dashboard':
+        return `
+          <rect x="${x}" y="${y}" width="60" height="40" fill="#f0f0f0" stroke="#333" stroke-width="1"/>
+          <rect x="${x+5}" y="${y+5}" width="50" height="8" fill="${brand.primaryColor}"/>
+          <rect x="${x+5}" y="${y+15}" width="12" height="20" fill="${brand.primaryColor}"/>
+          <rect x="${x+20}" y="${y+25}" width="12" height="10" fill="${brand.primaryColor}"/>
+          <rect x="${x+35}" y="${y+20}" width="12" height="15" fill="${brand.primaryColor}"/>
+          <rect x="${x+50}" y="${y+30}" width="5" height="5" fill="${brand.primaryColor}"/>
+        `;
+      case 'data_center':
+        return `
+          <rect x="${x}" y="${y+10}" width="60" height="30" fill="#333" rx="2"/>
+          <rect x="${x+5}" y="${y+5}" width="50" height="5" fill="${brand.primaryColor}"/>
+          <rect x="${x+10}" y="${y+15}" width="15" height="8" fill="#666"/>
+          <rect x="${x+30}" y="${y+15}" width="15" height="8" fill="#666"/>
+          <rect x="${x+10}" y="${y+25}" width="15" height="8" fill="#666"/>
+          <rect x="${x+30}" y="${y+25}" width="15" height="8" fill="#666"/>
+          <circle cx="${x+55}" cy="${y+20}" r="3" fill="green"/>
         `;
       default:
         return `<rect x="${x}" y="${y}" width="60" height="40" fill="${brand.primaryColor}" rx="4"/>`;

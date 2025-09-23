@@ -167,39 +167,55 @@ export class KnowledgeVisualDictionary {
     // Check product name and description for keywords
     const text = `${product.name} ${product.short_desc || ''} ${product.key_features?.join(' ') || ''}`.toLowerCase();
     
-    // For tech_telecom products, always include network and building elements
-    if (industry === 'tech_telecom') {
-      elements.push('network');
-      elements.push('building');
-    }
+    // e& B2B Focus: Always include professional business elements
+    elements.push('office_building'); // B2B context
     
-    // Check for specific product features
+    // Product-specific mapping based on e& offerings
     if (text.includes('fiber') || text.includes('internet') || text.includes('connectivity')) {
       elements.push('network');
+      elements.push('router');
+      elements.push('wifi_signal');
     }
+    
     if (text.includes('mobile') || text.includes('phone') || text.includes('pos')) {
       elements.push('smartphone');
+      elements.push('network');
     }
-    if (text.includes('analytics') || text.includes('data') || text.includes('insights')) {
+    
+    if (text.includes('analytics') || text.includes('data') || text.includes('insights') || text.includes('reporting')) {
+      elements.push('analytics_dashboard');
       elements.push('chart');
     }
-    if (text.includes('business') || text.includes('office') || text.includes('site')) {
-      elements.push('building');
+    
+    if (text.includes('security') || text.includes('protection') || text.includes('sase')) {
+      elements.push('security_shield');
+      elements.push('server');
     }
     
-    // Fallback to general element matching
-    for (const visualElement of this.visualElements) {
-      if (visualElement.industry === industry || visualElement.industry === 'general') {
-        for (const keyword of visualElement.keywords) {
-          if (text.includes(keyword.toLowerCase()) && !elements.includes(visualElement.name)) {
-            elements.push(visualElement.name);
-            break;
-          }
-        }
-      }
+    if (text.includes('cloud') || text.includes('microsoft') || text.includes('365')) {
+      elements.push('cloud');
+      elements.push('server');
     }
     
-    return elements;
+    if (text.includes('data center') || text.includes('server') || text.includes('infrastructure')) {
+      elements.push('data_center');
+      elements.push('server');
+      elements.push('tower');
+    }
+    
+    // Industry-specific building types for B2B
+    if (industry === 'retail') {
+      elements.push('retail_store');
+    } else if (industry === 'healthcare') {
+      elements.push('hospital');
+    } else if (industry === 'education') {
+      elements.push('school');
+    } else {
+      elements.push('office_building'); // Default B2B
+    }
+    
+    // Remove duplicates and ensure we have meaningful elements
+    return [...new Set(elements)].slice(0, 4); // Limit to 4 elements for clarity
   }
 
   private findElementsForRequest(userRequest: string, industry: string): string[] {
