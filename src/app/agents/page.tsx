@@ -346,7 +346,7 @@ export default function AgentsPage() {
                       <div key={index} className="bg-white rounded-lg p-4 border border-gray-200">
                         <div className="flex items-center justify-between mb-2">
                           <h5 className="font-medium text-gray-900">{asset.title}</h5>
-                          <span className="text-xs text-gray-500 bg-blue-100 px-2 py-1 rounded">
+                          <span className="text-xs text-gray-500 bg-red-100 px-2 py-1 rounded">
                             {asset.type.toUpperCase()}
                           </span>
                         </div>
@@ -413,7 +413,7 @@ export default function AgentsPage() {
                     Jammy AI
                   </span>
                   {message.confidence && (
-                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded mr-2">
+                    <span className="bg-red-100 text-red-800 px-2 py-1 rounded mr-2">
                       Confidence: {Math.round(message.confidence * 100)}%
                     </span>
                   )}

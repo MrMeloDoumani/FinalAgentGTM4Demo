@@ -17,7 +17,7 @@ export interface JammyResponse {
 
 export interface MediaAsset {
   id: string;
-  type: 'brochure' | 'whitepaper' | 'battlecard' | 'presentation' | 'email' | 'sms' | 'infographic';
+  type: 'brochure' | 'whitepaper' | 'battlecard' | 'presentation' | 'email' | 'sms' | 'infographic' | 'image';
   title: string;
   industry: string;
   content: string;
@@ -137,14 +137,19 @@ class JammyAI {
     const intents = {
       'create': ['create', 'generate', 'make', 'build', 'design'],
       'analyze': ['analyze', 'review', 'examine', 'study', 'assess'],
-      'insights': ['insights', 'insight', 'market insights', 'industry insights', 'provide insights', 'give insights', 'connectivity', 'internet', 'market analysis', 'sector analysis'],
+      'insights': ['insights', 'insight', 'market insights', 'industry insights', 'provide insights', 'give insights', 'connectivity', 'internet', 'market analysis', 'sector analysis', 'analyze markets', 'provide industry insights', 'uae market', 'market trends', 'industry trends', 'market intelligence', 'sector intelligence'],
       'compare': ['compare', 'contrast', 'versus', 'vs', 'difference'],
       'learn': ['learn', 'teach', 'explain', 'understand', 'know'],
       'help': ['help', 'assist', 'support', 'guide', 'advice']
     };
 
+    // Check for insights first with higher priority
+    if (intents.insights.some(keyword => message.toLowerCase().includes(keyword))) {
+      return 'insights';
+    }
+
     for (const [intent, keywords] of Object.entries(intents)) {
-      if (keywords.some(keyword => message.toLowerCase().includes(keyword))) {
+      if (intent !== 'insights' && keywords.some(keyword => message.toLowerCase().includes(keyword))) {
         return intent;
       }
     }
@@ -166,13 +171,26 @@ class JammyAI {
       'hospitality': ['hospitality', 'hotel', 'tourism', 'restaurant', 'guest', 'service', 'tourism']
     };
 
+    // Check for specific industry keywords first
     for (const [industry, keywords] of Object.entries(industryKeywords)) {
       if (keywords.some(keyword => message.toLowerCase().includes(keyword))) {
         return industry;
       }
     }
 
-    return 'retail'; // Default
+    // If no specific industry detected, check for UAE market context
+    if (message.toLowerCase().includes('uae') || message.toLowerCase().includes('emirates') || 
+        message.toLowerCase().includes('dubai') || message.toLowerCase().includes('abu dhabi')) {
+      return 'tech_telecom'; // Default to tech/telecom for UAE market insights
+    }
+
+    // For general market analysis requests, default to tech_telecom
+    if (message.toLowerCase().includes('market') || message.toLowerCase().includes('industry') || 
+        message.toLowerCase().includes('insights') || message.toLowerCase().includes('analysis')) {
+      return 'tech_telecom';
+    }
+
+    return 'retail'; // Default fallback
   }
 
   private detectContentType(message: string): string {
