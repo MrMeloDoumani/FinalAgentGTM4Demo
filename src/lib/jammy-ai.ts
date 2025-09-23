@@ -121,20 +121,29 @@ class JammyAI {
 
     try {
       // Step 1: Use web intelligence to search for products
+      console.log('🚀 Starting web intelligence search for:', message);
       const productSearch = await jammyWebIntelligence.searchProduct(message);
       console.log('🔍 Product search result:', productSearch);
+      console.log('🔍 Product search confidence:', productSearch.confidence);
+      console.log('🔍 Product search industry:', productSearch.industry);
+      console.log('🔍 Product search visual elements:', productSearch.visualElements);
       
       // Step 2: Use the new intelligence engine for structured thinking
       const intelligenceResult = await jammyIntelligenceEngine.processIntelligently(message, context);
+      console.log('🧠 Intelligence result industry:', intelligenceResult.analysis.industry);
       
       // Step 3: Enhance intelligence result with product search data
       if (productSearch.confidence > 0.5) {
+        console.log('✅ Using product search data (confidence > 0.5)');
         intelligenceResult.knowledgeSearch.internal.push({
           type: 'offering',
           data: productSearch,
           relevance: productSearch.confidence
         });
         intelligenceResult.analysis.industry = productSearch.industry;
+        console.log('🔄 Updated intelligence industry to:', intelligenceResult.analysis.industry);
+      } else {
+        console.log('❌ Product search confidence too low:', productSearch.confidence);
       }
       
       // Store conversation in memory

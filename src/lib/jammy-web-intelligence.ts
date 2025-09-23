@@ -40,12 +40,15 @@ export class JammyWebIntelligence {
     try {
       // Step 1: Search e& website
       const websiteData = await this.searchEtisalatWebsite(query);
+      console.log('🌐 Website search result:', websiteData);
       
       // Step 2: Search GTM_CONTEXT
       const gtmData = this.searchGTMContext(query);
+      console.log('📚 GTM search result:', gtmData);
       
       // Step 3: Combine and enhance
       const result = this.combineKnowledge(websiteData, gtmData, query);
+      console.log('🔄 Combined result:', result);
       
       // Cache the result
       this.cache.set(cacheKey, result);
@@ -82,12 +85,20 @@ export class JammyWebIntelligence {
         availability: 'Available nationwide'
       };
 
-      // Simulate search logic
-      if (query.toLowerCase().includes('business pro fiber') || 
-          query.toLowerCase().includes('fiber') ||
-          query.toLowerCase().includes('internet')) {
+      // Simulate search logic - be more specific
+      const lowerQuery = query.toLowerCase();
+      console.log('🔍 Checking query:', lowerQuery);
+      
+      if (lowerQuery.includes('business pro fiber') || 
+          lowerQuery.includes('business pro') ||
+          lowerQuery.includes('pro fiber') ||
+          lowerQuery.includes('fiber') ||
+          lowerQuery.includes('internet')) {
+        console.log('✅ Found match for Business Pro Fiber');
         return mockWebsiteData;
       }
+      
+      console.log('❌ No match found for:', query);
 
       return null;
     } catch (error) {
@@ -105,8 +116,10 @@ export class JammyWebIntelligence {
 
     // Search through all offerings
     for (const category of GTM_CONTEXT.offerings.categories) {
+      console.log('🔍 Checking category:', category.name);
       for (const item of category.items) {
         const score = this.calculateRelevanceScore(item, lowerQuery);
+        console.log(`  - ${item.name}: score ${score}`);
         
         if (score > highestScore) {
           highestScore = score;
@@ -125,10 +138,11 @@ export class JammyWebIntelligence {
     }
 
     if (bestMatch) {
-      console.log('✅ Found in GTM_CONTEXT:', bestMatch.name);
+      console.log('✅ Found in GTM_CONTEXT:', bestMatch.name, 'score:', bestMatch.confidence);
       return bestMatch;
     }
 
+    console.log('❌ No match found in GTM_CONTEXT, using fallback');
     // Fallback: create generic result
     return {
       name: query,
