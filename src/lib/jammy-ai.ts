@@ -5,7 +5,6 @@ import { GTM_CONTEXT } from './data/gtm-context';
 import { styleLearningEngine, StylePattern } from './style-learning';
 import { enhancedStyleLearningEngine } from './enhanced-style-learning';
 import { simpleImageGenerator } from './simple-image-generator';
-import { templateLearningEngine } from './template-learning-engine';
 import { chinchillaImageAI, ChinchillaRequest } from './chinchilla-image-ai';
 import { jammyIntelligenceEngine } from './jammy-intelligence-engine';
 import { chinchillaVisualIntelligence, VisualSpecification } from './chinchilla-visual-intelligence';
@@ -14,7 +13,6 @@ import { jammyWebIntelligence } from './jammy-web-intelligence';
 import { jammyEducationSystem } from './jammy-education-system';
 import { ivyLeagueJammyEducation } from './ivy-league-jammy-education';
 import { jammyCommunicationSystem } from './jammy-communication-system';
-// import { smartExecutionEngine } from './smart-execution-engine';
 import { Buffer } from 'buffer';
 
 export interface JammyResponse {
@@ -102,9 +100,8 @@ class JammyAI {
     // Initialize AI models and learning systems
     console.log('🤖 Jammy AI initializing...');
     
-    // Initialize template learning engine with default e& templates
-    templateLearningEngine.initializeWithDefaultTemplates();
-    console.log('🎨 Template learning engine initialized');
+    // Template learning functionality integrated into enhanced style learning
+    console.log('🎨 Style learning engine initialized');
     
     // Load any existing memory from localStorage
     this.loadMemory();
@@ -1423,8 +1420,8 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
             createdAt: new Date().toISOString()
           };
           
-          // Learn from the template
-          await templateLearningEngine.learnFromTemplate(visualTemplate);
+          // Learn from the template using enhanced style learning
+          await enhancedStyleLearningEngine.processFile(file);
           console.log(`🎨 Learned design patterns from: ${file.name}`);
         }
         
