@@ -41,20 +41,55 @@ const actionOptions = [
 ];
 
 export default function AgentsPage() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      type: "ai",
-      content: "Hello Yasser! I'm Jammy, your intelligent AI assistant for e& GTM. I can create media assets, analyze markets, learn from your uploads, and get smarter with every interaction. What would you like to work on today?",
-      timestamp: new Date(),
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [showActions, setShowActions] = useState(false);
   const [showFileUpload, setShowFileUpload] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Initialize conversation with Jammy's greeting
+  useEffect(() => {
+    const initializeConversation = async () => {
+      try {
+        const response = await fetch('/api/jammy', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: 'Hello',
+            context: { user: 'Yasser Omar Zaki Shaaban', role: 'DIRECTOR' },
+            uploadedFiles: []
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setMessages([{
+            id: data.id || `jammy_${Date.now()}`,
+            type: "ai",
+            content: data.content,
+            timestamp: new Date(),
+            jammyId: data.jammyId,
+            confidence: data.confidence
+          }]);
+        }
+      } catch (error) {
+        console.error('Failed to initialize conversation:', error);
+        // Fallback greeting
+        setMessages([{
+          id: `jammy_${Date.now()}`,
+          type: "ai",
+          content: "Hello! I'm Jammy, your expert AI assistant for e& GTM team. It's wonderful to meet you!",
+          timestamp: new Date(),
+        }]);
+      }
+    };
+
+    initializeConversation();
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -471,7 +506,7 @@ export default function AgentsPage() {
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask me anything about sales enablement, strategic planning, or market analysis..."
+              placeholder="Hello! I'm Jammy, your expert AI assistant. Ask me anything about sales enablement, visual creation, or market analysis..."
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none text-black placeholder-gray-500"
               rows={3}
             />
