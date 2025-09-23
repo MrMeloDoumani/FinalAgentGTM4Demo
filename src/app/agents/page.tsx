@@ -98,6 +98,14 @@ export default function AgentsPage() {
       const data = await response.json();
 
       if (data.success) {
+        console.log('✅ API Response received:', data);
+        console.log('📊 Media Assets:', data.mediaAssets);
+        if (data.mediaAssets && data.mediaAssets.length > 0) {
+          console.log('🖼️ First Media Asset:', data.mediaAssets[0]);
+          console.log('🔗 File URL:', data.mediaAssets[0].fileUrl);
+          console.log('📏 URL Length:', data.mediaAssets[0].fileUrl.length);
+        }
+        
         const aiResponse: Message = {
           id: (Date.now() + 1).toString(),
           type: "ai",
@@ -362,13 +370,22 @@ export default function AgentsPage() {
                               alt={asset.title}
                               width={400}
                               height={300}
-                              className="w-full max-w-md mx-auto rounded border border-gray-200"
-                              onError={(e) => {
-                                console.error('Image failed to load:', e);
-                                console.error('Image URL:', asset.fileUrl);
+                              className="w-full max-w-md mx-auto rounded border-2 border-red-500"
+                              style={{
+                                minHeight: '200px',
+                                backgroundColor: '#f0f0f0',
+                                display: 'block'
                               }}
-                              onLoad={() => {
-                                console.log('Image loaded successfully:', asset.title);
+                              onError={(e) => {
+                                console.error('❌ Image failed to load:', e);
+                                console.error('❌ Image URL:', asset.fileUrl);
+                                console.error('❌ Image URL length:', asset.fileUrl.length);
+                                (e.target as HTMLImageElement).style.border = '3px solid red';
+                                (e.target as HTMLImageElement).alt = 'FAILED TO LOAD IMAGE';
+                              }}
+                              onLoad={(e) => {
+                                console.log('✅ Image loaded successfully:', asset.title);
+                                (e.target as HTMLImageElement).style.border = '3px solid green';
                               }}
                             />
                             <div className="mt-3 flex space-x-2">
