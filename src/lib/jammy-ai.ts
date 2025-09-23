@@ -277,8 +277,8 @@ class JammyAI {
   }
 
   private async generateCreationResponse(analysis: Record<string, unknown>, sectorInfo: unknown, products: unknown[]): Promise<string> {
-    const industryName = sectorInfo?.name || analysis.industry.charAt(0).toUpperCase() + analysis.industry.slice(1);
-    const contentType = analysis.contentType.charAt(0).toUpperCase() + analysis.contentType.slice(1);
+    const industryName = (sectorInfo as any)?.name || (analysis.industry as string).charAt(0).toUpperCase() + (analysis.industry as string).slice(1);
+    const contentType = (analysis.contentType as string).charAt(0).toUpperCase() + (analysis.contentType as string).slice(1);
     
     let response = `# e& Business Solutions - ${industryName} ${contentType}\n\n`;
     
