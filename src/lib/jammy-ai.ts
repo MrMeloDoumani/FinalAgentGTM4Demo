@@ -6,7 +6,7 @@ import { styleLearningEngine, StylePattern } from './style-learning';
 import { enhancedStyleLearningEngine } from './enhanced-style-learning';
 import { simpleImageGenerator } from './simple-image-generator';
 import { templateLearningEngine } from './template-learning-engine';
-import { creativeImageGenerator } from './creative-image-generator';
+import { ultraSimpleImageGenerator } from './ultra-simple-image-generator';
 // import { smartExecutionEngine } from './smart-execution-engine';
 import { Buffer } from 'buffer';
 
@@ -754,15 +754,13 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
       
       console.log('🎨 Generating creative image for:', industry, contentType);
       
-      // Use the creative image generator with learned patterns
-      const generatedImage = await creativeImageGenerator.generateCreativeImage(
+      // Use the ultra-simple image generator
+      const generatedImage = await ultraSimpleImageGenerator.generateImage(
         response.content as string,
-        industry,
-        contentType
+        industry
       );
       
-      console.log('✅ Creative image generated with creativity score:', generatedImage.creativityScore);
-      console.log('📊 Patterns used:', generatedImage.patternsUsed);
+      console.log('✅ Ultra-simple image generated successfully');
       
       return {
         id: `image_${Date.now()}`,
@@ -772,7 +770,7 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
         content: response.content as string,
         fileUrl: generatedImage.url,
         generatedAt: new Date().toISOString(),
-        styleUsed: `Creative (${Math.round(generatedImage.creativityScore * 100)}%)`
+        styleUsed: 'Canvas PNG'
       };
     } catch (error) {
       console.error('❌ Creative image generation failed:', error);
@@ -782,10 +780,9 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
         const industry = analysis.industry as string;
         const contentType = analysis.contentType as string;
         
-        const fallbackImage = await creativeImageGenerator.generateFallbackImage(
+        const fallbackImage = await ultraSimpleImageGenerator.generateImage(
           response.content as string,
-          industry,
-          contentType
+          industry
         );
         
         return {

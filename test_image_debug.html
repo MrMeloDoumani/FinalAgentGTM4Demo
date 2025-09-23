@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Debug Test</title>
+</head>
+<body>
+    <h1>Image Debug Test</h1>
+    <button onclick="testImage()">Test Image Generation</button>
+    <div id="result"></div>
+    <div id="imageContainer"></div>
+
+    <script>
+        async function testImage() {
+            try {
+                console.log('Testing image generation...');
+                const response = await fetch('http://localhost:3002/api/jammy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: 'generate an image for retail' })
+                });
+                
+                const data = await response.json();
+                console.log('Response:', data);
+                
+                if (data.success && data.mediaAssets) {
+                    const imageAsset = data.mediaAssets.find(asset => asset.type === 'image');
+                    if (imageAsset) {
+                        console.log('Image URL:', imageAsset.fileUrl);
+                        console.log('Image URL length:', imageAsset.fileUrl.length);
+                        console.log('Image URL starts with:', imageAsset.fileUrl.substring(0, 100));
+                        
+                        document.getElementById('result').innerHTML = `
+                            <h3>Image Found!</h3>
+                            <p>URL: ${imageAsset.fileUrl.substring(0, 100)}...</p>
+                            <p>Length: ${imageAsset.fileUrl.length}</p>
+                        `;
+                        
+                        const img = document.createElement('img');
+                        img.src = imageAsset.fileUrl;
+                        img.style.border = '2px solid red';
+                        img.style.maxWidth = '400px';
+                        img.onload = () => console.log('✅ Image loaded successfully');
+                        img.onerror = (e) => console.error('❌ Image failed to load:', e);
+                        document.getElementById('imageContainer').appendChild(img);
+                    } else {
+                        document.getElementById('result').innerHTML = '<p>No image asset found</p>';
+                    }
+                } else {
+                    document.getElementById('result').innerHTML = '<p>No media assets found</p>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
