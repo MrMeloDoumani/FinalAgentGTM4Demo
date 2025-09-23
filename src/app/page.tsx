@@ -123,7 +123,7 @@ export default function Home() {
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <div className="h-8 w-8 bg-red-600 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-sm">e&</span>
                 </div>
                 <div>

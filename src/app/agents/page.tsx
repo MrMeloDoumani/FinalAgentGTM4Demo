@@ -254,7 +254,7 @@ export default function AgentsPage() {
             <div className="relative">
               <button
                 onClick={() => setShowActions(!showActions)}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                     className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
               >
                 <FileText className="h-4 w-4" />
                 <span>Actions</span>
@@ -291,7 +291,7 @@ export default function AgentsPage() {
             <div
               className={`max-w-3xl px-4 py-3 rounded-lg ${
                 message.type === "user"
-                  ? "bg-blue-600 text-white"
+                  ? "bg-red-600 text-white"
                   : "bg-gray-100 text-gray-900"
               }`}
             >
@@ -320,7 +320,7 @@ export default function AgentsPage() {
                     <div className="mt-3 flex space-x-2">
                       <button 
                         onClick={() => window.open(message.image!.url, '_blank')}
-                        className="flex items-center space-x-1 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                        className="flex items-center space-x-1 px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
                       >
                         <Download className="h-3 w-3" />
                         <span>Download</span>
@@ -367,7 +367,7 @@ export default function AgentsPage() {
                             <div className="mt-3 flex space-x-2">
                               <button 
                                 onClick={() => window.open(asset.fileUrl, '_blank')}
-                                className="flex items-center space-x-1 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                                className="flex items-center space-x-1 px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
                               >
                                 <Download className="h-3 w-3" />
                                 <span>Download Image</span>
@@ -386,7 +386,7 @@ export default function AgentsPage() {
                           <div className="mt-3 flex space-x-2">
                             <button 
                               onClick={() => window.open(asset.fileUrl, '_blank')}
-                              className="flex items-center space-x-1 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                              className="flex items-center space-x-1 px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
                             >
                               <Download className="h-3 w-3" />
                               <span>Download {asset.type.toUpperCase()}</span>
@@ -453,14 +453,14 @@ export default function AgentsPage() {
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask me anything about sales enablement, strategic planning, or market analysis..."
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-900 placeholder-gray-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none text-black placeholder-gray-500"
               rows={3}
             />
           </div>
           <button
             onClick={handleSendMessage}
             disabled={!inputMessage.trim() || isTyping}
-            className="flex items-center justify-center w-12 h-12 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="flex items-center justify-center w-12 h-12 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Send className="h-5 w-5" />
           </button>
@@ -516,7 +516,7 @@ export default function AgentsPage() {
                 />
                 <label
                   htmlFor="file-upload"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer inline-block"
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors cursor-pointer inline-block"
                 >
                   Choose Files
                 </label>

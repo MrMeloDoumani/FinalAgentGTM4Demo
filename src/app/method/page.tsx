@@ -148,7 +148,7 @@ export default function MethodPage() {
             
             <button
               onClick={() => setShowNewTemplate(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
             >
               <Plus className="h-4 w-4" />
               <span>New Template</span>
@@ -169,7 +169,7 @@ export default function MethodPage() {
                 onClick={() => setSelectedIndustry(industry)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   selectedIndustry === industry
-                    ? "bg-blue-600 text-white"
+                    ? "bg-red-600 text-white"
                     : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
                 }`}
               >
@@ -291,7 +291,7 @@ export default function MethodPage() {
               
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                  <button className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
                     <Download className="h-4 w-4" />
                     <span>Download</span>
                   </button>
@@ -332,7 +332,7 @@ export default function MethodPage() {
                   type="text"
                   value={newTemplate.title}
                   onChange={(e) => setNewTemplate(prev => ({ ...prev, title: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-black"
                   placeholder="Enter template title"
                 />
               </div>
@@ -345,7 +345,7 @@ export default function MethodPage() {
                   <select
                     value={newTemplate.type}
                     onChange={(e) => setNewTemplate(prev => ({ ...prev, type: e.target.value as any }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-black"
                   >
                     {templateGenerator.getTemplateTypes().map(type => (
                       <option key={type.value} value={type.value}>{type.label}</option>
@@ -360,7 +360,7 @@ export default function MethodPage() {
                   <select
                     value={newTemplate.industry}
                     onChange={(e) => setNewTemplate(prev => ({ ...prev, industry: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-black"
                   >
                     {templateGenerator.getAvailableIndustries().map(industry => (
                       <option key={industry} value={industry}>
@@ -378,7 +378,7 @@ export default function MethodPage() {
                 <textarea
                   value={newTemplate.description}
                   onChange={(e) => setNewTemplate(prev => ({ ...prev, description: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-black"
                   rows={3}
                   placeholder="Enter template description (optional)"
                 />
@@ -394,7 +394,7 @@ export default function MethodPage() {
               </button>
               <button
                 onClick={handleGenerateTemplate}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
               >
                 <Save className="h-4 w-4" />
                 <span>Generate Template</span>

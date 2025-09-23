@@ -184,7 +184,7 @@ export default function PlannerPage() {
             
             <button
               onClick={() => setShowNewTask(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
             >
               <Plus className="h-4 w-4" />
               <span>New Project</span>
@@ -350,7 +350,7 @@ export default function PlannerPage() {
                   type="text"
                   value={newTask.title}
                   onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-black"
                   placeholder="Enter project title"
                 />
               </div>
@@ -362,7 +362,7 @@ export default function PlannerPage() {
                 <textarea
                   value={newTask.description}
                   onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-black"
                   rows={3}
                   placeholder="Enter project description"
                 />
@@ -376,7 +376,7 @@ export default function PlannerPage() {
                   <select
                     value={newTask.assignee}
                     onChange={(e) => setNewTask(prev => ({ ...prev, assignee: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-black"
                   >
                     <option value="">Select team member</option>
                     {teamMembers.map(member => (
@@ -393,7 +393,7 @@ export default function PlannerPage() {
                     type="date"
                     value={newTask.dueDate}
                     onChange={(e) => setNewTask(prev => ({ ...prev, dueDate: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-black"
                   />
                 </div>
               </div>
@@ -406,7 +406,7 @@ export default function PlannerPage() {
                   <select
                     value={newTask.priority}
                     onChange={(e) => setNewTask(prev => ({ ...prev, priority: e.target.value as "high" | "medium" | "low" }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-black"
                   >
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
@@ -438,7 +438,7 @@ export default function PlannerPage() {
               </button>
               <button
                 onClick={handleCreateTask}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
               >
                 <Save className="h-4 w-4" />
                 <span>Create Project</span>
