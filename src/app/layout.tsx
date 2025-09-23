@@ -32,3 +32,4 @@ export default function RootLayout({
     </html>
   );
 }
+<!-- Deployment trigger Tue Sep 23 15:07:24 +04 2025 -->
