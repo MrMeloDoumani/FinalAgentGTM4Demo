@@ -6,7 +6,7 @@ import { styleLearningEngine, StylePattern } from './style-learning';
 import { enhancedStyleLearningEngine } from './enhanced-style-learning';
 import { simpleImageGenerator } from './simple-image-generator';
 import { templateLearningEngine } from './template-learning-engine';
-import { serverImageGenerator } from './server-image-generator';
+import { chinchillaImageAI, ChinchillaRequest } from './chinchilla-image-ai';
 // import { smartExecutionEngine } from './smart-execution-engine';
 import { Buffer } from 'buffer';
 
@@ -754,23 +754,32 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
       
       console.log('🎨 Generating creative image for:', industry, contentType);
       
-      // Use the server-side image generator
-      const generatedImage = await serverImageGenerator.generateImage(
-        response.content as string,
-        industry
-      );
+      // Delegate to Chinchilla - the image specialist
+      const chinchillaRequest: ChinchillaRequest = {
+        prompt: `Generate a ${contentType} for ${industry} sector`,
+        industry: industry,
+        contentType: contentType,
+        style: 'professional',
+        recommendations: response.content as string
+      };
+      
+      const chinchillaResponse = await chinchillaImageAI.generateImage(chinchillaRequest);
+      
+      if (!chinchillaResponse.success) {
+        throw new Error('Chinchilla failed to generate image');
+      }
       
       console.log('✅ Server-side image generated successfully');
       
       return {
         id: `image_${Date.now()}`,
         type: 'image',
-        title: generatedImage.title,
+        title: chinchillaResponse.title,
         industry: industry,
         content: response.content as string,
-        fileUrl: generatedImage.url,
+        fileUrl: chinchillaResponse.imageUrl,
         generatedAt: new Date().toISOString(),
-        styleUsed: 'Server PNG'
+        styleUsed: 'Chinchilla Generated'
       };
     } catch (error) {
       console.error('❌ Creative image generation failed:', error);
@@ -780,20 +789,26 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
         const industry = analysis.industry as string;
         const contentType = analysis.contentType as string;
         
-        const fallbackImage = await serverImageGenerator.generateImage(
-          response.content as string,
-          industry
-        );
+        // Fallback to Chinchilla with basic request
+        const fallbackRequest: ChinchillaRequest = {
+          prompt: `Generate a simple image for ${industry}`,
+          industry: industry,
+          contentType: 'visual',
+          style: 'simple',
+          recommendations: 'Basic visual representation'
+        };
+        
+        const fallbackResponse = await chinchillaImageAI.generateImage(fallbackRequest);
         
         return {
           id: `image_${Date.now()}`,
           type: 'image',
-          title: fallbackImage.title,
+          title: fallbackResponse.title,
           industry: industry,
           content: response.content as string,
-          fileUrl: fallbackImage.url,
+          fileUrl: fallbackResponse.imageUrl,
           generatedAt: new Date().toISOString(),
-          styleUsed: 'Fallback'
+          styleUsed: 'Chinchilla Fallback'
         };
       } catch (fallbackError) {
         console.error('❌ Fallback image generation also failed:', fallbackError);
