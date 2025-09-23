@@ -7,6 +7,8 @@ import { enhancedStyleLearningEngine } from './enhanced-style-learning';
 import { simpleImageGenerator } from './simple-image-generator';
 import { templateLearningEngine } from './template-learning-engine';
 import { chinchillaImageAI, ChinchillaRequest } from './chinchilla-image-ai';
+import { jammyIntelligenceEngine } from './jammy-intelligence-engine';
+import { chinchillaVisualIntelligence, VisualSpecification } from './chinchilla-visual-intelligence';
 // import { smartExecutionEngine } from './smart-execution-engine';
 import { Buffer } from 'buffer';
 
@@ -978,6 +980,89 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
     
     console.log('🎯 Jammy analyzed image request:', prompt);
     return prompt;
+  }
+
+  private async generateIntelligentResponse(intelligenceResult: any, message: string): Promise<JammyResponse> {
+    // Build comprehensive response based on intelligence analysis
+    let content = `# ${intelligenceResult.definition}\n\n`;
+    
+    content += `## Analysis\n${intelligenceResult.explanation}\n\n`;
+    
+    if (intelligenceResult.evidence.length > 0) {
+      content += `## Evidence\n`;
+      intelligenceResult.evidence.forEach((evidence: string, index: number) => {
+        content += `${index + 1}. ${evidence}\n`;
+      });
+      content += `\n`;
+    }
+    
+    if (intelligenceResult.anticipation.length > 0) {
+      content += `## Future Considerations\n`;
+      intelligenceResult.anticipation.forEach((scenario: string, index: number) => {
+        content += `• ${scenario}\n`;
+      });
+      content += `\n`;
+    }
+    
+    if (intelligenceResult.roadmap.length > 0) {
+      content += `## Recommended Roadmap\n`;
+      intelligenceResult.roadmap.forEach((step: string, index: number) => {
+        content += `${index + 1}. ${step}\n`;
+      });
+      content += `\n`;
+    }
+    
+    if (intelligenceResult.recommendations.length > 0) {
+      content += `## Recommendations\n`;
+      intelligenceResult.recommendations.forEach((rec: string, index: number) => {
+        content += `• ${rec}\n`;
+      });
+      content += `\n`;
+    }
+    
+    // Generate media assets if needed
+    let mediaAssets: MediaAsset[] = [];
+    
+    if (intelligenceResult.needsVisual) {
+      const visualSpec: VisualSpecification = {
+        prompt: message,
+        industry: intelligenceResult.analysis.industry,
+        contentType: 'visual',
+        style: 'professional',
+        requirements: intelligenceResult.analysis.intent === 'creation' ? ['creative', 'professional'] : ['informative'],
+        context: intelligenceResult.analysis.context
+      };
+      
+      const visualResult = await chinchillaVisualIntelligence.generateIntelligentImage(visualSpec);
+      
+      if (visualResult.success) {
+        mediaAssets.push({
+          id: `visual_${Date.now()}`,
+          type: 'image',
+          title: visualResult.title,
+          industry: intelligenceResult.analysis.industry,
+          content: visualResult.description,
+          fileUrl: visualResult.imageUrl,
+          generatedAt: new Date().toISOString(),
+          styleUsed: visualResult.styleApplied
+        });
+      }
+    }
+    
+    return {
+      id: `jammy_${Date.now()}`,
+      content,
+      mediaAssets,
+      learningData: {
+        industry: intelligenceResult.analysis.industry,
+        contentType: 'analysis',
+        userPreferences: {},
+        knowledgeExtracted: intelligenceResult.evidence,
+        improvements: []
+      },
+      confidence: intelligenceResult.knowledgeSearch.confidence,
+      timestamp: new Date().toISOString()
+    };
   }
 
   private extractLearningData(message: string, analysis: Record<string, unknown>, response: Record<string, unknown>): LearningData {
