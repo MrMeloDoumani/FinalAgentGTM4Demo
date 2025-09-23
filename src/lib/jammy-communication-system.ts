@@ -344,6 +344,7 @@ What specific task would you like to work on? I can create marketing materials, 
     
     // Check for product/service specification - be more lenient
     const hasProduct = lowerMessage.includes('business pro fiber') || 
+                      lowerMessage.includes('business pro') ||
                       lowerMessage.includes('mobile pos') || 
                       lowerMessage.includes('pos solution') ||
                       lowerMessage.includes('mobile pos solution') ||
@@ -355,7 +356,8 @@ What specific task would you like to work on? I can create marketing materials, 
                       lowerMessage.includes('connectivity') ||
                       lowerMessage.includes('pos') ||
                       lowerMessage.includes('solution') ||
-                      lowerMessage.includes('service');
+                      lowerMessage.includes('service') ||
+                      lowerMessage.includes('pro'); // "pro" indicates business product
     
     if (!hasProduct) {
       missing.push('product_or_service');
@@ -375,7 +377,8 @@ What specific task would you like to work on? I can create marketing materials, 
                        lowerMessage.includes('hospitality') ||
                        lowerMessage.includes('logistics') ||
                        lowerMessage.includes('real estate') ||
-                       lowerMessage.includes('solution'); // Mobile POS solution implies business context
+                       lowerMessage.includes('solution') || // Mobile POS solution implies business context
+                       lowerMessage.includes('pro'); // "pro" indicates business context
     
     if (!hasIndustry) {
       missing.push('industry_context');
@@ -418,9 +421,11 @@ What specific task would you like to work on? I can create marketing materials, 
     // This is where Jammy translates user requirements into Chinchilla's technical language
     const lowerMessage = message.toLowerCase();
     
-    // Determine industry
+    // Determine industry - prioritize tech_telecom for business pro products
     let industry = 'tech_telecom'; // Default
-    if (lowerMessage.includes('retail')) industry = 'retail';
+    if (lowerMessage.includes('business pro') || lowerMessage.includes('fiber') || lowerMessage.includes('internet')) {
+      industry = 'tech_telecom';
+    } else if (lowerMessage.includes('retail')) industry = 'retail';
     else if (lowerMessage.includes('healthcare')) industry = 'healthcare';
     else if (lowerMessage.includes('education')) industry = 'education';
     else if (lowerMessage.includes('finance')) industry = 'finance';
@@ -437,8 +442,8 @@ What specific task would you like to work on? I can create marketing materials, 
     elements.push('office_building');
     
     // Product-specific elements
-    if (lowerMessage.includes('fiber') || lowerMessage.includes('internet') || lowerMessage.includes('connectivity')) {
-      elements.push('network', 'router', 'wifi_signal');
+    if (lowerMessage.includes('business pro') || lowerMessage.includes('fiber') || lowerMessage.includes('internet') || lowerMessage.includes('connectivity')) {
+      elements.push('network', 'router', 'wifi_signal', 'server');
     }
     if (lowerMessage.includes('mobile') || lowerMessage.includes('phone') || lowerMessage.includes('pos')) {
       elements.push('smartphone', 'network');

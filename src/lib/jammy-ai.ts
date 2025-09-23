@@ -330,7 +330,7 @@ class JammyAI {
       'logistics': ['logistics', 'shipping', 'warehouse', 'supply', 'delivery', 'transport', 'freight'],
       'manufacturing': ['manufacturing', 'factory', 'production', 'industrial', 'plant', 'assembly'],
       'agriculture': ['agriculture', 'farming', 'crop', 'rural', 'farm', 'agricultural'],
-      'tech_telecom': ['tech', 'technology', 'telecom', 'software', 'digital', 'IT', 'innovation'],
+      'tech_telecom': ['tech', 'technology', 'telecom', 'software', 'digital', 'IT', 'innovation', 'business pro', 'fiber', 'internet', 'connectivity', 'pro', 'business'],
       'hospitality': ['hospitality', 'hotel', 'tourism', 'restaurant', 'guest', 'service', 'tourism']
     };
 
@@ -353,7 +353,7 @@ class JammyAI {
       return 'tech_telecom';
     }
 
-    return 'retail'; // Default fallback
+    return 'tech_telecom'; // Default fallback to tech_telecom instead of retail
   }
 
   private detectContentType(message: string): string {
@@ -791,7 +791,35 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
     const productIds = sector.gtm_plays?.flatMap(play => play.recommend) || [];
     const allProducts = GTM_CONTEXT.offerings.categories.flatMap(cat => cat.items);
     
-    return productIds.map(id => allProducts.find(p => p.id === id)).filter(Boolean);
+    // Also search for products by name if no GTM plays found
+    let relevantProducts = productIds.map(id => allProducts.find(p => p.id === id)).filter(Boolean);
+    
+    // If no products found through GTM plays, search by industry keywords
+    if (relevantProducts.length === 0) {
+      const industryKeywords = {
+        'tech_telecom': ['fiber', 'internet', 'connectivity', 'business pro', 'network', 'cloud'],
+        'retail': ['pos', 'payment', 'checkout', 'merchant'],
+        'healthcare': ['medical', 'clinic', 'patient', 'health'],
+        'education': ['school', 'campus', 'learning', 'student'],
+        'finance': ['banking', 'financial', 'payment', 'security'],
+        'government': ['government', 'public', 'citizen', 'secure'],
+        'logistics': ['shipping', 'warehouse', 'delivery', 'transport'],
+        'manufacturing': ['factory', 'production', 'industrial', 'plant'],
+        'agriculture': ['farming', 'crop', 'rural', 'farm'],
+        'hospitality': ['hotel', 'tourism', 'restaurant', 'guest']
+      };
+      
+      const keywords = industryKeywords[industry as keyof typeof industryKeywords] || [];
+      relevantProducts = allProducts.filter(product => 
+        keywords.some(keyword => 
+          (product as any).name?.toLowerCase().includes(keyword) ||
+          (product as any).short_desc?.toLowerCase().includes(keyword) ||
+          (product as any).key_features?.some((feature: string) => feature.toLowerCase().includes(keyword))
+        )
+      );
+    }
+    
+    return relevantProducts;
   }
 
   private getLearningInsights(analysis: Record<string, unknown>): string[] {
