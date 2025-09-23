@@ -19,6 +19,7 @@ export interface JammyResponse {
   learningData: LearningData;
   timestamp: string;
   confidence: number;
+  jammyId?: string;
 }
 
 export interface MediaAsset {
@@ -57,6 +58,17 @@ export interface JammyMemory {
     industry: string;
     extractedAt: string;
   }>;
+  conversationHistory: Array<{
+    message: string;
+    response: any;
+    timestamp: string;
+  }>;
+  learningProgress: {
+    totalInteractions: number;
+    successfulGenerations: number;
+    averageConfidence: number;
+    improvements: string[];
+  };
 }
 
 class JammyAI {
@@ -68,7 +80,14 @@ class JammyAI {
       conversations: [],
       learnedPatterns: [],
       userPreferences: {},
-      knowledgeBase: []
+      knowledgeBase: [],
+      conversationHistory: [],
+      learningProgress: {
+        totalInteractions: 0,
+        successfulGenerations: 0,
+        averageConfidence: 0,
+        improvements: []
+      }
     };
   }
 
@@ -767,7 +786,7 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
       console.log('🎨 Generating creative image for:', industry, contentType);
       
       // Analyze the user's specific image request
-      const imagePrompt = this.analyzeImageRequest(message, industry, contentType);
+      const imagePrompt = this.analyzeImageRequest(analysis.prompt as string || 'image request', industry, contentType);
       
       // Delegate to Chinchilla with specific instructions
       const chinchillaRequest: ChinchillaRequest = {
@@ -1288,7 +1307,14 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
       conversations: [],
       learnedPatterns: [],
       userPreferences: {},
-      knowledgeBase: []
+      knowledgeBase: [],
+      conversationHistory: [],
+      learningProgress: {
+        totalInteractions: 0,
+        successfulGenerations: 0,
+        averageConfidence: 0,
+        improvements: []
+      }
     };
     this.saveMemory();
   }

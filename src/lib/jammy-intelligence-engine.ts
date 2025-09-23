@@ -187,27 +187,31 @@ class JammyIntelligenceEngine {
     const results = [];
     const lowerMessage = message.toLowerCase();
 
-    // Search products
-    for (const product of GTM_CONTEXT.products) {
-      if (lowerMessage.includes(product.name.toLowerCase()) || 
-          product.key_features.some(feature => lowerMessage.includes(feature.toLowerCase()))) {
-        results.push({ type: 'product', data: product, relevance: 0.9 });
+    // Search offerings (products and services)
+    for (const category of GTM_CONTEXT.offerings.categories) {
+      for (const item of category.items) {
+        if (lowerMessage.includes(item.name.toLowerCase()) || 
+            (item.key_features && item.key_features.some((feature: string) => lowerMessage.includes(feature.toLowerCase())))) {
+          results.push({ type: 'offering', data: item, relevance: 0.9 });
+        }
       }
     }
 
     // Search sectors
     for (const sector of GTM_CONTEXT.sectors) {
       if (lowerMessage.includes(sector.name.toLowerCase()) || 
-          sector.key_opportunities.some(opp => lowerMessage.includes(opp.toLowerCase()))) {
+          sector.sector_goals.some((goal: string) => lowerMessage.includes(goal.toLowerCase()))) {
         results.push({ type: 'sector', data: sector, relevance: 0.8 });
       }
     }
 
     // Search partnerships
-    for (const partnership of GTM_CONTEXT.partnerships) {
-      if (lowerMessage.includes(partnership.name.toLowerCase()) || 
-          partnership.description.toLowerCase().includes(lowerMessage)) {
-        results.push({ type: 'partnership', data: partnership, relevance: 0.7 });
+    if (GTM_CONTEXT.partnerships && Array.isArray(GTM_CONTEXT.partnerships)) {
+      for (const partnership of GTM_CONTEXT.partnerships) {
+        if (lowerMessage.includes(partnership.name.toLowerCase()) || 
+            partnership.description.toLowerCase().includes(lowerMessage)) {
+          results.push({ type: 'partnership', data: partnership, relevance: 0.7 });
+        }
       }
     }
 
@@ -295,10 +299,10 @@ class JammyIntelligenceEngine {
     
     // Add internal evidence with more detailed information
     for (const item of knowledgeSearch.internal.slice(0, 3)) {
-      if (item.type === 'product') {
-        evidence.push(`**${item.data.name}**: ${item.data.short_desc} - Key features: ${item.data.key_features.slice(0, 2).join(', ')}`);
+      if (item.type === 'offering') {
+        evidence.push(`**${item.data.name}**: ${item.data.short_desc} - Key features: ${item.data.key_features ? item.data.key_features.slice(0, 2).join(', ') : 'Available'}`);
       } else if (item.type === 'sector') {
-        evidence.push(`**${item.data.name} Sector**: ${item.data.key_opportunities[0]} - Target segments: ${item.data.target_segments.slice(0, 2).join(', ')}`);
+        evidence.push(`**${item.data.name} Sector**: ${item.data.sector_goals[0]} - Goals: ${item.data.sector_goals.slice(0, 2).join(', ')}`);
       } else if (item.type === 'partnership') {
         evidence.push(`**${item.data.name} Partnership**: ${item.data.description} - Focus: ${item.data.focus_area}`);
       }
