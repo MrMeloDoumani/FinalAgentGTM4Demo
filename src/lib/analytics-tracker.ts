@@ -53,6 +53,11 @@ class AnalyticsTracker {
   }
 
   private loadStoredData(): AnalyticsData {
+    // Check if we're in browser environment
+    if (typeof window === 'undefined') {
+      return this.getDefaultData();
+    }
+
     try {
       const stored = localStorage.getItem('gtm_analytics_data');
       if (stored) {
@@ -62,7 +67,10 @@ class AnalyticsTracker {
       console.error('Failed to load analytics data:', error);
     }
 
-    // Default data
+    return this.getDefaultData();
+  }
+
+  private getDefaultData(): AnalyticsData {
     return {
       loginStats: {
         totalLogins: 0,
@@ -91,6 +99,8 @@ class AnalyticsTracker {
   }
 
   private saveData(): void {
+    if (typeof window === 'undefined') return;
+    
     try {
       localStorage.setItem('gtm_analytics_data', JSON.stringify(this.data));
     } catch (error) {
@@ -109,6 +119,8 @@ class AnalyticsTracker {
   }
 
   trackLogin(): void {
+    if (typeof window === 'undefined') return;
+    
     this.data.loginStats.totalLogins++;
     this.data.loginStats.lastLogin = new Date().toISOString();
     
