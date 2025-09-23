@@ -120,11 +120,13 @@ export class JammyCommunicationSystem {
       return 'capability_query';
     }
     
-    // Image generation requests
+    // Image generation requests - be more comprehensive
     if (lowerMessage.includes('generate') || lowerMessage.includes('create') ||
         lowerMessage.includes('make') || lowerMessage.includes('show') ||
         lowerMessage.includes('image') || lowerMessage.includes('visual') ||
-        lowerMessage.includes('draw') || lowerMessage.includes('picture')) {
+        lowerMessage.includes('draw') || lowerMessage.includes('picture') ||
+        lowerMessage.includes('infographic') || lowerMessage.includes('diagram') ||
+        lowerMessage.includes('chart') || lowerMessage.includes('dashboard')) {
       return 'image_request';
     }
     
@@ -252,17 +254,20 @@ I'm instructing Chinchilla to create: ${this.describeImageToUser(message, contex
 
   private generateClarificationResponse(message: string, context: CommunicationContext): UserResponse {
     if (context.conversationStage === 'gathering_info') {
-      // User provided clarification, check if we have enough info now
-      const stillMissing = this.identifyMissingImageInfo(context.userMessage);
+      // Combine the original message with the clarification
+      const combinedMessage = `${context.userMessage} ${message}`.toLowerCase();
+      
+      // Check if we have enough info now with the combined message
+      const stillMissing = this.identifyMissingImageInfo(combinedMessage);
       
       if (stillMissing.length === 0) {
         context.conversationStage = 'executing';
-        const chinchillaCommand = this.translateToChinchillaLanguage(context.userMessage, context);
+        const chinchillaCommand = this.translateToChinchillaLanguage(combinedMessage, context);
         
         return {
           message: `Excellent! Now I have everything I need. Let me ask Chinchilla to create this visual for you.
 
-I'm instructing Chinchilla to generate: ${this.describeImageToUser(context.userMessage, context)}`,
+I'm instructing Chinchilla to generate: ${this.describeImageToUser(combinedMessage, context)}`,
           tone: 'transparent',
           nextAction: 'execute',
           chinchillaTranslation: chinchillaCommand
@@ -274,6 +279,46 @@ I'm instructing Chinchilla to generate: ${this.describeImageToUser(context.userM
           message: `Thank you for that information! I still need a few more details:
 
 ${questions}`,
+          tone: 'collaborative',
+          nextAction: 'question'
+        };
+      }
+    }
+    
+    // If not in gathering_info stage, check if this is a new image request
+    const lowerMessage = message.toLowerCase();
+    if (lowerMessage.includes('generate') || lowerMessage.includes('create') ||
+        lowerMessage.includes('make') || lowerMessage.includes('show') ||
+        lowerMessage.includes('image') || lowerMessage.includes('visual') ||
+        lowerMessage.includes('draw') || lowerMessage.includes('picture')) {
+      
+      // Treat as new image request
+      context.conversationStage = 'gathering_info';
+      context.userMessage = message;
+      
+      const missingInfo = this.identifyMissingImageInfo(message);
+      
+      if (missingInfo.length === 0) {
+        context.conversationStage = 'executing';
+        const chinchillaCommand = this.translateToChinchillaLanguage(message, context);
+        
+        return {
+          message: `Perfect! I have all the information I need. Let me ask Chinchilla to generate this visual for you.
+
+I'm instructing Chinchilla to create: ${this.describeImageToUser(message, context)}`,
+          tone: 'transparent',
+          nextAction: 'execute',
+          chinchillaTranslation: chinchillaCommand
+        };
+      } else {
+        const questions = this.generateImageQuestions(missingInfo);
+        
+        return {
+          message: `I'd be delighted to create a visual for you! To ensure I generate exactly what you need, I'd like to gather some details first:
+
+${questions}
+
+Once I have these details, I'll ask Chinchilla to create the perfect visual representation for you.`,
           tone: 'collaborative',
           nextAction: 'question'
         };
@@ -297,37 +342,56 @@ What specific task would you like to work on? I can create marketing materials, 
     const missing = [];
     const lowerMessage = message.toLowerCase();
     
-    // Check for product/service specification
-    if (!lowerMessage.includes('business pro fiber') && 
-        !lowerMessage.includes('mobile pos') && 
-        !lowerMessage.includes('security') && 
-        !lowerMessage.includes('cloud') && 
-        !lowerMessage.includes('analytics') &&
-        !lowerMessage.includes('fiber') &&
-        !lowerMessage.includes('internet') &&
-        !lowerMessage.includes('connectivity')) {
+    // Check for product/service specification - be more lenient
+    const hasProduct = lowerMessage.includes('business pro fiber') || 
+                      lowerMessage.includes('mobile pos') || 
+                      lowerMessage.includes('pos solution') ||
+                      lowerMessage.includes('mobile pos solution') ||
+                      lowerMessage.includes('security') || 
+                      lowerMessage.includes('cloud') || 
+                      lowerMessage.includes('analytics') ||
+                      lowerMessage.includes('fiber') ||
+                      lowerMessage.includes('internet') ||
+                      lowerMessage.includes('connectivity') ||
+                      lowerMessage.includes('pos') ||
+                      lowerMessage.includes('solution') ||
+                      lowerMessage.includes('service');
+    
+    if (!hasProduct) {
       missing.push('product_or_service');
     }
     
-    // Check for industry context
-    if (!lowerMessage.includes('retail') && 
-        !lowerMessage.includes('healthcare') && 
-        !lowerMessage.includes('education') && 
-        !lowerMessage.includes('tech') && 
-        !lowerMessage.includes('telecom') &&
-        !lowerMessage.includes('business') &&
-        !lowerMessage.includes('smb')) {
+    // Check for industry context - be more lenient
+    const hasIndustry = lowerMessage.includes('retail') || 
+                       lowerMessage.includes('healthcare') || 
+                       lowerMessage.includes('education') || 
+                       lowerMessage.includes('tech') || 
+                       lowerMessage.includes('telecom') ||
+                       lowerMessage.includes('business') ||
+                       lowerMessage.includes('smb') ||
+                       lowerMessage.includes('finance') ||
+                       lowerMessage.includes('manufacturing') ||
+                       lowerMessage.includes('government') ||
+                       lowerMessage.includes('hospitality') ||
+                       lowerMessage.includes('logistics') ||
+                       lowerMessage.includes('real estate') ||
+                       lowerMessage.includes('solution'); // Mobile POS solution implies business context
+    
+    if (!hasIndustry) {
       missing.push('industry_context');
     }
     
-    // Check for specific requirements
-    if (!lowerMessage.includes('brochure') && 
-        !lowerMessage.includes('infographic') && 
-        !lowerMessage.includes('diagram') && 
-        !lowerMessage.includes('chart') &&
-        !lowerMessage.includes('visual')) {
-      missing.push('visual_type');
-    }
+    // Only require visual type if it's very specific
+    const hasVisualType = lowerMessage.includes('brochure') || 
+                         lowerMessage.includes('infographic') || 
+                         lowerMessage.includes('diagram') || 
+                         lowerMessage.includes('chart') ||
+                         lowerMessage.includes('dashboard');
+    
+    // Don't require visual type for basic image requests
+    // if (!hasVisualType) {
+    //   missing.push('visual_type');
+    // }
     
     return missing;
   }
