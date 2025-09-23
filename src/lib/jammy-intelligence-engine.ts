@@ -190,8 +190,15 @@ class JammyIntelligenceEngine {
     // Search offerings (products and services)
     for (const category of GTM_CONTEXT.offerings.categories) {
       for (const item of category.items) {
-        if (lowerMessage.includes(item.name.toLowerCase()) || 
-            (item.key_features && item.key_features.some((feature: string) => lowerMessage.includes(feature.toLowerCase())))) {
+        // Check if the product matches the industry or general tech_telecom
+        const isIndustryMatch = item.target_segments.includes(industry) || 
+                               industry === 'tech_telecom' || 
+                               lowerMessage.includes('product') ||
+                               lowerMessage.includes('tech') ||
+                               lowerMessage.includes('telecom');
+        
+        if (isIndustryMatch && (lowerMessage.includes(item.name.toLowerCase()) || 
+            (item.key_features && item.key_features.some((feature: string) => lowerMessage.includes(feature.toLowerCase()))))) {
           results.push({ type: 'offering', data: item, relevance: 0.9 });
         }
       }

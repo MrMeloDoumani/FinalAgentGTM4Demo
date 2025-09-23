@@ -167,10 +167,31 @@ export class KnowledgeVisualDictionary {
     // Check product name and description for keywords
     const text = `${product.name} ${product.short_desc || ''} ${product.key_features?.join(' ') || ''}`.toLowerCase();
     
+    // For tech_telecom products, always include network and building elements
+    if (industry === 'tech_telecom') {
+      elements.push('network');
+      elements.push('building');
+    }
+    
+    // Check for specific product features
+    if (text.includes('fiber') || text.includes('internet') || text.includes('connectivity')) {
+      elements.push('network');
+    }
+    if (text.includes('mobile') || text.includes('phone') || text.includes('pos')) {
+      elements.push('smartphone');
+    }
+    if (text.includes('analytics') || text.includes('data') || text.includes('insights')) {
+      elements.push('chart');
+    }
+    if (text.includes('business') || text.includes('office') || text.includes('site')) {
+      elements.push('building');
+    }
+    
+    // Fallback to general element matching
     for (const visualElement of this.visualElements) {
       if (visualElement.industry === industry || visualElement.industry === 'general') {
         for (const keyword of visualElement.keywords) {
-          if (text.includes(keyword.toLowerCase())) {
+          if (text.includes(keyword.toLowerCase()) && !elements.includes(visualElement.name)) {
             elements.push(visualElement.name);
             break;
           }
