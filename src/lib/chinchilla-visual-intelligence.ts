@@ -57,15 +57,33 @@ class ChinchillaVisualIntelligence {
     
     // Extract visual elements
     const elements = [];
-    if (lowerPrompt.includes('phone') || lowerPrompt.includes('mobile')) elements.push('smartphone');
+    
+    // Check for specific element names that Jammy sends
+    if (lowerPrompt.includes('smartphone') || lowerPrompt.includes('phone') || lowerPrompt.includes('mobile')) elements.push('smartphone');
     if (lowerPrompt.includes('chinchilla')) elements.push('chinchilla');
     if (lowerPrompt.includes('building') || lowerPrompt.includes('office')) elements.push('building');
     if (lowerPrompt.includes('people') || lowerPrompt.includes('team')) elements.push('people');
     if (lowerPrompt.includes('chart') || lowerPrompt.includes('graph')) elements.push('chart');
     if (lowerPrompt.includes('network')) elements.push('network');
-    if (lowerPrompt.includes('data')) elements.push('data_visualization');
+    if (lowerPrompt.includes('data_visualization') || lowerPrompt.includes('data')) elements.push('data_visualization');
     if (lowerPrompt.includes('security')) elements.push('security');
     if (lowerPrompt.includes('cloud')) elements.push('cloud');
+    
+    // Also check for "draw these elements:" pattern from Jammy
+    if (lowerPrompt.includes('draw these elements:')) {
+      const elementsText = lowerPrompt.split('draw these elements:')[1];
+      if (elementsText) {
+        const elementList = elementsText.split(',').map(e => e.trim());
+        elementList.forEach(element => {
+          if (element === 'smartphone' && !elements.includes('smartphone')) elements.push('smartphone');
+          if (element === 'building' && !elements.includes('building')) elements.push('building');
+          if (element === 'people' && !elements.includes('people')) elements.push('people');
+          if (element === 'chart' && !elements.includes('chart')) elements.push('chart');
+          if (element === 'network' && !elements.includes('network')) elements.push('network');
+          if (element === 'chinchilla' && !elements.includes('chinchilla')) elements.push('chinchilla');
+        });
+      }
+    }
 
     // Determine style preferences
     let style = 'professional';
