@@ -12,6 +12,7 @@ import { chinchillaVisualIntelligence, VisualSpecification } from './chinchilla-
 import { knowledgeVisualDictionary } from './knowledge-visual-dictionary';
 import { jammyWebIntelligence } from './jammy-web-intelligence';
 import { jammyEducationSystem } from './jammy-education-system';
+import { ivyLeagueJammyEducation } from './ivy-league-jammy-education';
 // import { smartExecutionEngine } from './smart-execution-engine';
 import { Buffer } from 'buffer';
 
@@ -121,23 +122,24 @@ class JammyAI {
     console.log('🤖 Jammy AI processing message with intelligence system:', message);
 
     try {
-      // Step 1: Educate Jammy on the knowledge base and website
-      console.log('🎓 Starting Jammy Education System for:', message);
-      const educationResult = await jammyEducationSystem.educateJammy(message);
-      console.log('🎓 Education result:', educationResult);
+      // Step 1: Ivy-League Education System - Multi-level analysis
+      console.log('🎓 Starting Ivy-League Jammy Education for:', message);
+      const educationResult = await ivyLeagueJammyEducation.educateJammy(message);
+      console.log('🎓 Ivy-League Education result:', educationResult);
       
       // Step 2: Use web intelligence to search for products (with education context)
       console.log('🚀 Starting web intelligence search for:', message);
       const productSearch = await jammyWebIntelligence.searchProduct(message);
       console.log('🔍 Product search result:', productSearch);
       
-      // Step 3: Use education result to enhance product search
+      // Step 3: Use Ivy-League education result to enhance product search
       if (educationResult.confidence > productSearch.confidence) {
-        console.log('🎓 Using education result (higher confidence)');
+        console.log('🎓 Using Ivy-League education result (higher confidence)');
         productSearch.industry = educationResult.industry;
         productSearch.visualElements = educationResult.visualElements;
         productSearch.confidence = educationResult.confidence;
-        productSearch.source = 'education_system';
+        productSearch.source = 'ivy_league_education';
+        console.log('🎓 Ivy-League mastery level:', educationResult.masteryLevel);
       }
       
       // Step 4: Use the intelligence engine for structured thinking
@@ -1118,11 +1120,11 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
       let visualElements: string[] = [];
       let industry = intelligenceResult.analysis.industry;
       
-      // Priority 1: Use education system results if available and confident
-      if (productSearch && productSearch.source === 'education_system' && productSearch.visualElements.length > 0) {
+      // Priority 1: Use Ivy-League education system results if available and confident
+      if (productSearch && productSearch.source === 'ivy_league_education' && productSearch.visualElements.length > 0) {
         visualElements = productSearch.visualElements;
         industry = productSearch.industry;
-        console.log('🎓 Using education system visual elements:', visualElements);
+        console.log('🎓 Using Ivy-League education visual elements:', visualElements);
       } else if (productSearch && productSearch.confidence > 0.5 && productSearch.visualElements.length > 0) {
         // Priority 2: Use product search data if available and confident
         visualElements = productSearch.visualElements;
