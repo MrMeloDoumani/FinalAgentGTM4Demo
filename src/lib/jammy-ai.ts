@@ -3,6 +3,8 @@
 
 import { GTM_CONTEXT } from './data/gtm-context';
 import { styleLearningEngine, StylePattern } from './style-learning';
+import { enhancedStyleLearningEngine } from './enhanced-style-learning';
+import { simpleImageGenerator } from './simple-image-generator';
 
 export interface JammyResponse {
   id: string;
@@ -553,26 +555,30 @@ What would you like to work on today? I'm here to help you succeed!
   }
 
   private async generateImageAsset(analysis: Record<string, unknown>, response: Record<string, unknown>): Promise<MediaAsset> {
-    // Generate an image using the image generation service
+    // Generate an image using the enhanced learning system
     try {
-      const imageRequest = {
-        content: response.content as string,
-        type: 'document',
-        industry: analysis.industry as string,
-        style: 'e&_corporate'
-      };
+      const industry = analysis.industry as string;
+      const contentType = analysis.contentType as string;
       
-      const generatedImage = await imageGenerationService.generateDocumentImage(imageRequest);
+      // Get the best style pattern for this content and industry
+      const stylePattern = enhancedStyleLearningEngine.getStyleForContent(contentType, industry);
+      
+      // Generate image with learned style
+      const generatedImage = await simpleImageGenerator.generateDocumentImage(
+        response.content as string,
+        industry,
+        stylePattern
+      );
       
       return {
         id: `image_${Date.now()}`,
         type: 'image',
-        title: `${analysis.industry} Visual Content`,
-        industry: analysis.industry as string,
+        title: `${industry} Visual Content`,
+        industry: industry,
         content: response.content as string,
         fileUrl: generatedImage.url,
         generatedAt: new Date().toISOString(),
-        styleUsed: 'e&_corporate'
+        styleUsed: stylePattern.name
       };
     } catch (error) {
       console.error('Image generation failed:', error);
@@ -729,11 +735,12 @@ What would you like to work on today? I'm here to help you succeed!
           extractedAt: new Date().toISOString()
         });
         
-        // Learn style patterns
-        if (file.type.startsWith('image/')) {
-          const stylePattern = await styleLearningEngine.extractStyleFromFile(file, 'image');
-          this.memory.learnedPatterns.push(stylePattern);
-        }
+        // Learn style patterns using enhanced learning engine
+        const { patterns, insights } = await enhancedStyleLearningEngine.processFile(file);
+        this.memory.learnedPatterns.push(...patterns);
+        
+        // Add learning insights
+        this.memory.learningProgress.improvements.push(...insights);
         
       } catch (error) {
         console.error('Error learning from file:', error);
