@@ -288,7 +288,7 @@ export default function AgentsPage() {
             </Link>
             <div className="h-6 w-px bg-gray-300" />
             <div>
-              <h1 className="text-lg font-semibold text-gray-900">Jammy AI - Sales Enablement Assistant</h1>
+              <h1 className="text-lg font-semibold text-gray-900">Jammy AI - Bi-lingual Sales Enablement Assistant</h1>
               <p className="text-sm text-gray-500">Yasser Omar Zaki Shaaban - DIRECTOR</p>
             </div>
           </div>
