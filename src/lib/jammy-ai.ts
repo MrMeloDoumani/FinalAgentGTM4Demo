@@ -109,8 +109,18 @@ class JammyAI {
         uploadedFiles: uploadedFiles
       };
 
-      // Temporarily use fallback processing while we fix the intelligence system
-      return this.fallbackProcessing(message, context, uploadedFiles);
+      // Use the new intelligence engine for structured thinking
+      const intelligenceResult = await jammyIntelligenceEngine.processIntelligently(message, context);
+      
+      // Store conversation in memory
+      jammyIntelligenceEngine.addConversation({
+        message,
+        response: intelligenceResult,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Generate response based on intelligence analysis
+      return await this.generateIntelligentResponse(intelligenceResult, message);
 
     } catch (error) {
       console.error('❌ Jammy AI intelligent processing failed:', error);
@@ -1020,10 +1030,10 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
       content += `\n`;
     }
     
-    // Generate media assets if needed
+    // Generate media assets if needed (but respect negative commands)
     let mediaAssets: MediaAsset[] = [];
     
-    if (intelligenceResult.needsVisual) {
+    if (intelligenceResult.needsVisual && intelligenceResult.analysis.intent !== 'negative_command') {
       const visualSpec: VisualSpecification = {
         prompt: message,
         industry: intelligenceResult.analysis.industry,

@@ -141,15 +141,22 @@ class JammyIntelligenceEngine {
   }
 
   private detectIntent(message: string): string {
-    if (message.includes('generate') || message.includes('create') || message.includes('make')) {
+    const lowerMessage = message.toLowerCase();
+    
+    // Check for negative commands first
+    if (lowerMessage.includes('do not') || lowerMessage.includes('don\'t') || lowerMessage.includes('stop')) {
+      return 'negative_command';
+    }
+    
+    if (lowerMessage.includes('generate') || lowerMessage.includes('create') || lowerMessage.includes('make')) {
       return 'creation';
-    } else if (message.includes('analyze') || message.includes('insights') || message.includes('understand')) {
+    } else if (lowerMessage.includes('analyze') || lowerMessage.includes('insights') || lowerMessage.includes('understand')) {
       return 'analysis';
-    } else if (message.includes('compare') || message.includes('vs') || message.includes('versus')) {
+    } else if (lowerMessage.includes('compare') || lowerMessage.includes('vs') || lowerMessage.includes('versus')) {
       return 'comparison';
-    } else if (message.includes('help') || message.includes('how') || message.includes('what')) {
+    } else if (lowerMessage.includes('help') || lowerMessage.includes('how') || lowerMessage.includes('what')) {
       return 'assistance';
-    } else if (message.includes('saved') || message.includes('stored') || message.includes('files')) {
+    } else if (lowerMessage.includes('saved') || lowerMessage.includes('stored') || lowerMessage.includes('files')) {
       return 'retrieval';
     }
     return 'general';
@@ -250,7 +257,9 @@ class JammyIntelligenceEngine {
     const industry = analysis.industry;
     const intent = analysis.intent;
     
-    if (intent === 'creation') {
+    if (intent === 'negative_command') {
+      return `User has requested to stop or avoid certain actions. Understanding and respecting user preferences.`;
+    } else if (intent === 'creation') {
       return `Create ${analysis.complexity} ${industry} solution based on user requirements`;
     } else if (intent === 'analysis') {
       return `Analyze ${industry} market opportunities and provide strategic insights`;
