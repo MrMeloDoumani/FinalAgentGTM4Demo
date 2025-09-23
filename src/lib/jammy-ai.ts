@@ -303,14 +303,15 @@ class JammyAI {
     if (products.length > 0) {
       response += `\n## Recommended Solutions\n\n`;
       products.forEach(product => {
-        response += `### ${product.name}\n`;
-        response += `**${product.short_desc}**\n\n`;
+        const p = product as { name: string; short_desc: string; key_features: string[]; target_segments: string[]; availability: string };
+        response += `### ${p.name}\n`;
+        response += `**${p.short_desc}**\n\n`;
         response += `**Key Features:**\n`;
-        product.key_features.forEach((feature: string) => {
+        p.key_features.forEach((feature: string) => {
           response += `• ${feature}\n`;
         });
-        response += `\n**Target Segments:** ${product.target_segments.join(', ')}\n`;
-        response += `**Availability:** ${product.availability}\n\n`;
+        response += `\n**Target Segments:** ${p.target_segments.join(', ')}\n`;
+        response += `**Availability:** ${p.availability}\n\n`;
       });
     }
     
