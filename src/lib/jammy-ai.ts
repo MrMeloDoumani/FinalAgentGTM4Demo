@@ -954,6 +954,71 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
     };
   }
 
+  private buildConversationalResponse(intelligenceResult: any, message: string): string {
+    const analysis = intelligenceResult.analysis;
+    const industry = analysis.industry;
+    const intent = analysis.intent;
+    
+    // Start with a conversational greeting
+    let content = `Hello! I'm Jammy, your intelligent GTM assistant for e&. `;
+    
+    // Handle different intents conversationally
+    if (intent === 'negative_command') {
+      content += `I understand you'd prefer not to generate a brochure. I'll respect that preference and focus on other ways to help you. `;
+      content += `What would you like me to assist you with instead?`;
+      return content;
+    }
+    
+    if (intent === 'analysis') {
+      content += `Based on your request about the ${industry} sector, I've analyzed our knowledge base and here's what I found:\n\n`;
+    } else if (intent === 'creation') {
+      content += `I'd be happy to help you create something for the ${industry} sector. Let me gather the relevant information:\n\n`;
+    } else {
+      content += `I see you're interested in the ${industry} sector. Let me share some insights:\n\n`;
+    }
+    
+    // Add evidence in a conversational way
+    if (intelligenceResult.evidence.length > 0) {
+      content += `**Here's what I found in our knowledge base:**\n`;
+      intelligenceResult.evidence.forEach((evidence: string, index: number) => {
+        content += `• ${evidence}\n`;
+      });
+      content += `\n`;
+    }
+    
+    // Add recommendations conversationally
+    if (intelligenceResult.recommendations.length > 0) {
+      content += `**My recommendations for you:**\n`;
+      intelligenceResult.recommendations.forEach((rec: string, index: number) => {
+        content += `• ${rec}\n`;
+      });
+      content += `\n`;
+    }
+    
+    // Add roadmap if relevant
+    if (intelligenceResult.roadmap.length > 0 && intent !== 'negative_command') {
+      content += `**Here's how we can approach this:**\n`;
+      intelligenceResult.roadmap.forEach((step: string, index: number) => {
+        content += `${index + 1}. ${step}\n`;
+      });
+      content += `\n`;
+    }
+    
+    // Add future considerations
+    if (intelligenceResult.anticipation.length > 0) {
+      content += `**Things to keep in mind:**\n`;
+      intelligenceResult.anticipation.forEach((scenario: string, index: number) => {
+        content += `• ${scenario}\n`;
+      });
+      content += `\n`;
+    }
+    
+    // End with a helpful question
+    content += `Is there anything specific you'd like me to elaborate on, or would you like me to help you with something else?`;
+    
+    return content;
+  }
+
   private analyzeImageRequest(message: string, industry: string, contentType: string): string {
     // Extract specific visual elements from the user's message
     const lowerMessage = message.toLowerCase();
@@ -993,42 +1058,8 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
   }
 
   private async generateIntelligentResponse(intelligenceResult: any, message: string): Promise<JammyResponse> {
-    // Build comprehensive response based on intelligence analysis
-    let content = `# ${intelligenceResult.definition}\n\n`;
-    
-    content += `## Analysis\n${intelligenceResult.explanation}\n\n`;
-    
-    if (intelligenceResult.evidence.length > 0) {
-      content += `## Evidence\n`;
-      intelligenceResult.evidence.forEach((evidence: string, index: number) => {
-        content += `${index + 1}. ${evidence}\n`;
-      });
-      content += `\n`;
-    }
-    
-    if (intelligenceResult.anticipation.length > 0) {
-      content += `## Future Considerations\n`;
-      intelligenceResult.anticipation.forEach((scenario: string, index: number) => {
-        content += `• ${scenario}\n`;
-      });
-      content += `\n`;
-    }
-    
-    if (intelligenceResult.roadmap.length > 0) {
-      content += `## Recommended Roadmap\n`;
-      intelligenceResult.roadmap.forEach((step: string, index: number) => {
-        content += `${index + 1}. ${step}\n`;
-      });
-      content += `\n`;
-    }
-    
-    if (intelligenceResult.recommendations.length > 0) {
-      content += `## Recommendations\n`;
-      intelligenceResult.recommendations.forEach((rec: string, index: number) => {
-        content += `• ${rec}\n`;
-      });
-      content += `\n`;
-    }
+    // Build conversational response based on intelligence analysis
+    let content = this.buildConversationalResponse(intelligenceResult, message);
     
     // Generate media assets if needed (but respect negative commands)
     let mediaAssets: MediaAsset[] = [];

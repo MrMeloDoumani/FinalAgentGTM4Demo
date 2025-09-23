@@ -293,18 +293,20 @@ class JammyIntelligenceEngine {
   private provideEvidence(knowledgeSearch: KnowledgeSearchResult, analysis: IntelligenceAnalysis): string[] {
     const evidence = [];
     
-    // Add internal evidence
+    // Add internal evidence with more detailed information
     for (const item of knowledgeSearch.internal.slice(0, 3)) {
       if (item.type === 'product') {
-        evidence.push(`${item.data.name}: ${item.data.short_desc}`);
+        evidence.push(`**${item.data.name}**: ${item.data.short_desc} - Key features: ${item.data.key_features.slice(0, 2).join(', ')}`);
       } else if (item.type === 'sector') {
-        evidence.push(`${item.data.name} opportunities: ${item.data.key_opportunities[0]}`);
+        evidence.push(`**${item.data.name} Sector**: ${item.data.key_opportunities[0]} - Target segments: ${item.data.target_segments.slice(0, 2).join(', ')}`);
+      } else if (item.type === 'partnership') {
+        evidence.push(`**${item.data.name} Partnership**: ${item.data.description} - Focus: ${item.data.focus_area}`);
       }
     }
     
     // Add user data evidence
     for (const item of knowledgeSearch.userData.slice(0, 2)) {
-      evidence.push(`Your data: ${item.data.content?.substring(0, 100)}...`);
+      evidence.push(`**Your Data**: ${item.data.content?.substring(0, 100)}...`);
     }
     
     return evidence;
