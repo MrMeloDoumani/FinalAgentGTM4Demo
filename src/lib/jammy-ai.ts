@@ -638,10 +638,10 @@ What would you like to work on today? I'm here to help you succeed!
 
   private extractLearningData(message: string, analysis: Record<string, unknown>, response: Record<string, unknown>): LearningData {
     return {
-      industry: analysis.industry,
-      contentType: analysis.contentType,
+      industry: analysis.industry as string,
+      contentType: analysis.contentType as string,
       userPreferences: this.memory.userPreferences,
-      knowledgeExtracted: analysis.keywords,
+      knowledgeExtracted: analysis.keywords as string[],
       improvements: this.generateImprovements(analysis, response)
     };
   }
