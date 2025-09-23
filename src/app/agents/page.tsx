@@ -363,6 +363,13 @@ export default function AgentsPage() {
                               width={400}
                               height={300}
                               className="w-full max-w-md mx-auto rounded border border-gray-200"
+                              onError={(e) => {
+                                console.error('Image failed to load:', e);
+                                console.error('Image URL:', asset.fileUrl);
+                              }}
+                              onLoad={() => {
+                                console.log('Image loaded successfully:', asset.title);
+                              }}
                             />
                             <div className="mt-3 flex space-x-2">
                               <button 

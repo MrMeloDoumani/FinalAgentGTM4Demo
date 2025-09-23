@@ -5,6 +5,7 @@ import { GTM_CONTEXT } from './data/gtm-context';
 import { styleLearningEngine, StylePattern } from './style-learning';
 import { enhancedStyleLearningEngine } from './enhanced-style-learning';
 import { simpleImageGenerator } from './simple-image-generator';
+import { Buffer } from 'buffer';
 
 export interface JammyResponse {
   id: string;
@@ -540,33 +541,85 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
 *Learning insights provided by Jammy AI - your intelligent GTM assistant.*`;
   }
 
-  private async generateGeneralResponse(analysis: Record<string, unknown>, sectorInfo: unknown, products: unknown[]): Promise<string> {
-    return `# Jammy AI - Your GTM Assistant
-
-Hello! I'm Jammy, your intelligent AI assistant for e& GTM team. I'm here to help you with:
-
-## What I Can Do
-• **Create Content**: Brochures, white papers, battlecards, presentations
-• **Analyze Markets**: Industry insights, competitive analysis, opportunities
-• **Generate Assets**: Visual content, documents, templates
-• **Learn & Adapt**: I get smarter with every interaction
-
-## My Knowledge
-• **e& Product Portfolio**: Complete understanding of all solutions
-• **Industry Expertise**: Deep knowledge of all 10 sectors
-• **UAE Market Focus**: Local insights and cultural understanding
-• **Learning Capabilities**: I learn from your uploads and conversations
-
-## How I Help
-• **Sales Enablement**: Create compelling sales materials
-• **Strategic Planning**: Provide market insights and analysis
-• **Content Generation**: Produce professional marketing assets
-• **Continuous Learning**: Improve based on your feedback
-
-What would you like to work on today? I'm here to help you succeed!
-
----
-*Powered by Jammy AI - Intelligent GTM Assistant for e&*`;
+  private async generateGeneralResponse(message: string, analysis: Record<string, unknown>, sectorInfo: unknown, products: unknown[]): Promise<string> {
+    const industry = analysis.industry as string;
+    const sector = sectorInfo as { name?: string; description?: string };
+    
+    // Get relevant products for the industry
+    const relevantProducts = this.findRelevantProducts(industry);
+    
+    let response = `# Jammy AI - Your GTM Assistant\n\n`;
+    
+    // Personalized greeting based on context
+    if (industry && industry !== 'general') {
+      response += `Hello! I see you're interested in the **${sector?.name || industry.charAt(0).toUpperCase() + industry.slice(1)}** sector. `;
+    } else {
+      response += `Hello! `;
+    }
+    
+    response += `I'm Jammy, your intelligent AI assistant for e& GTM team. I'm here to help you with:\n\n`;
+    
+    // Dynamic content based on industry
+    if (sector?.description) {
+      response += `## Market Overview for ${sector.name}\n`;
+      response += `${sector.description}\n\n`;
+    }
+    
+    // Show relevant products
+    if (relevantProducts.length > 0) {
+      response += `## Recommended Solutions for ${sector?.name || industry}\n`;
+      relevantProducts.slice(0, 3).forEach((product: any) => {
+        if (product && product.name) {
+          response += `### ${product.name}\n`;
+          if (product.short_desc) {
+            response += `${product.short_desc}\n\n`;
+          }
+        }
+      });
+    }
+    
+    response += `## What I Can Do\n`;
+    response += `• **Create Content**: Brochures, white papers, battlecards, presentations\n`;
+    response += `• **Analyze Markets**: Industry insights, competitive analysis, opportunities\n`;
+    response += `• **Generate Assets**: Visual content, documents, templates\n`;
+    response += `• **Learn & Adapt**: I get smarter with every interaction\n\n`;
+    
+    response += `## My Knowledge\n`;
+    response += `• **e& Product Portfolio**: Complete understanding of all solutions\n`;
+    response += `• **Industry Expertise**: Deep knowledge of all 10 sectors\n`;
+    response += `• **UAE Market Focus**: Local insights and cultural understanding\n`;
+    response += `• **Learning Capabilities**: I learn from your uploads and conversations\n\n`;
+    
+    // Add conversation context
+    if (this.memory.conversations.length > 0) {
+      response += `## Our Conversation History\n`;
+      response += `• I've had ${this.memory.conversations.length} conversations with you\n`;
+      if (this.memory.knowledgeBase.length > 0) {
+        response += `• I've learned from ${this.memory.knowledgeBase.length} documents you've shared\n`;
+      }
+      response += `• I'm continuously improving based on our interactions\n\n`;
+    }
+    
+    // Personalized suggestions based on message content
+    const keywords = analysis.keywords as string[];
+    if (keywords && keywords.length > 0) {
+      response += `## Based on Your Interest\n`;
+      response += `I noticed you mentioned: ${keywords.slice(0, 3).join(', ')}\n\n`;
+      
+      if (keywords.some(k => ['brochure', 'flyer', 'marketing'].includes(k.toLowerCase()))) {
+        response += `Would you like me to create a professional brochure for the ${sector?.name || industry} sector?\n\n`;
+      } else if (keywords.some(k => ['analysis', 'insights', 'market'].includes(k.toLowerCase()))) {
+        response += `Would you like me to provide detailed market insights for the ${sector?.name || industry} sector?\n\n`;
+      } else if (keywords.some(k => ['image', 'visual', 'picture'].includes(k.toLowerCase()))) {
+        response += `Would you like me to generate a visual representation for the ${sector?.name || industry} sector?\n\n`;
+      }
+    }
+    
+    response += `What would you like to work on today? I'm here to help you succeed!\n\n`;
+    response += `---\n`;
+    response += `*Powered by Jammy AI - Intelligent GTM Assistant for e&*`;
+    
+    return response;
   }
 
   private findRelevantProducts(industry: string): unknown[] {
@@ -659,14 +712,34 @@ What would you like to work on today? I'm here to help you succeed!
       };
     } catch (error) {
       console.error('Image generation failed:', error);
-      // Fallback to a placeholder
+      console.error('Error details:', error);
+      
+      // Create a simple fallback SVG
+      const fallbackSvg = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+        <rect width="400" height="300" fill="#FFFFFF"/>
+        <rect x="0" y="0" width="400" height="60" fill="#e30613"/>
+        <text x="20" y="35" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white">e& (Etisalat)</text>
+        <text x="20" y="50" font-family="Arial, sans-serif" font-size="12" fill="white">Business Solutions</text>
+        <rect x="20" y="80" width="360" height="180" fill="#FFFFFF" stroke="#e30613" stroke-width="2" rx="8"/>
+        <text x="40" y="110" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#1A1A1A">${analysis.industry} Industry Brochure</text>
+        <text x="40" y="130" font-family="Arial, sans-serif" font-size="14" fill="#666666">Transform your business with e& digital solutions</text>
+        <text x="40" y="150" font-family="Arial, sans-serif" font-size="12" fill="#1A1A1A">Comprehensive ICT solutions for ${analysis.industry} sector</text>
+        <rect x="40" y="170" width="80" height="25" fill="#e30613" rx="4"/>
+        <text x="50" y="185" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="white">${(analysis.industry as string).toUpperCase()}</text>
+        <circle cx="320" cy="200" r="25" fill="#e30613"/>
+        <text x="310" y="205" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white">e&</text>
+        <text x="20" y="280" font-family="Arial, sans-serif" font-size="10" fill="#666666">Generated by Jammy AI • ${new Date().toLocaleDateString()}</text>
+      </svg>`;
+      
+      const fallbackBase64 = Buffer.from(fallbackSvg).toString('base64');
+      
       return {
         id: `image_${Date.now()}`,
         type: 'image',
         title: `${analysis.industry} Visual Content`,
         industry: analysis.industry as string,
         content: response.content as string,
-        fileUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzM3NDE1MSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIEdlbmVyYXRpb24gVW5hdmFpbGFibGU8L3RleHQ+PC9zdmc+',
+        fileUrl: `data:image/svg+xml;base64,${fallbackBase64}`,
         generatedAt: new Date().toISOString(),
         styleUsed: 'e&_corporate'
       };
@@ -856,9 +929,12 @@ What would you like to work on today? I'm here to help you succeed!
 
   private loadMemory(): void {
     try {
-      const stored = localStorage.getItem('jammy_memory');
-      if (stored) {
-        this.memory = { ...this.memory, ...JSON.parse(stored) };
+      // Only load from localStorage in browser environment
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const stored = localStorage.getItem('jammy_memory');
+        if (stored) {
+          this.memory = { ...this.memory, ...JSON.parse(stored) };
+        }
       }
     } catch (error) {
       console.error('Error loading memory:', error);
@@ -867,7 +943,10 @@ What would you like to work on today? I'm here to help you succeed!
 
   private saveMemory(): void {
     try {
-      localStorage.setItem('jammy_memory', JSON.stringify(this.memory));
+      // Only save to localStorage in browser environment
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem('jammy_memory', JSON.stringify(this.memory));
+      }
     } catch (error) {
       console.error('Error saving memory:', error);
     }
