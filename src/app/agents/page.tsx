@@ -365,29 +365,24 @@ export default function AgentsPage() {
                         {/* Display image inline if it's an image type */}
                         {asset.type === 'image' ? (
                           <div className="mt-3">
-                            <img 
-                              src={asset.fileUrl} 
-                              alt={asset.title}
-                              width={400}
-                              height={300}
-                              className="w-full max-w-md mx-auto rounded border-2 border-red-500"
-                              style={{
-                                minHeight: '200px',
-                                backgroundColor: '#f0f0f0',
-                                display: 'block'
-                              }}
-                              onError={(e) => {
-                                console.error('❌ Image failed to load:', e);
-                                console.error('❌ Image URL:', asset.fileUrl);
-                                console.error('❌ Image URL length:', asset.fileUrl.length);
-                                (e.target as HTMLImageElement).style.border = '3px solid red';
-                                (e.target as HTMLImageElement).alt = 'FAILED TO LOAD IMAGE';
-                              }}
-                              onLoad={(e) => {
-                                console.log('✅ Image loaded successfully:', asset.title);
-                                (e.target as HTMLImageElement).style.border = '3px solid green';
-                              }}
-                            />
+                            <div className="w-full max-w-md mx-auto rounded border-2 border-gray-300 overflow-hidden" style={{ minHeight: '200px', backgroundColor: '#f0f0f0' }}>
+                              <img
+                                src={asset.fileUrl}
+                                alt={asset.title}
+                                className="w-full h-full object-contain"
+                                onError={(e) => {
+                                  console.error('❌ Image failed to load:', e);
+                                  console.error('❌ Image URL:', asset.fileUrl);
+                                  console.error('❌ Image URL length:', asset.fileUrl.length);
+                                  (e.target as HTMLImageElement).style.border = '3px solid red';
+                                  (e.target as HTMLImageElement).alt = 'FAILED TO LOAD IMAGE';
+                                }}
+                                onLoad={(e) => {
+                                  console.log('✅ Image loaded successfully:', asset.title);
+                                  (e.target as HTMLImageElement).style.border = '3px solid green';
+                                }}
+                              />
+                            </div>
                             <div className="mt-3 flex space-x-2">
                               <button 
                                 onClick={() => window.open(asset.fileUrl, '_blank')}
