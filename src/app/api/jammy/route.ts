@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jammyAI } from '@/lib/jammy-ai';
 
+export async function OPTIONS(request: NextRequest) {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  });
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { message, context, uploadedFiles } = await request.json();
@@ -26,6 +37,12 @@ export async function POST(request: NextRequest) {
       confidence: response.confidence,
       timestamp: response.timestamp,
       jammyId: response.id
+    }, {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      }
     });
 
   } catch (error) {
@@ -36,7 +53,14 @@ export async function POST(request: NextRequest) {
         error: 'Jammy AI processing failed',
         response: "I apologize, but I'm experiencing technical difficulties. Please try again in a moment."
       },
-      { status: 500 }
+      { 
+        status: 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        }
+      }
     );
   }
 }

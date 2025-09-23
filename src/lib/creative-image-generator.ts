@@ -40,7 +40,7 @@ class CreativeImageGenerator {
       // Calculate creativity score
       const creativityScore = this.calculateCreativityScore(patterns, template);
 
-      // Generate base64 data URL
+      // Generate base64 data URL - simpler approach
       const base64Svg = Buffer.from(svg).toString('base64');
       const dataUrl = `data:image/svg+xml;base64,${base64Svg}`;
 

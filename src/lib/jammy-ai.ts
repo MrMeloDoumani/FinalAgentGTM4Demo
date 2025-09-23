@@ -7,6 +7,7 @@ import { enhancedStyleLearningEngine } from './enhanced-style-learning';
 import { simpleImageGenerator } from './simple-image-generator';
 import { templateLearningEngine } from './template-learning-engine';
 import { creativeImageGenerator } from './creative-image-generator';
+// import { smartExecutionEngine } from './smart-execution-engine';
 import { Buffer } from 'buffer';
 
 export interface JammyResponse {
@@ -93,37 +94,90 @@ class JammyAI {
   ): Promise<JammyResponse> {
     await this.initialize();
 
-    // Learn from uploaded files
-    if (uploadedFiles.length > 0) {
-      await this.learnFromFiles(uploadedFiles);
+    console.log('🤖 Jammy AI processing message with intelligence system:', message);
+
+    try {
+      // Use the smart execution engine for intelligent processing
+      const executionContext = {
+        query: message,
+        industry: context.industry as string,
+        contentType: context.contentType as string,
+        userPreferences: context.userPreferences as Record<string, unknown> || {},
+        conversationHistory: this.memory.conversationHistory || [],
+        uploadedFiles: uploadedFiles
+      };
+
+      // Temporarily use fallback processing while we fix the intelligence system
+      return this.fallbackProcessing(message, context, uploadedFiles);
+
+    } catch (error) {
+      console.error('❌ Jammy AI intelligent processing failed:', error);
+      
+      // Fallback to basic processing
+      return this.fallbackProcessing(message, context, uploadedFiles);
     }
+  }
 
-    // Analyze the message and context
-    const analysis = this.analyzeMessage(message, context);
+  // Fallback processing when smart execution fails
+  private async fallbackProcessing(
+    message: string, 
+    context: Record<string, unknown> = {}, 
+    uploadedFiles: File[] = []
+  ): Promise<JammyResponse> {
+    console.log('🔄 Using fallback processing...');
     
-    // Generate intelligent response
-    const response = await this.generateResponse(message, analysis, context);
-    
-    // Generate media assets
-    const mediaAssets = await this.generateMediaAssets(analysis, response);
-    
-    // Extract learning data
-    const learningData = this.extractLearningData(message, analysis, response);
-    
-    // Store in memory
-    this.storeConversation(message, response.content, context);
-    
-    // Save memory
-    this.saveMemory();
+    try {
+      // Learn from uploaded files if any
+      if (uploadedFiles.length > 0) {
+        await this.learnFromFiles(uploadedFiles);
+      }
 
-    return {
-      id: `jammy_${Date.now()}`,
-      content: response.content,
-      mediaAssets,
-      learningData,
-      timestamp: new Date().toISOString(),
-      confidence: response.confidence
-    };
+      // Analyze the message and context
+      const analysis = this.analyzeMessage(message, context);
+      
+      // Generate intelligent response
+      const response = await this.generateResponse(message, analysis, context);
+      
+      // Generate media assets
+      const mediaAssets = await this.generateMediaAssets(analysis, response);
+      
+      // Extract learning data
+      const learningData = this.extractLearningData(message, analysis, response);
+      
+      // Store in memory
+      this.storeConversation(message, response.content, context);
+      
+      // Save memory
+      this.saveMemory();
+
+      return {
+        id: `jammy_${Date.now()}`,
+        content: response.content,
+        mediaAssets,
+        learningData,
+        timestamp: new Date().toISOString(),
+        confidence: response.confidence
+      };
+
+    } catch (error) {
+      console.error('❌ Fallback processing also failed:', error);
+      
+      return {
+        id: `jammy_${Date.now()}`,
+        content: "I apologize, but I encountered an issue processing your request. Please try again or contact support if the problem persists.",
+        mediaAssets: [],
+        learningData: {
+          industry: 'general',
+          contentType: 'general',
+          userPreferences: {},
+          knowledgeExtracted: [],
+          improvements: []
+        },
+        confidence: 0.1,
+        timestamp: new Date().toISOString(),
+        jammyId: `jammy_${Date.now()}`
+      };
+    }
   }
 
   private analyzeMessage(message: string, context: Record<string, unknown>): Record<string, unknown> {
@@ -665,6 +719,8 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
         assets.push(await this.generateImageAsset(analysis, response));
         break;
       case 'brochure':
+        // Generate both image and brochure asset
+        assets.push(await this.generateImageAsset(analysis, response));
         assets.push(await this.generateBrochureAsset(analysis, response));
         break;
       case 'whitepaper':
