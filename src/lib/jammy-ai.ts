@@ -290,11 +290,11 @@ class JammyAI {
     if (sectorInfo) {
       response += `## Industry Challenges & Solutions\n\n`;
       response += `### Key Pain Points for ${industryName}:\n`;
-      sectorInfo.pain_points?.forEach((point: string) => {
+      (sectorInfo as { pain_points?: string[] }).pain_points?.forEach((point: string) => {
         response += `• ${point}\n`;
       });
       response += `\n### e& Solutions Address These Challenges:\n`;
-      sectorInfo.sector_goals?.forEach((goal: string) => {
+      (sectorInfo as { sector_goals?: string[] }).sector_goals?.forEach((goal: string) => {
         response += `• ${goal}\n`;
       });
     }
