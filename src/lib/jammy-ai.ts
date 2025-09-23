@@ -6,7 +6,7 @@ import { styleLearningEngine, StylePattern } from './style-learning';
 import { enhancedStyleLearningEngine } from './enhanced-style-learning';
 import { simpleImageGenerator } from './simple-image-generator';
 import { templateLearningEngine } from './template-learning-engine';
-import { ultraSimpleImageGenerator } from './ultra-simple-image-generator';
+import { serverImageGenerator } from './server-image-generator';
 // import { smartExecutionEngine } from './smart-execution-engine';
 import { Buffer } from 'buffer';
 
@@ -754,13 +754,13 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
       
       console.log('🎨 Generating creative image for:', industry, contentType);
       
-      // Use the ultra-simple image generator
-      const generatedImage = await ultraSimpleImageGenerator.generateImage(
+      // Use the server-side image generator
+      const generatedImage = await serverImageGenerator.generateImage(
         response.content as string,
         industry
       );
       
-      console.log('✅ Ultra-simple image generated successfully');
+      console.log('✅ Server-side image generated successfully');
       
       return {
         id: `image_${Date.now()}`,
@@ -770,7 +770,7 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
         content: response.content as string,
         fileUrl: generatedImage.url,
         generatedAt: new Date().toISOString(),
-        styleUsed: 'Canvas PNG'
+        styleUsed: 'Server PNG'
       };
     } catch (error) {
       console.error('❌ Creative image generation failed:', error);
@@ -780,7 +780,7 @@ Based on current market trends and e&'s capabilities, here's my analysis of the 
         const industry = analysis.industry as string;
         const contentType = analysis.contentType as string;
         
-        const fallbackImage = await ultraSimpleImageGenerator.generateImage(
+        const fallbackImage = await serverImageGenerator.generateImage(
           response.content as string,
           industry
         );
