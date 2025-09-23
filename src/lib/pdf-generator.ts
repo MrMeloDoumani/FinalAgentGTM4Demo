@@ -117,7 +117,7 @@ export class PDFGenerator {
     };
   }
 
-  private addHeader(page: unknown, font: unknown, boldFont: unknown, title: string) {
+  private addHeader(page: any, font: any, boldFont: any, title: string) {
     // e& logo area
     page.drawRectangle({
       x: 50,
@@ -146,7 +146,7 @@ export class PDFGenerator {
     });
   }
 
-  private addContent(page: unknown, font: unknown, content: string) {
+  private addContent(page: any, font: any, content: string) {
     const lines = content.split('\n');
     let yPosition = 700;
     
@@ -217,7 +217,7 @@ export class PDFGenerator {
     }
   }
 
-  private addFooter(page: unknown, font: unknown) {
+  private addFooter(page: any, font: any) {
     // Footer background
     page.drawRectangle({
       x: 50,
@@ -245,7 +245,7 @@ export class PDFGenerator {
     });
   }
 
-  private addProfessionalHeader(page: unknown, font: unknown, boldFont: unknown, title: string) {
+  private addProfessionalHeader(page: any, font: any, boldFont: any, title: string) {
     // Professional header with more space
     page.drawRectangle({
       x: 50,
@@ -280,16 +280,16 @@ export class PDFGenerator {
     });
   }
 
-  private addStructuredContent(page: unknown, font: unknown, content: string) {
+  private addStructuredContent(page: any, font: any, content: string) {
     // Similar to addContent but with more professional formatting
     this.addContent(page, font, content);
   }
 
-  private addProfessionalFooter(page: unknown, font: unknown) {
+  private addProfessionalFooter(page: any, font: any) {
     this.addFooter(page, font);
   }
 
-  private addBattlecardHeader(page: unknown, font: unknown, boldFont: unknown, title: string) {
+  private addBattlecardHeader(page: any, font: any, boldFont: any, title: string) {
     // Competitive battlecard header
     page.drawRectangle({
       x: 50,
@@ -316,12 +316,12 @@ export class PDFGenerator {
     });
   }
 
-  private addCompetitiveContent(page: unknown, font: unknown, content: string) {
+  private addCompetitiveContent(page: any, font: any, content: string) {
     // Format content for competitive analysis
     this.addContent(page, font, content);
   }
 
-  private addBattlecardFooter(page: unknown, font: unknown) {
+  private addBattlecardFooter(page: any, font: any) {
     this.addFooter(page, font);
   }
 }
