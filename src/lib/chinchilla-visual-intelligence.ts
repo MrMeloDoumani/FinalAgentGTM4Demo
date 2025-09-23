@@ -79,31 +79,64 @@ class ChinchillaVisualIntelligence {
     if (lowerPrompt.includes('analytics_dashboard') || lowerPrompt.includes('dashboard')) elements.push('analytics_dashboard');
     if (lowerPrompt.includes('data_center')) elements.push('data_center');
     
-    // Also check for "draw these elements:" pattern from Jammy
+    // Also check for "draw these elements:" pattern from Jammy (case insensitive)
     if (lowerPrompt.includes('draw these elements:')) {
       const elementsText = lowerPrompt.split('draw these elements:')[1];
       if (elementsText) {
-        const elementList = elementsText.split(',').map(e => e.trim());
+        const elementList = elementsText.split(',').map(e => e.trim().toLowerCase());
         elementList.forEach(element => {
-          if (element === 'smartphone' && !elements.includes('smartphone')) elements.push('smartphone');
-          if (element === 'building' && !elements.includes('building')) elements.push('building');
-          if (element === 'people' && !elements.includes('people')) elements.push('people');
-          if (element === 'chart' && !elements.includes('chart')) elements.push('chart');
-          if (element === 'network' && !elements.includes('network')) elements.push('network');
-          if (element === 'router' && !elements.includes('router')) elements.push('router');
-          if (element === 'server' && !elements.includes('server')) elements.push('server');
-          if (element === 'laptop' && !elements.includes('laptop')) elements.push('laptop');
-          if (element === 'tower' && !elements.includes('tower')) elements.push('tower');
-          if (element === 'wifi_signal' && !elements.includes('wifi_signal')) elements.push('wifi_signal');
-          if (element === 'security_shield' && !elements.includes('security_shield')) elements.push('security_shield');
-          if (element === 'cloud' && !elements.includes('cloud')) elements.push('cloud');
-          if (element === 'office_building' && !elements.includes('office_building')) elements.push('office_building');
-          if (element === 'retail_store' && !elements.includes('retail_store')) elements.push('retail_store');
-          if (element === 'hospital' && !elements.includes('hospital')) elements.push('hospital');
-          if (element === 'school' && !elements.includes('school')) elements.push('school');
-          if (element === 'analytics_dashboard' && !elements.includes('analytics_dashboard')) elements.push('analytics_dashboard');
-          if (element === 'data_center' && !elements.includes('data_center')) elements.push('data_center');
-          if (element === 'chinchilla' && !elements.includes('chinchilla')) elements.push('chinchilla');
+          // Map common element names to our internal elements
+          if (element === 'smartphone' || element === 'phone' || element === 'mobile') {
+            if (!elements.includes('smartphone')) elements.push('smartphone');
+          }
+          if (element === 'building' || element === 'office' || element === 'office_building') {
+            if (!elements.includes('office_building')) elements.push('office_building');
+          }
+          if (element === 'people' || element === 'team' || element === 'users') {
+            if (!elements.includes('people')) elements.push('people');
+          }
+          if (element === 'chart' || element === 'graph' || element === 'analytics') {
+            if (!elements.includes('chart')) elements.push('chart');
+          }
+          if (element === 'network' || element === 'connection') {
+            if (!elements.includes('network')) elements.push('network');
+          }
+          if (element === 'router' || element === 'equipment' || element === 'hardware') {
+            if (!elements.includes('router')) elements.push('router');
+          }
+          if (element === 'server' || element === 'data_center' || element === 'infrastructure') {
+            if (!elements.includes('server')) elements.push('server');
+          }
+          if (element === 'laptop' || element === 'computer' || element === 'device') {
+            if (!elements.includes('laptop')) elements.push('laptop');
+          }
+          if (element === 'tower' || element === 'antenna' || element === 'mast') {
+            if (!elements.includes('tower')) elements.push('tower');
+          }
+          if (element === 'wifi_signal' || element === 'wifi' || element === 'signal' || element === 'wireless') {
+            if (!elements.includes('wifi_signal')) elements.push('wifi_signal');
+          }
+          if (element === 'security_shield' || element === 'security' || element === 'shield' || element === 'protection') {
+            if (!elements.includes('security_shield')) elements.push('security_shield');
+          }
+          if (element === 'cloud' || element === 'cloud_computing' || element === 'cloud_services') {
+            if (!elements.includes('cloud')) elements.push('cloud');
+          }
+          if (element === 'retail_store' || element === 'retail' || element === 'store' || element === 'shop') {
+            if (!elements.includes('retail_store')) elements.push('retail_store');
+          }
+          if (element === 'hospital' || element === 'medical' || element === 'healthcare') {
+            if (!elements.includes('hospital')) elements.push('hospital');
+          }
+          if (element === 'school' || element === 'education' || element === 'university') {
+            if (!elements.includes('school')) elements.push('school');
+          }
+          if (element === 'analytics_dashboard' || element === 'dashboard' || element === 'analytics') {
+            if (!elements.includes('analytics_dashboard')) elements.push('analytics_dashboard');
+          }
+          if (element === 'chinchilla') {
+            if (!elements.includes('chinchilla')) elements.push('chinchilla');
+          }
         });
       }
     }
@@ -321,22 +354,58 @@ class ChinchillaVisualIntelligence {
     const startY = 120;
     const spacing = 80;
     
-    // Professional grid layout for B2B
-    if (elements.length === 1) {
-      positions.push({ x: width/2 - 30, y: startY });
-    } else if (elements.length === 2) {
-      positions.push({ x: width/2 - 60, y: startY });
-      positions.push({ x: width/2 + 20, y: startY });
-    } else if (elements.length === 3) {
-      positions.push({ x: width/2 - 60, y: startY });
-      positions.push({ x: width/2 - 10, y: startY });
-      positions.push({ x: width/2 + 40, y: startY });
+    // Intelligent layout based on element types and product context
+    if (elements.includes('office_building') && elements.includes('network')) {
+      // Business connectivity layout: building + network elements
+      positions.push({ x: width/2 - 100, y: startY }); // Building on left
+      positions.push({ x: width/2 + 20, y: startY });  // Network on right
+      if (elements.includes('router')) {
+        positions.push({ x: width/2 - 40, y: startY + 60 }); // Router below
+      }
+      if (elements.includes('wifi_signal')) {
+        positions.push({ x: width/2 + 60, y: startY + 60 }); // WiFi signal
+      }
+    } else if (elements.includes('cloud') && elements.includes('server')) {
+      // Cloud services layout: cloud + server elements
+      positions.push({ x: width/2 - 60, y: startY - 20 }); // Cloud above
+      positions.push({ x: width/2 - 60, y: startY + 40 }); // Server below
+      if (elements.includes('network')) {
+        positions.push({ x: width/2 + 20, y: startY + 10 }); // Network connection
+      }
+    } else if (elements.includes('smartphone') && elements.includes('laptop')) {
+      // Mobile/device layout: devices side by side
+      positions.push({ x: width/2 - 80, y: startY }); // Smartphone
+      positions.push({ x: width/2 + 20, y: startY }); // Laptop
+      if (elements.includes('wifi_signal')) {
+        positions.push({ x: width/2 - 30, y: startY + 60 }); // WiFi signal
+      }
+    } else if (elements.includes('retail_store') || elements.includes('hospital') || elements.includes('school')) {
+      // Industry-specific layout: building + relevant elements
+      positions.push({ x: width/2 - 60, y: startY }); // Main building
+      if (elements.includes('people')) {
+        positions.push({ x: width/2 + 20, y: startY }); // People
+      }
+      if (elements.includes('chart')) {
+        positions.push({ x: width/2 - 30, y: startY + 60 }); // Analytics
+      }
     } else {
-      // 4+ elements: 2x2 grid
-      positions.push({ x: width/2 - 80, y: startY });
-      positions.push({ x: width/2 - 20, y: startY });
-      positions.push({ x: width/2 - 80, y: startY + spacing });
-      positions.push({ x: width/2 - 20, y: startY + spacing });
+      // Default professional grid layout for B2B
+      if (elements.length === 1) {
+        positions.push({ x: width/2 - 30, y: startY });
+      } else if (elements.length === 2) {
+        positions.push({ x: width/2 - 60, y: startY });
+        positions.push({ x: width/2 + 20, y: startY });
+      } else if (elements.length === 3) {
+        positions.push({ x: width/2 - 60, y: startY });
+        positions.push({ x: width/2 - 10, y: startY });
+        positions.push({ x: width/2 + 40, y: startY });
+      } else {
+        // 4+ elements: 2x2 grid
+        positions.push({ x: width/2 - 80, y: startY });
+        positions.push({ x: width/2 - 20, y: startY });
+        positions.push({ x: width/2 - 80, y: startY + spacing });
+        positions.push({ x: width/2 - 20, y: startY + spacing });
+      }
     }
     
     return { positions };
@@ -364,6 +433,19 @@ class ChinchillaVisualIntelligence {
           <rect x="${x+5}" y="${y+25}" width="50" height="15" fill="#999"/>
           <rect x="${x+5}" y="${y+45}" width="50" height="15" fill="#999"/>
         `;
+      case 'office_building':
+        return `
+          <rect x="${x}" y="${y}" width="80" height="100" fill="#2C3E50" rx="5"/>
+          <rect x="${x+5}" y="${y+5}" width="70" height="18" fill="#34495E"/>
+          <rect x="${x+5}" y="${y+28}" width="70" height="18" fill="#34495E"/>
+          <rect x="${x+5}" y="${y+51}" width="70" height="18" fill="#34495E"/>
+          <rect x="${x+5}" y="${y+74}" width="70" height="18" fill="#34495E"/>
+          <rect x="${x+10}" y="${y+10}" width="60" height="8" fill="${brand.primaryColor}"/>
+          <rect x="${x+10}" y="${y+33}" width="60" height="8" fill="${brand.primaryColor}"/>
+          <rect x="${x+10}" y="${y+56}" width="60" height="8" fill="${brand.primaryColor}"/>
+          <rect x="${x+10}" y="${y+79}" width="60" height="8" fill="${brand.primaryColor}"/>
+          <text x="${x+40}" y="${y+95}" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="white">e&</text>
+        `;
       case 'people':
         return `
           <circle cx="${x+15}" cy="${y+10}" r="8" fill="#FFDBAC"/>
@@ -381,12 +463,16 @@ class ChinchillaVisualIntelligence {
         `;
       case 'network':
         return `
-          <circle cx="${x+15}" cy="${y+20}" r="5" fill="${brand.primaryColor}"/>
-          <circle cx="${x+35}" cy="${y+10}" r="5" fill="${brand.primaryColor}"/>
-          <circle cx="${x+55}" cy="${y+25}" r="5" fill="${brand.primaryColor}"/>
-          <line x1="${x+15}" y1="${y+20}" x2="${x+35}" y2="${y+10}" stroke="${brand.primaryColor}" stroke-width="2"/>
-          <line x1="${x+35}" y1="${y+10}" x2="${x+55}" y2="${y+25}" stroke="${brand.primaryColor}" stroke-width="2"/>
-          <line x1="${x+15}" y1="${y+20}" x2="${x+55}" y2="${y+25}" stroke="${brand.primaryColor}" stroke-width="2"/>
+          <circle cx="${x+15}" cy="${y+20}" r="8" fill="${brand.primaryColor}"/>
+          <circle cx="${x+35}" cy="${y+10}" r="8" fill="${brand.primaryColor}"/>
+          <circle cx="${x+55}" cy="${y+25}" r="8" fill="${brand.primaryColor}"/>
+          <circle cx="${x+25}" cy="${y+35}" r="6" fill="${brand.primaryColor}"/>
+          <line x1="${x+15}" y1="${y+20}" x2="${x+35}" y2="${y+10}" stroke="${brand.primaryColor}" stroke-width="3"/>
+          <line x1="${x+35}" y1="${y+10}" x2="${x+55}" y2="${y+25}" stroke="${brand.primaryColor}" stroke-width="3"/>
+          <line x1="${x+15}" y1="${y+20}" x2="${x+55}" y2="${y+25}" stroke="${brand.primaryColor}" stroke-width="3"/>
+          <line x1="${x+25}" y1="${y+35}" x2="${x+35}" y2="${y+10}" stroke="${brand.primaryColor}" stroke-width="2"/>
+          <line x1="${x+25}" y1="${y+35}" x2="${x+15}" y2="${y+20}" stroke="${brand.primaryColor}" stroke-width="2"/>
+          <text x="${x+35}" y="${y+50}" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="${brand.primaryColor}">Network</text>
         `;
       case 'router':
         return `
