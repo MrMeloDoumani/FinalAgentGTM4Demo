@@ -296,22 +296,53 @@ export default function AgentsPage() {
                         <div className="text-xs text-gray-600 mb-3">
                           {asset.industry} • {asset.styleUsed || 'e& Style'}
                         </div>
-                        <div className="mt-3 flex space-x-2">
-                          <button 
-                            onClick={() => window.open(asset.fileUrl, '_blank')}
-                            className="flex items-center space-x-1 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
-                          >
-                            <Download className="h-3 w-3" />
-                            <span>Download PDF</span>
-                          </button>
-                          <button 
-                            onClick={() => navigator.clipboard.writeText(asset.fileUrl)}
-                            className="flex items-center space-x-1 px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700"
-                          >
-                            <FileText className="h-3 w-3" />
-                            <span>Copy Link</span>
-                          </button>
-                        </div>
+                        
+                        {/* Display image inline if it's an image type */}
+                        {asset.type === 'image' ? (
+                          <div className="mt-3">
+                            <Image 
+                              src={asset.fileUrl} 
+                              alt={asset.title}
+                              width={400}
+                              height={300}
+                              className="w-full max-w-md mx-auto rounded border border-gray-200"
+                            />
+                            <div className="mt-3 flex space-x-2">
+                              <button 
+                                onClick={() => window.open(asset.fileUrl, '_blank')}
+                                className="flex items-center space-x-1 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                              >
+                                <Download className="h-3 w-3" />
+                                <span>Download Image</span>
+                              </button>
+                              <button 
+                                onClick={() => navigator.clipboard.writeText(asset.fileUrl)}
+                                className="flex items-center space-x-1 px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700"
+                              >
+                                <FileText className="h-3 w-3" />
+                                <span>Copy Link</span>
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          /* Display download buttons for non-image assets */
+                          <div className="mt-3 flex space-x-2">
+                            <button 
+                              onClick={() => window.open(asset.fileUrl, '_blank')}
+                              className="flex items-center space-x-1 px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                            >
+                              <Download className="h-3 w-3" />
+                              <span>Download {asset.type.toUpperCase()}</span>
+                            </button>
+                            <button 
+                              onClick={() => navigator.clipboard.writeText(asset.fileUrl)}
+                              className="flex items-center space-x-1 px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700"
+                            >
+                              <FileText className="h-3 w-3" />
+                              <span>Copy Link</span>
+                            </button>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
