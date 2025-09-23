@@ -103,7 +103,7 @@ class JammyIntelligenceEngine {
     }
 
     // Determine industry
-    const industry = this.detectIndustry(lowerMessage);
+    const industry = this.detectIndustry(lowerMessage, context?.industry);
 
     // Determine intent
     const intent = this.detectIntent(lowerMessage);
@@ -117,7 +117,13 @@ class JammyIntelligenceEngine {
     };
   }
 
-  private detectIndustry(message: string): string {
+  private detectIndustry(message: string, existingIndustry?: string): string {
+    // If industry is already set by web intelligence, use it
+    if (existingIndustry && existingIndustry !== 'retail') {
+      console.log('🎯 Using existing industry from web intelligence:', existingIndustry);
+      return existingIndustry;
+    }
+
     const industries = {
       'retail': ['retail', 'shopping', 'store', 'commerce'],
       'education': ['education', 'school', 'university', 'learning', 'student'],
@@ -128,15 +134,17 @@ class JammyIntelligenceEngine {
       'hospitality': ['hospitality', 'hotel', 'restaurant', 'tourism'],
       'logistics': ['logistics', 'shipping', 'transport', 'supply chain'],
       'real_estate': ['real estate', 'property', 'construction', 'building'],
-      'tech_telecom': ['tech', 'technology', 'telecom', 'digital', 'software']
+      'tech_telecom': ['tech', 'technology', 'telecom', 'digital', 'software', 'business', 'fiber', 'internet', 'pro']
     };
 
     for (const [industry, keywords] of Object.entries(industries)) {
       if (keywords.some(keyword => message.includes(keyword))) {
+        console.log('🔍 Detected industry:', industry, 'for message:', message);
         return industry;
       }
     }
 
+    console.log('🔍 No specific industry detected, defaulting to tech_telecom');
     return 'tech_telecom'; // Default
   }
 

@@ -129,7 +129,11 @@ class JammyAI {
       console.log('🔍 Product search visual elements:', productSearch.visualElements);
       
       // Step 2: Use the new intelligence engine for structured thinking
-      const intelligenceResult = await jammyIntelligenceEngine.processIntelligently(message, context);
+      const enhancedContext = {
+        ...context,
+        industry: productSearch.industry // Pass the industry from web intelligence
+      };
+      const intelligenceResult = await jammyIntelligenceEngine.processIntelligently(message, enhancedContext);
       console.log('🧠 Intelligence result industry:', intelligenceResult.analysis.industry);
       
       // Step 3: Enhance intelligence result with product search data
