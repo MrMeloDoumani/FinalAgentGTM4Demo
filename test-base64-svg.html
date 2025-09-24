@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Base64 SVG from API</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-container { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        .test-image { max-width: 100%; height: auto; border: 2px solid #333; }
+        .url-display { word-break: break-all; font-size: 12px; background: #f0f0f0; padding: 10px; margin: 10px 0; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h1>Test Base64 SVG from API</h1>
+    
+    <div class="test-container">
+        <h2>Test: Fetch from API and Display</h2>
+        <button onclick="testAPI()">Test API Call</button>
+        <div id="status"></div>
+        <div id="url-display"></div>
+        <div id="image-container"></div>
+    </div>
+
+    <script>
+        async function testAPI() {
+            const statusDiv = document.getElementById('status');
+            const urlDiv = document.getElementById('url-display');
+            const imageContainer = document.getElementById('image-container');
+            
+            statusDiv.innerHTML = '<div class="status">Loading...</div>';
+            urlDiv.innerHTML = '';
+            imageContainer.innerHTML = '';
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/jammy', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: 'generate an image for business pro fiber',
+                        context: { user: 'Yasser Omar Zaki Shaaban', role: 'DIRECTOR' },
+                        uploadedFiles: []
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.mediaAssets && data.mediaAssets.length > 0) {
+                    const asset = data.mediaAssets[0];
+                    const imageUrl = asset.fileUrl;
+                    
+                    statusDiv.innerHTML = '<div class="status success">API call successful!</div>';
+                    urlDiv.innerHTML = `<div class="url-display">URL: ${imageUrl.substring(0, 100)}...</div>`;
+                    
+                    // Create image element
+                    const img = document.createElement('img');
+                    img.src = imageUrl;
+                    img.alt = asset.title;
+                    img.className = 'test-image';
+                    img.style.width = '100%';
+                    img.style.height = 'auto';
+                    img.style.maxHeight = '300px';
+                    img.style.display = 'block';
+                    img.style.objectFit = 'contain';
+                    
+                    img.onload = function() {
+                        console.log('✅ Image loaded successfully:', asset.title);
+                        this.style.border = '3px solid green';
+                        this.style.backgroundColor = '#e8f5e8';
+                        statusDiv.innerHTML = '<div class="status success">Image loaded successfully!</div>';
+                    };
+                    
+                    img.onerror = function(e) {
+                        console.error('❌ Image failed to load:', e);
+                        this.style.border = '3px solid red';
+                        this.style.backgroundColor = '#ffebee';
+                        this.alt = 'FAILED TO LOAD IMAGE';
+                        statusDiv.innerHTML = '<div class="status error">Image failed to load!</div>';
+                    };
+                    
+                    imageContainer.appendChild(img);
+                    
+                } else {
+                    statusDiv.innerHTML = '<div class="status error">No media assets found in response</div>';
+                }
+                
+            } catch (error) {
+                console.error('API Error:', error);
+                statusDiv.innerHTML = `<div class="status error">API Error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

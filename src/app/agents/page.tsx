@@ -139,6 +139,8 @@ export default function AgentsPage() {
           console.log('🖼️ First Media Asset:', data.mediaAssets[0]);
           console.log('🔗 File URL:', data.mediaAssets[0].fileUrl);
           console.log('📏 URL Length:', data.mediaAssets[0].fileUrl.length);
+          console.log('🔍 URL starts with data:', data.mediaAssets[0].fileUrl.startsWith('data:'));
+          console.log('🔍 URL starts with data:image/svg+xml:', data.mediaAssets[0].fileUrl.startsWith('data:image/svg+xml'));
         }
         
         const aiResponse: Message = {
@@ -404,17 +406,27 @@ export default function AgentsPage() {
                               <img
                                 src={asset.fileUrl}
                                 alt={asset.title}
-                                style={{ width: '100%', height: 'auto', maxHeight: '300px', display: 'block' }}
+                                style={{ 
+                                  width: '100%', 
+                                  height: 'auto', 
+                                  maxHeight: '300px', 
+                                  display: 'block',
+                                  objectFit: 'contain'
+                                }}
                                 onError={(e) => {
                                   console.error('❌ Image failed to load:', e);
                                   console.error('❌ Image URL:', asset.fileUrl);
                                   console.error('❌ Image URL length:', asset.fileUrl.length);
+                                  console.error('❌ Image URL starts with data:', asset.fileUrl.startsWith('data:'));
                                   (e.target as HTMLImageElement).style.border = '3px solid red';
                                   (e.target as HTMLImageElement).alt = 'FAILED TO LOAD IMAGE';
+                                  (e.target as HTMLImageElement).style.backgroundColor = '#ffebee';
                                 }}
                                 onLoad={(e) => {
                                   console.log('✅ Image loaded successfully:', asset.title);
+                                  console.log('✅ Image URL:', asset.fileUrl.substring(0, 100) + '...');
                                   (e.target as HTMLImageElement).style.border = '3px solid green';
+                                  (e.target as HTMLImageElement).style.backgroundColor = '#e8f5e8';
                                 }}
                               />
                             </div>
