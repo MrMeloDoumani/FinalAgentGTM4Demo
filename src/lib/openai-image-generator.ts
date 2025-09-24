@@ -39,24 +39,38 @@ export class OpenAIImageGenerator {
         size: "1024x1024"
       });
 
-      const b64 = res.data?.[0]?.b64_json || "";
-      if (!b64) {
+      const item = res.data?.[0] || {} as any;
+      const b64 = item.b64_json as string | undefined;
+      const url = item.url as string | undefined;
+
+      if (b64) {
+        const dataUrl = `data:image/png;base64,${b64}`;
         return {
-          success: false,
-          title: spec.title,
-          description: "OpenAI Images returned no data",
-          fileUrl: "",
+          success: true,
+          title: `${spec.title}`,
+          description: `Generated PNG via OpenAI gpt-image-1 for ${spec.industry}`,
+          fileUrl: dataUrl,
           generatedAt: now,
           styleApplied: spec.style || "openai_gpt_image_1"
         };
       }
 
-      const dataUrl = `data:image/png;base64,${b64}`;
+      if (url) {
+        return {
+          success: true,
+          title: `${spec.title}`,
+          description: `Generated image URL via OpenAI gpt-image-1 for ${spec.industry}`,
+          fileUrl: url,
+          generatedAt: now,
+          styleApplied: spec.style || "openai_gpt_image_1"
+        };
+      }
+
       return {
-        success: true,
-        title: `${spec.title}`,
-        description: `Generated PNG via OpenAI gpt-image-1 for ${spec.industry}`,
-        fileUrl: dataUrl,
+        success: false,
+        title: spec.title,
+        description: "OpenAI Images returned no data",
+        fileUrl: "",
         generatedAt: now,
         styleApplied: spec.style || "openai_gpt_image_1"
       };
