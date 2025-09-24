@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jammyAI } from '@/lib/jammy-ai';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 export async function OPTIONS(request: NextRequest) {
   return new Response(null, {
     status: 200,
