@@ -36,7 +36,7 @@ export class OpenAIImageGenerator {
       let res = await client.images.generate({
         model: "gpt-image-1",
         prompt: basePrompt,
-        size: "512x512"
+        size: "1024x1024"
       });
 
       const item = res.data?.[0] || {} as any;
@@ -71,7 +71,7 @@ export class OpenAIImageGenerator {
         res = await client.images.generate({
           model: "dall-e-3",
           prompt: basePrompt,
-          size: "512x512"
+          size: "1024x1024"
         });
         const retryItem = res.data?.[0] || {} as any;
         const retryB64 = retryItem.b64_json as string | undefined;

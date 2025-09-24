@@ -53,6 +53,8 @@ export default function AgentsPage() {
   useEffect(() => {
     const initializeConversation = async () => {
       try {
+        // Avoid duplicate initialization
+        if (messages.length > 0) return;
         const response = await fetch('/api/jammy', {
           method: 'POST',
           headers: {
@@ -79,7 +81,7 @@ export default function AgentsPage() {
       } catch (error) {
         console.error('Failed to initialize conversation:', error);
         // Fallback greeting
-        setMessages([{
+        if (messages.length === 0) setMessages([{
           id: `jammy_${Date.now()}`,
           type: "ai",
           content: "Hello! I'm Jammy, your expert AI assistant for e& GTM team. It's wonderful to meet you!",
