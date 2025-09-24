@@ -56,8 +56,18 @@ class EnhancedChinchilla {
           confidence: 0.96
         };
       }
-      // fall back to simple svg if OpenAI fails
-      return this.generateFallbackResult(spec);
+      // propagate OpenAI failure message so caller can see exact cause
+      return {
+        success: false,
+        imageUrl: '',
+        title: `${this.getProductTitle(spec)} - Generation Failed`,
+        description: oa.description || 'OpenAI image generation failed',
+        elementsUsed: spec.elements,
+        styleApplied: 'fallback',
+        generatedAt: new Date().toISOString(),
+        source: 'openai_error',
+        confidence: 0.0
+      };
 
     } catch (error) {
       console.error('❌ Canvas visual generation failed:', error);
