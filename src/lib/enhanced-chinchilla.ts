@@ -69,11 +69,19 @@ class EnhancedChinchilla {
         confidence: 0.0
       };
 
-    } catch (error) {
-      console.error('❌ Canvas visual generation failed:', error);
-      
-      // Fallback to simple text-based result
-      return this.generateFallbackResult(spec);
+    } catch (error: any) {
+      console.error('❌ OpenAI visual generation failed:', error?.message || error);
+      return {
+        success: false,
+        imageUrl: '',
+        title: `${this.getProductTitle(spec)} - Generation Failed`,
+        description: `OpenAI error: ${error?.message || 'unknown'}`,
+        elementsUsed: spec.elements,
+        styleApplied: 'openai_error',
+        generatedAt: new Date().toISOString(),
+        source: 'openai_error',
+        confidence: 0.0
+      };
     }
   }
 
