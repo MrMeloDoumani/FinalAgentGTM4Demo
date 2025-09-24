@@ -5,7 +5,7 @@
  * The orchestration engine handles all the complex workflow logic.
  */
 
-import { jammyOrchestrationEngine } from './jammy-orchestration-engine';
+import { JammyOrchestrationEngine } from './jammy-orchestration-engine';
 
 // Interfaces for Jammy's responses
 export interface JammyResponse {
@@ -43,6 +43,7 @@ export interface JammyMemory {
 class JammyAI {
   private memory: JammyMemory;
   private initialized: boolean = false;
+  private orchestrationEngine: JammyOrchestrationEngine;
 
   constructor() {
     this.memory = {
@@ -51,6 +52,7 @@ class JammyAI {
       knowledgeBase: [],
       userPreferences: {},
     };
+    this.orchestrationEngine = new JammyOrchestrationEngine();
   }
 
   private async initialize() {
@@ -76,7 +78,7 @@ class JammyAI {
 
     try {
       // Delegate to orchestration engine
-      const result = await jammyOrchestrationEngine.processMessage(message, context, uploadedFiles);
+      const result = await this.orchestrationEngine.processMessage(message, context, uploadedFiles);
       
       // Store conversation
       this.storeConversation(message, result.message, result.industry, result.confidence);
@@ -207,7 +209,7 @@ class JammyAI {
           'Continuous improvement'
         ]
       },
-      orchestration: jammyOrchestrationEngine.getStatus()
+      orchestration: this.orchestrationEngine.getStatus()
     };
   }
 }
