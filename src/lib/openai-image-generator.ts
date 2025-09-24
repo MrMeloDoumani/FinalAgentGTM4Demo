@@ -33,7 +33,7 @@ export class OpenAIImageGenerator {
     }
     const basePrompt = `${spec.prompt}\nBrand: e& (Etisalat). Professional B2B hero visual. Color accent: #e30613. Clean grid, generous whitespace, corporate aesthetic, sharp icons, realistic lighting.`;
     try {
-      const res = await client.images.generate({
+      let res = await client.images.generate({
         model: "gpt-image-1",
         prompt: basePrompt,
         size: "1024x1024"
@@ -65,6 +65,39 @@ export class OpenAIImageGenerator {
           styleApplied: spec.style || "openai_gpt_image_1"
         };
       }
+
+      // Retry with dall-e-3 if gpt-image-1 returned nothing
+      try {
+        res = await client.images.generate({
+          model: "dall-e-3",
+          prompt: basePrompt,
+          size: "1024x1024"
+        });
+        const retryItem = res.data?.[0] || {} as any;
+        const retryB64 = retryItem.b64_json as string | undefined;
+        const retryUrl = retryItem.url as string | undefined;
+        if (retryB64) {
+          const dataUrl = `data:image/png;base64,${retryB64}`;
+          return {
+            success: true,
+            title: `${spec.title}`,
+            description: `Generated PNG via OpenAI dall-e-3 for ${spec.industry}`,
+            fileUrl: dataUrl,
+            generatedAt: now,
+            styleApplied: spec.style || "openai_dall_e_3"
+          };
+        }
+        if (retryUrl) {
+          return {
+            success: true,
+            title: `${spec.title}`,
+            description: `Generated image URL via OpenAI dall-e-3 for ${spec.industry}`,
+            fileUrl: retryUrl,
+            generatedAt: now,
+            styleApplied: spec.style || "openai_dall_e_3"
+          };
+        }
+      } catch {}
 
       return {
         success: false,
