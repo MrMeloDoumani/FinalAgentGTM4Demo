@@ -1,5 +1,7 @@
 // Chinchilla Visual Intelligence - Interprets, researches, and generates images
-// Uses internal data + web search for comprehensive visual generation
+// Uses comprehensive visual database for professional B2B image generation
+
+import { chinchillaVisualDatabase, VisualElement, VisualTemplate } from './chinchilla-visual-database';
 
 export interface VisualSpecification {
   prompt: string;
@@ -28,7 +30,7 @@ export interface VisualGenerationResult {
   generatedAt: string;
 }
 
-class ChinchillaVisualIntelligence {
+export class ChinchillaVisualIntelligence {
   private internalVisualDB: any[] = [];
   private brandAssets: any[] = [];
   private industryPatterns: any[] = [];
@@ -56,7 +58,7 @@ class ChinchillaVisualIntelligence {
     const lowerPrompt = spec.prompt.toLowerCase();
     
     // Extract visual elements
-    const elements = [];
+    let elements = [];
     
     // Check for specific element names that Jammy sends
     if (lowerPrompt.includes('smartphone') || lowerPrompt.includes('phone') || lowerPrompt.includes('mobile')) elements.push('smartphone');
@@ -141,6 +143,27 @@ class ChinchillaVisualIntelligence {
       }
     }
 
+    // CRITICAL FIX: Ensure we have at least some elements
+    if (elements.length === 0) {
+      console.log('⚠️ No elements found in prompt, using intelligent defaults based on industry and context...');
+      
+      // Use industry-specific defaults
+      if (spec.industry === 'tech_telecom') {
+        elements = ['office_building', 'network_cloud', 'etisalat_logo'];
+      } else if (spec.industry === 'retail') {
+        elements = ['business_people', 'data_analytics', 'etisalat_logo'];
+      } else if (spec.industry === 'education') {
+        elements = ['business_people', 'laptop', 'network_cloud', 'etisalat_logo'];
+      } else if (spec.industry === 'healthcare') {
+        elements = ['security_shield', 'server_rack', 'business_people', 'etisalat_logo'];
+      } else {
+        // Default fallback
+        elements = ['office_building', 'network_cloud', 'etisalat_logo'];
+      }
+      
+      console.log('✅ Using intelligent default elements:', elements);
+    }
+
     // Determine style preferences
     let style = 'professional';
     if (lowerPrompt.includes('creative') || lowerPrompt.includes('artistic')) style = 'creative';
@@ -152,6 +175,8 @@ class ChinchillaVisualIntelligence {
     if (lowerPrompt.includes('blue')) colorScheme = 'blue';
     if (lowerPrompt.includes('green')) colorScheme = 'green';
     if (lowerPrompt.includes('purple')) colorScheme = 'purple';
+
+    console.log('🎯 Final elements for generation:', elements);
 
     return {
       elements,
