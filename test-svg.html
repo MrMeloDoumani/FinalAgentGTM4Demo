@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SVG Test</title>
+</head>
+<body>
+    <h1>Testing Base64 SVG Rendering</h1>
+    
+    <h2>Direct Base64 SVG:</h2>
+    <img src="data:image/svg+xml;base64,CiAgICAgIDxzdmcgd2lkdGg9IjQwMCIgaGVpZ2h0PSIzMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgICAgICAgPHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNmOGY5ZmEiIHN0cm9rZT0iI2UzMDYxMyIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgICAgICAgPHJlY3QgeD0iNTAiIHk9IjUwIiB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjZTMwNjEzIiBzdHJva2Utd2lkdGg9IjEiIHJ4PSIxMCIvPgogICAgICAgIDx0ZXh0IHg9IjIwMCIgeT0iMTAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjZTMwNjEzIj4KICAgICAgICAgIGUmIFRFQ0hfVEVMRUNPTQogICAgICAgIDwvdGV4dD4KICAgICAgICA8dGV4dCB4PSIyMDAiIHk9IjEzMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmaWxsPSIjMzMzMzMzIj4KICAgICAgICAgIEJ1c2luZXNzIFNvbHV0aW9uCiAgICAgICAgPC90ZXh0PgogICAgICAgIDx0ZXh0IHg9IjIwMCIgeT0iMTYwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2NjY2NjYiPgogICAgICAgICAgUHJvZmVzc2lvbmFsIEIyQiBWaXN1YWxpemF0aW9uCiAgICAgICAgPC90ZXh0PgogICAgICAgIDxjaXJjbGUgY3g9IjIwMCIgY3k9IjIwMCIgcj0iMzAiIGZpbGw9IiNlMzA2MTMiIG9wYWNpdHk9IjAuMyIvPgogICAgICAgIDx0ZXh0IHg9IjIwMCIgeT0iMjA1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiNmZmZmZmYiIGZvbnQtd2VpZ2h0PSJib2xkIj4KICAgICAgICAgIGUmCiAgICAgICAgPC90ZXh0PgogICAgICA8L3N2Zz4KICAgIA==" 
+         alt="Test SVG" 
+         style="border: 2px solid red; max-width: 400px; height: auto;"
+         onError="console.error('SVG failed to load:', this.src)"
+         onLoad="console.log('SVG loaded successfully')" />
+    
+    <h2>With Container (like in React app):</h2>
+    <div style="width: 100%; max-width: 400px; margin: 0 auto; border: 2px solid gray; overflow: hidden; min-height: 200px; background-color: #f0f0f0;">
+        <img src="data:image/svg+xml;base64,CiAgICAgIDxzdmcgd2lkdGg9IjQwMCIgaGVpZ2h0PSIzMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgICAgICAgPHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIzMDAiIGZpbGw9IiNmOGY5ZmEiIHN0cm9rZT0iI2UzMDYxMyIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgICAgICAgPHJlY3QgeD0iNTAiIHk9IjUwIiB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjZTMwNjEzIiBzdHJva2Utd2lkdGg9IjEiIHJ4PSIxMCIvPgogICAgICAgIDx0ZXh0IHg9IjIwMCIgeT0iMTAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjZTMwNjEzIj4KICAgICAgICAgIGUmIFRFQ0hfVEVMRUNPTQogICAgICAgIDwvdGV4dD4KICAgICAgICA8dGV4dCB4PSIyMDAiIHk9IjEzMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmaWxsPSIjMzMzMzMzIj4KICAgICAgICAgIEJ1c2luZXNzIFNvbHV0aW9uCiAgICAgICAgPC90ZXh0PgogICAgICAgIDx0ZXh0IHg9IjIwMCIgeT0iMTYwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2NjY2NjYiPgogICAgICAgICAgUHJvZmVzc2lvbmFsIEIyQiBWaXN1YWxpemF0aW9uCiAgICAgICAgPC90ZXh0PgogICAgICAgIDxjaXJjbGUgY3g9IjIwMCIgY3k9IjIwMCIgcj0iMzAiIGZpbGw9IiNlMzA2MTMiIG9wYWNpdHk9IjAuMyIvPgogICAgICAgIDx0ZXh0IHg9IjIwMCIgeT0iMjA1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiNmZmZmZmYiIGZvbnQtd2VpZ2h0PSJib2xkIj4KICAgICAgICAgIGUmCiAgICAgICAgPC90ZXh0PgogICAgICA8L3N2Zz4KICAgIA==" 
+             alt="Test SVG" 
+             style="width: 100%; height: 100%; object-fit: contain;"
+             onError="console.error('SVG failed to load:', this.src); this.alt='FAILED TO LOAD IMAGE'"
+             onLoad="console.log('SVG loaded successfully')" />
+    </div>
+    
+    <script>
+        console.log('Test page loaded');
+    </script>
+</body>
+</html>

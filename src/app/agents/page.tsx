@@ -400,11 +400,11 @@ export default function AgentsPage() {
                         {/* Display image inline if it's an image type */}
                         {asset.type === 'image' ? (
                           <div className="mt-3">
-                            <div className="w-full max-w-md mx-auto rounded border-2 border-gray-300 overflow-hidden" style={{ minHeight: '200px', backgroundColor: '#f0f0f0' }}>
+                            <div className="w-full max-w-md mx-auto rounded border-2 border-gray-300" style={{ minHeight: '200px', backgroundColor: '#f0f0f0' }}>
                               <img
                                 src={asset.fileUrl}
                                 alt={asset.title}
-                                className="w-full h-full object-contain"
+                                style={{ width: '100%', height: 'auto', maxHeight: '300px', display: 'block' }}
                                 onError={(e) => {
                                   console.error('❌ Image failed to load:', e);
                                   console.error('❌ Image URL:', asset.fileUrl);
