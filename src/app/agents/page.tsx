@@ -68,9 +68,9 @@ export default function AgentsPage() {
         if (response.ok) {
           const data = await response.json();
           setMessages([{
-            id: data.id || `jammy_${Date.now()}`,
+            id: data.jammyId || `jammy_${Date.now()}`,
             type: "ai",
-            content: data.content,
+            content: data.response,
             timestamp: new Date(),
             jammyId: data.jammyId,
             confidence: data.confidence
@@ -121,7 +121,7 @@ export default function AgentsPage() {
         },
         body: JSON.stringify({
           message: inputMessage,
-          context: 'sales-enablement',
+          context: { user: 'Yasser Omar Zaki Shaaban', role: 'DIRECTOR' },
           uploadedFiles: uploadedFiles.map(file => ({
             name: file.name,
             type: file.type,
