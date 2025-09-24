@@ -78,6 +78,9 @@ export async function GET() {
       success: true,
       jammy: {
         status: 'operational',
+        env: {
+          hasOpenAIKey: !!process.env.OPENAI_API_KEY
+        },
         memory: {
           conversations: memory.conversations.length,
           learnedPatterns: memory.learnedPatterns.length,
