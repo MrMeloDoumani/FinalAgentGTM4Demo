@@ -36,8 +36,7 @@ export class OpenAIImageGenerator {
       const res = await client.images.generate({
         model: "gpt-image-1",
         prompt: basePrompt,
-        size: "1024x1024",
-        response_format: "b64_json"
+        size: "1024x1024"
       });
 
       const b64 = res.data?.[0]?.b64_json || "";
