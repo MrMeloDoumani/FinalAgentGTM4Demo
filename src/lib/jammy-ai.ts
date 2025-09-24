@@ -1,8 +1,10 @@
 /**
- * 🤖 JAMMY AI - The Brain (Simplified with Orchestration Engine)
+ * 🤖 JAMMY AI - The Brain (Direct Communication System)
  * 
- * This is now a clean, simple interface that delegates to the orchestration engine.
- * The orchestration engine handles all the complex workflow logic.
+ * This is the clean, direct communication system that works with:
+ * - JammyCommunicationSystem (bi-lingual communication)
+ * - JammyWebIntelligence (knowledge search)
+ * - EnhancedChinchilla (visual generation)
  */
 
 import { JammyCommunicationSystem } from './jammy-communication-system';
@@ -65,8 +67,8 @@ class JammyAI {
   private async initialize() {
     if (!this.initialized) {
       this.loadMemory();
-      console.log('🤖 Jammy AI initializing with Orchestration Engine...');
-      console.log('✅ Jammy AI ready! The nervous system is online!');
+      console.log('🤖 Jammy AI initializing with Direct Communication System...');
+      console.log('✅ Jammy AI ready! The direct communication system is online!');
       this.initialized = true;
     }
   }
