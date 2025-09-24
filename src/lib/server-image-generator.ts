@@ -145,45 +145,122 @@ export class ServerImageGenerator {
   }
 
   private createPlaceholderImage(request: ImageGenerationRequest): string {
-    // Create a simple SVG placeholder that will actually display
-    const width = 800;
-    const height = 600;
-    const brandColor = '#e30613';
-    const titleText = this.escapeXml(request.title);
-    const industryText = this.escapeXml(request.industry.toUpperCase());
-    
-    // Create a simple SVG with the product information
+    // Sophisticated SVG with gradients, shadows, badges, icons and grid layout
+    const width = 1024;
+    const height = 768;
+    const brand = '#e30613';
+    const brandDark = '#b1050f';
+    const neutralBg = '#f6f7f9';
+    const titleText = this.escapeXml(request.title || 'Business Solution');
+    const industryText = this.escapeXml((request.industry || 'tech_telecom').replace(/_/g, ' ').toUpperCase());
+
+    // Build element cards (max 6 shown)
+    const safeElements = (request.elements && request.elements.length > 0)
+      ? request.elements.slice(0, 6)
+      : ['office_building','network','router','wifi_signal'];
+
+    const elementCard = (label: string, cx: number, cy: number) => {
+      const text = this.escapeXml(label.replace('_',' ').toUpperCase());
+      // simple icon per element
+      const icon = (() => {
+        switch (label) {
+          case 'office_building':
+            return `<rect x="${cx-38}" y="${cy-22}" width="76" height="44" rx="6" fill="#ffffff"/><g stroke="${brand}" stroke-width="2" fill="none"><rect x="${cx-28}" y="${cy-16}" width="16" height="10"/><rect x="${cx-8}" y="${cy-16}" width="16" height="10"/><rect x="${cx+12}" y="${cy-16}" width="16" height="10"/></g>`;
+          case 'network':
+            return `<g stroke="${brand}" stroke-width="2" fill="none"><circle cx="${cx}" cy="${cy}" r="18"/><line x1="${cx-18}" y1="${cy}" x2="${cx+18}" y2="${cy}"/><line x1="${cx}" y1="${cy-18}" x2="${cx}" y2="${cy+18}"/></g>`;
+          case 'router':
+            return `<rect x="${cx-28}" y="${cy-14}" width="56" height="28" rx="6" fill="#fff" stroke="${brand}" stroke-width="2"/><g stroke="${brand}" stroke-width="2"><line x1="${cx-16}" y1="${cy-14}" x2="${cx-16}" y2="${cy-28}"/><line x1="${cx+16}" y1="${cy-14}" x2="${cx+16}" y2="${cy-28}"/></g>`;
+          case 'wifi_signal':
+            return `<g stroke="${brand}" stroke-width="2" fill="none"><path d="M ${cx-18} ${cy+10} Q ${cx} ${cy-4} ${cx+18} ${cy+10}"/><path d="M ${cx-12} ${cy+6} Q ${cx} ${cy-2} ${cx+12} ${cy+6}"/><circle cx="${cx}" cy="${cy+12}" r="3" fill="${brand}"/></g>`;
+          case 'server':
+            return `<g stroke="${brand}" stroke-width="2" fill="#fff"><rect x="${cx-24}" y="${cy-18}" width="48" height="36" rx="6"/><rect x="${cx-20}" y="${cy-12}" width="40" height="6"/><rect x="${cx-20}" y="${cy}" width="40" height="6"/></g>`;
+          default:
+            return `<circle cx="${cx}" cy="${cy}" r="18" fill="#fff" stroke="${brand}" stroke-width="2"/>`;
+        }
+      })();
+      return `
+        <g filter="url(#shadow-sm)">
+          <rect x="${cx-110}" y="${cy-90}" width="220" height="180" rx="14" fill="#ffffff"/>
+          <rect x="${cx-110}" y="${cy-90}" width="220" height="180" rx="14" fill="url(#cardGrad)" opacity="0.55"/>
+          <g transform="translate(0,0)">${icon}</g>
+          <text x="${cx}" y="${cy+48}" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="${brand}">${text}</text>
+        </g>
+      `;
+    };
+
+    const grid = () => {
+      const cols = 3;
+      const startX = 190;
+      const startY = 300;
+      const hGap = 280;
+      const vGap = 220;
+      return safeElements.map((el, i) => {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        const cx = startX + col * hGap;
+        const cy = startY + row * vGap;
+        return elementCard(el, cx, cy);
+      }).join('');
+    };
+
+    const badges = () => {
+      const style = this.escapeXml((request.style || 'professional_b2b').replace(/_/g, ' '));
+      return `
+        <g>
+          <rect x="60" y="120" rx="12" ry="12" width="150" height="30" fill="#fee2e2"/>
+          <text x="135" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="${brand}">IMAGE</text>
+          <rect x="220" y="120" rx="12" ry="12" width="220" height="30" fill="#e6f0ff"/>
+          <text x="330" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#2b4c7e">${this.escapeXml(request.industry || 'tech_telecom')}</text>
+          <rect x="450" y="120" rx="12" ry="12" width="250" height="30" fill="#f0fdf4"/>
+          <text x="575" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#166534">${style}</text>
+        </g>`;
+    };
+
     const svg = `
-      <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-        <!-- Background -->
-        <rect width="${width}" height="${height}" fill="#f8f9fa"/>
-        
-        <!-- Header -->
-        <rect x="0" y="0" width="${width}" height="80" fill="${brandColor}"/>
-        <text x="50" y="50" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#ffffff">e&amp;</text>
-        <text x="120" y="50" font-family="Arial, sans-serif" font-size="18" fill="#ffffff">${industryText} SOLUTIONS</text>
-        
-        <!-- Content Box -->
-        <rect x="50" y="100" width="${width - 100}" height="${height - 200}" fill="#ffffff" stroke="${brandColor}" stroke-width="2" rx="10"/>
-        
+      <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="100%" stop-color="${neutralBg}"/>
+          </linearGradient>
+          <linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="${brand}"/>
+            <stop offset="100%" stop-color="${brandDark}"/>
+          </linearGradient>
+          <linearGradient id="cardGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="100%" stop-color="#f3f4f6"/>
+          </linearGradient>
+          <filter id="shadow-sm" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.15"/>
+          </filter>
+        </defs>
+
+        <!-- Background with soft shapes -->
+        <rect width="${width}" height="${height}" fill="url(#bgGrad)"/>
+        <circle cx="${width-120}" cy="90" r="70" fill="${brand}" opacity="0.08"/>
+        <circle cx="120" cy="${height-120}" r="90" fill="${brand}" opacity="0.06"/>
+
+        <!-- Header Brand Bar -->
+        <rect x="0" y="0" width="${width}" height="88" fill="url(#brandGrad)"/>
+        <text x="56" y="54" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#ffffff">e&amp;</text>
+        <text x="120" y="54" font-family="Arial, sans-serif" font-size="18" fill="#ffffff" opacity="0.95">${industryText} SOLUTIONS</text>
+
         <!-- Title -->
-        <text x="${width / 2}" y="150" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="${brandColor}">${titleText}</text>
-        
-        <!-- Elements -->
-        ${request.elements.map((element, index) => {
-          const x = 150 + (index % 3) * 200;
-          const y = 200 + Math.floor(index / 3) * 120;
-          const label = this.escapeXml(element.replace('_', ' ').toUpperCase());
-          return `
-            <rect x="${x}" y="${y}" width="120" height="80" fill="#e8f4fd" stroke="${brandColor}" stroke-width="2" rx="5"/>
-            <text x="${x + 60}" y="${y + 45}" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="${brandColor}">${label}</text>
-          `;
-        }).join('')}
-        
+        <text x="${width/2}" y="120" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="${brand}">${titleText}</text>
+
+        ${badges()}
+
+        <!-- Canvas frame -->
+        <g filter="url(#shadow-sm)">
+          <rect x="40" y="160" width="${width-80}" height="${height-240}" rx="18" fill="#ffffff"/>
+        </g>
+
+        <!-- Grid of element cards -->
+        ${grid()}
+
         <!-- Footer -->
-        <rect x="0" y="${height - 60}" width="${width}" height="60" fill="#f8f9fa" stroke="${brandColor}" stroke-width="1"/>
-        <text x="${width / 2}" y="${height - 30}" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#666">Generated by Jammy AI for e&amp; B2B Solutions</text>
-        <text x="${width / 2}" y="${height - 15}" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#999">Professional Business Visualization</text>
+        <text x="${width/2}" y="${height-40}" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#6b7280">Generated by Jammy AI for e&amp; B2B</text>
       </svg>
     `;
     
