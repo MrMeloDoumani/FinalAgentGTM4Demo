@@ -1,6 +1,6 @@
 // Enhanced Chinchilla - Server-side image generation
 import { freePhotoService, PhotoSearchResult } from './free-photo-service';
-import { serverImageGenerator, ImageGenerationRequest } from './server-image-generator';
+import { openAIImageGenerator } from './openai-image-generator';
 
 export interface EnhancedVisualSpecification {
   prompt: string;
@@ -35,30 +35,29 @@ class EnhancedChinchilla {
     console.log('🔍 Elements to work with:', spec.elements);
 
     try {
-      // Use Canvas Image Generator for reliable image creation
-      const canvasRequest: ImageGenerationRequest = {
-        title: this.getProductTitle(spec),
+      const title = this.getProductTitle(spec);
+      const oa = await openAIImageGenerator.generatePng({
+        title,
+        prompt: spec.prompt,
         industry: spec.industry,
-        elements: spec.elements,
-        branding: 'e&',
         style: spec.style || 'professional_b2b'
-      };
+      });
 
-      const canvasResult = await serverImageGenerator.generateImage(canvasRequest);
-      
-      console.log('✨ Canvas visual created:', canvasResult.title);
-      
-      return {
-        success: true,
-        imageUrl: canvasResult.fileUrl,
-        title: canvasResult.title,
-        description: canvasResult.content,
-        elementsUsed: spec.elements,
-        styleApplied: canvasResult.styleUsed,
-        generatedAt: canvasResult.generatedAt,
-        source: 'canvas_generated',
-        confidence: 0.95
-      };
+      if (oa.success) {
+        return {
+          success: true,
+          imageUrl: oa.fileUrl,
+          title: oa.title,
+          description: oa.description,
+          elementsUsed: spec.elements,
+          styleApplied: oa.styleApplied,
+          generatedAt: oa.generatedAt,
+          source: 'openai_image',
+          confidence: 0.96
+        };
+      }
+      // fall back to simple svg if OpenAI fails
+      return this.generateFallbackResult(spec);
 
     } catch (error) {
       console.error('❌ Canvas visual generation failed:', error);
