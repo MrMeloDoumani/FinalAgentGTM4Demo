@@ -1,5 +1,6 @@
-// Enhanced Chinchilla - Combines free stock photos with SVG generation
+// Enhanced Chinchilla - Server-side image generation
 import { freePhotoService, PhotoSearchResult } from './free-photo-service';
+import { serverImageGenerator, ImageGenerationRequest } from './server-image-generator';
 
 export interface EnhancedVisualSpecification {
   prompt: string;
@@ -27,132 +28,61 @@ class EnhancedChinchilla {
   private photoService = freePhotoService;
 
   /**
-   * Generate enhanced visual using free photos + SVG overlay
+   * Generate enhanced visual using Canvas-based image generation
    */
   async generateEnhancedVisual(spec: EnhancedVisualSpecification): Promise<EnhancedVisualResult> {
     console.log('🎨 Enhanced Chinchilla processing:', spec.prompt);
     console.log('🔍 Elements to work with:', spec.elements);
 
     try {
-      // Step 1: Search for relevant stock photos
-      const searchQueries = this.photoService.generateSearchQueries(spec.elements, spec.industry);
-      console.log('🔍 Search queries generated:', searchQueries);
+      // Use Canvas Image Generator for reliable image creation
+      const canvasRequest: ImageGenerationRequest = {
+        title: this.getProductTitle(spec),
+        industry: spec.industry,
+        elements: spec.elements,
+        branding: 'e&',
+        style: spec.style || 'professional_b2b'
+      };
 
-      const stockPhotos = await this.photoService.searchBusinessPhotos({
-        query: searchQueries[0], // Use first query
-        orientation: 'landscape',
-        minWidth: 800,
-        minHeight: 600,
-        perPage: 3
-      });
-
-      console.log('📸 Stock photos found:', stockPhotos.length);
-
-      // Step 2: Generate SVG overlay with e& branding
-      const svgOverlay = this.generateSVGOverlay(spec, stockPhotos[0]);
-
-      // Step 3: Create hybrid result
-      const result = this.createHybridVisual(spec, stockPhotos[0], svgOverlay);
-
-      console.log('✨ Enhanced visual created:', result.title);
-      return result;
+      const canvasResult = await serverImageGenerator.generateImage(canvasRequest);
+      
+      console.log('✨ Canvas visual created:', canvasResult.title);
+      
+      return {
+        success: true,
+        imageUrl: canvasResult.fileUrl,
+        title: canvasResult.title,
+        description: canvasResult.content,
+        elementsUsed: spec.elements,
+        styleApplied: canvasResult.styleUsed,
+        generatedAt: canvasResult.generatedAt,
+        source: 'canvas_generated',
+        confidence: 0.95
+      };
 
     } catch (error) {
-      console.error('❌ Enhanced visual generation failed:', error);
+      console.error('❌ Canvas visual generation failed:', error);
       
-      // Fallback to pure SVG generation
-      return this.generateFallbackSVG(spec);
+      // Fallback to simple text-based result
+      return this.generateFallbackResult(spec);
     }
   }
 
-  /**
-   * Generate SVG overlay with e& branding and elements
-   */
-  private generateSVGOverlay(spec: EnhancedVisualSpecification, basePhoto?: PhotoSearchResult): string {
-    const width = 800;
-    const height = 600;
-    const brandColor = '#e30613';
-
-    let svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">`;
-
-    // Background (if no base photo, create gradient)
-    if (!basePhoto) {
-      svg += `<rect width="${width}" height="${height}" fill="#f8f9fa"/>`;
-      svg += `<rect x="50" y="50" width="${width - 100}" height="${height - 100}" fill="#ffffff" stroke="${brandColor}" stroke-width="2" rx="10"/>`;
-    }
-
-    // e& Branding Header
-    svg += `<rect x="0" y="0" width="${width}" height="80" fill="${brandColor}" opacity="0.95"/>`;
-    svg += `<text x="50" y="50" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#ffffff">e&</text>`;
-    svg += `<text x="120" y="50" font-family="Arial, sans-serif" font-size="18" fill="#ffffff">${spec.industry.toUpperCase()} SOLUTIONS</text>`;
-
-    // Product Title
-    svg += `<text x="${width / 2}" y="120" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="${brandColor}">${this.getProductTitle(spec)}</text>`;
-
-    // Visual Elements
-    const elementPositions = this.calculateElementPositions(spec.elements, width, height);
-    spec.elements.forEach((element, index) => {
-      const pos = elementPositions[index];
-      if (pos) {
-        svg += this.drawElement(element, pos.x, pos.y, 60, brandColor);
-      }
-    });
-
-    // Features List
-    const features = this.getProductFeatures(spec);
-    features.forEach((feature, index) => {
-      const y = 200 + (index * 25);
-      svg += `<text x="50" y="${y}" font-family="Arial, sans-serif" font-size="14" fill="#333">• ${feature}</text>`;
-    });
-
-    // Footer
-    svg += `<rect x="0" y="${height - 40}" width="${width}" height="40" fill="#f8f9fa" stroke="${brandColor}" stroke-width="1"/>`;
-    svg += `<text x="${width / 2}" y="${height - 15}" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#666">Generated by Chinchilla AI for e& B2B Solutions</text>`;
-
-    svg += `</svg>`;
-    return svg;
-  }
 
   /**
-   * Create hybrid visual combining stock photo with SVG
+   * Generate fallback result when canvas generation fails
    */
-  private createHybridVisual(spec: EnhancedVisualSpecification, stockPhoto: PhotoSearchResult, svgOverlay: string): EnhancedVisualResult {
-    // For now, return the SVG overlay as base64
-    // In production, you'd composite the stock photo with SVG overlay
-    const base64 = Buffer.from(svgOverlay).toString('base64');
-    const imageUrl = `data:image/svg+xml;base64,${base64}`;
-
+  private generateFallbackResult(spec: EnhancedVisualSpecification): EnhancedVisualResult {
     return {
-      success: true,
-      imageUrl,
-      title: `${this.getProductTitle(spec)} - Professional Visualization`,
-      description: `Enhanced business visualization for ${spec.industry} sector with e& branding and ${spec.elements.length} visual elements`,
+      success: false,
+      imageUrl: '',
+      title: `${this.getProductTitle(spec)} - Generation Failed`,
+      description: `Unable to generate visual for ${spec.industry} sector. Please try again.`,
       elementsUsed: spec.elements,
-      styleApplied: 'professional_b2b_enhanced',
-      generatedAt: new Date().toISOString(),
-      source: 'hybrid',
-      confidence: 0.9
-    };
-  }
-
-  /**
-   * Generate fallback SVG when stock photos fail
-   */
-  private generateFallbackSVG(spec: EnhancedVisualSpecification): EnhancedVisualResult {
-    const svg = this.generateSVGOverlay(spec);
-    const base64 = Buffer.from(svg).toString('base64');
-    const imageUrl = `data:image/svg+xml;base64,${base64}`;
-
-    return {
-      success: true,
-      imageUrl,
-      title: `${this.getProductTitle(spec)} - SVG Generated`,
-      description: `Professional SVG visualization for ${spec.industry} sector with e& branding`,
-      elementsUsed: spec.elements,
-      styleApplied: 'professional_b2b_svg',
+      styleApplied: 'fallback',
       generatedAt: new Date().toISOString(),
       source: 'svg_generated',
-      confidence: 0.7
+      confidence: 0.0
     };
   }
 
@@ -171,119 +101,6 @@ class EnhancedChinchilla {
     }
   }
 
-  /**
-   * Get product features based on specification
-   */
-  private getProductFeatures(spec: EnhancedVisualSpecification): string[] {
-    if (spec.prompt.includes('Business Pro Fiber')) {
-      return [
-        'High-speed fiber connectivity up to 300 Mbps',
-        'Dedicated bandwidth for business needs',
-        '24/7 technical support',
-        'SLA guarantee',
-        'Business-grade security'
-      ];
-    } else if (spec.prompt.includes('uTap')) {
-      return [
-        'Mobile payment processing',
-        'Secure transactions',
-        'Easy setup and management',
-        'Multiple payment methods',
-        'Real-time reporting'
-      ];
-    } else {
-      return [
-        'Professional business solution',
-        'Reliable performance',
-        'Expert support',
-        'Scalable infrastructure',
-        'e& quality guarantee'
-      ];
-    }
-  }
-
-  /**
-   * Calculate positions for visual elements
-   */
-  private calculateElementPositions(elements: string[], width: number, height: number): { x: number, y: number }[] {
-    const positions: { x: number, y: number }[] = [];
-    const startY = 150;
-    const spacing = 100;
-
-    elements.forEach((element, index) => {
-      const col = index % 3;
-      const row = Math.floor(index / 3);
-      positions.push({
-        x: 100 + (col * spacing),
-        y: startY + (row * spacing)
-      });
-    });
-
-    return positions;
-  }
-
-  /**
-   * Draw individual visual elements
-   */
-  private drawElement(element: string, x: number, y: number, size: number, brandColor: string): string {
-    switch (element) {
-      case 'office_building':
-        return `
-          <rect x="${x}" y="${y}" width="${size}" height="${size * 1.2}" fill="#e8f4fd" stroke="${brandColor}" stroke-width="2" rx="5"/>
-          <rect x="${x + size * 0.1}" y="${y + size * 0.1}" width="${size * 0.2}" height="${size * 0.1}" fill="#ADD8E6"/>
-          <rect x="${x + size * 0.4}" y="${y + size * 0.1}" width="${size * 0.2}" height="${size * 0.1}" fill="#ADD8E6"/>
-          <rect x="${x + size * 0.7}" y="${y + size * 0.1}" width="${size * 0.2}" height="${size * 0.1}" fill="#ADD8E6"/>
-          <text x="${x + size / 2}" y="${y + size * 1.1}" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="${brandColor}" font-weight="bold">Office</text>
-        `;
-
-      case 'network':
-        return `
-          <circle cx="${x + size/2}" cy="${y + size/2}" r="${size * 0.4}" fill="#e8f4fd" stroke="${brandColor}" stroke-width="2"/>
-          <line x1="${x + size * 0.2}" y1="${y + size/2}" x2="${x + size * 0.8}" y2="${y + size/2}" stroke="${brandColor}" stroke-width="2"/>
-          <line x1="${x + size/2}" y1="${y + size * 0.2}" x2="${x + size/2}" y2="${y + size * 0.8}" stroke="${brandColor}" stroke-width="2"/>
-          <circle cx="${x + size * 0.2}" cy="${y + size/2}" r="${size * 0.08}" fill="${brandColor}"/>
-          <circle cx="${x + size * 0.8}" cy="${y + size/2}" r="${size * 0.08}" fill="${brandColor}"/>
-          <circle cx="${x + size/2}" cy="${y + size * 0.2}" r="${size * 0.08}" fill="${brandColor}"/>
-          <circle cx="${x + size/2}" cy="${y + size * 0.8}" r="${size * 0.08}" fill="${brandColor}"/>
-          <text x="${x + size/2}" y="${y + size + 15}" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="${brandColor}" font-weight="bold">Network</text>
-        `;
-
-      case 'router':
-        return `
-          <rect x="${x}" y="${y}" width="${size}" height="${size * 0.6}" fill="#e8f4fd" stroke="${brandColor}" stroke-width="2" rx="5"/>
-          <line x1="${x + size * 0.2}" y1="${y}" x2="${x + size * 0.2}" y2="${y - size * 0.3}" stroke="${brandColor}" stroke-width="2"/>
-          <line x1="${x + size * 0.8}" y1="${y}" x2="${x + size * 0.8}" y2="${y - size * 0.3}" stroke="${brandColor}" stroke-width="2"/>
-          <circle cx="${x + size/2}" cy="${y + size * 0.3}" r="${size * 0.05}" fill="${brandColor}"/>
-          <text x="${x + size/2}" y="${y + size + 15}" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="${brandColor}" font-weight="bold">Router</text>
-        `;
-
-      case 'wifi_signal':
-        return `
-          <path d="M${x + size/2} ${y + size} Q${x + size * 0.2} ${y + size * 0.7}, ${x + size * 0.1} ${y + size * 0.4} T${x + size * 0.9} ${y + size * 0.4} Q${x + size * 0.8} ${y + size * 0.7}, ${x + size/2} ${y + size} Z" fill="none" stroke="${brandColor}" stroke-width="2"/>
-          <path d="M${x + size/2} ${y + size * 0.8} Q${x + size * 0.3} ${y + size * 0.6}, ${x + size * 0.2} ${y + size * 0.4} T${x + size * 0.8} ${y + size * 0.4} Q${x + size * 0.7} ${y + size * 0.6}, ${x + size/2} ${y + size * 0.8} Z" fill="none" stroke="${brandColor}" stroke-width="2"/>
-          <circle cx="${x + size/2}" cy="${y + size * 0.9}" r="${size * 0.05}" fill="${brandColor}"/>
-          <text x="${x + size/2}" y="${y + size + 15}" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="${brandColor}" font-weight="bold">WiFi</text>
-        `;
-
-      case 'server':
-        return `
-          <rect x="${x}" y="${y}" width="${size}" height="${size * 0.8}" fill="#e8f4fd" stroke="${brandColor}" stroke-width="2" rx="5"/>
-          <rect x="${x + size * 0.1}" y="${y + size * 0.1}" width="${size * 0.8}" height="${size * 0.15}" fill="#ADD8E6"/>
-          <rect x="${x + size * 0.1}" y="${y + size * 0.3}" width="${size * 0.8}" height="${size * 0.15}" fill="#ADD8E6"/>
-          <rect x="${x + size * 0.1}" y="${y + size * 0.5}" width="${size * 0.8}" height="${size * 0.15}" fill="#ADD8E6"/>
-          <circle cx="${x + size * 0.85}" cy="${y + size * 0.175}" r="${size * 0.03}" fill="${brandColor}"/>
-          <circle cx="${x + size * 0.85}" cy="${y + size * 0.375}" r="${size * 0.03}" fill="${brandColor}"/>
-          <circle cx="${x + size * 0.85}" cy="${y + size * 0.575}" r="${size * 0.03}" fill="${brandColor}"/>
-          <text x="${x + size/2}" y="${y + size + 15}" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="${brandColor}" font-weight="bold">Server</text>
-        `;
-
-      default:
-        return `
-          <circle cx="${x + size/2}" cy="${y + size/2}" r="${size * 0.4}" fill="#e8f4fd" stroke="${brandColor}" stroke-width="2"/>
-          <text x="${x + size/2}" y="${y + size/2 + 5}" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="${brandColor}" font-weight="bold">${element}</text>
-        `;
-    }
-  }
 }
 
 export const enhancedChinchilla = new EnhancedChinchilla();
