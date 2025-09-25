@@ -74,6 +74,82 @@ export default function MeloMethodPage() {
     </div>
   );
 }
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { ArrowLeft, Copy } from "lucide-react";
+
+const templates = [
+  {
+    title: "Value Proposition (Short)",
+    body: "e& Business helps [segment] achieve [outcome] with [product], delivering [key benefit] in [timeframe].",
+  },
+  {
+    title: "Email Outreach (AIDA)",
+    body: "Subject: Unlock faster growth with [product] at e&\n\nHi [Name],\n\nAttention: [key pain].\nInterest: With [product], companies like [peer] get [benefit].\nDesire: You’ll see [metric] improve within [timeframe].\nAction: Can we schedule a 15‑min call this week?\n\nBest,\n[Rep]",
+  },
+  {
+    title: "Landing Hero (Problem → Solution)",
+    body: "[Problem in one sentence].\n\nMeet [product] — the fastest way to [primary outcome].\n• Key benefit 1\n• Key benefit 2\n• Key benefit 3\n\nCTA: Get started",
+  },
+  {
+    title: "EDM (Offer + Deadline)",
+    body: "Headline: Upgrade to [product] — offer ends [date].\n\nHi [First Name],\nHere’s how [product] helps you [goal]:\n• [Benefit 1]\n• [Benefit 2]\n• [Benefit 3]\n\nClaim your offer by [date].",
+  },
+];
+
+export default function MeloMethodPage() {
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+
+  const handleCopy = async (text: string, idx: number) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedIndex(idx);
+      setTimeout(() => setCopiedIndex(null), 1200);
+    } catch {}
+  };
+
+  return (
+    <div className="min-h-screen bg-white">
+      <header className="border-b border-gray-200 bg-white px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Link href="/" className="flex items-center text-gray-600 hover:text-gray-900">
+              <ArrowLeft className="h-5 w-5" />
+              <span className="ml-2">Back to Directory</span>
+            </Link>
+          </div>
+          <h1 className="text-lg font-semibold text-gray-900">Melo Method — Copywriting Templates</h1>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-5xl px-6 py-8">
+        <p className="text-sm text-gray-600 mb-6">Use these proven templates for fast, on‑brand GTM content. Click copy to paste into Jammy or your docs.</p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {templates.map((t, idx) => (
+            <div key={idx} className="border border-gray-200 rounded-lg p-4 bg-white">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="font-semibold text-gray-900">{t.title}</h2>
+                <button
+                  onClick={() => handleCopy(t.body, idx)}
+                  className="flex items-center space-x-1 px-3 py-1 text-xs bg-gray-700 text-white rounded hover:bg-gray-800"
+                >
+                  <Copy className="h-3 w-3" />
+                  <span>{copiedIndex === idx ? "Copied" : "Copy"}</span>
+                </button>
+              </div>
+              <pre className="whitespace-pre-wrap text-sm text-gray-800 bg-gray-50 p-3 rounded">
+{t.body}
+              </pre>
+            </div>
+          ))}
+        </div>
+      </main>
+    </div>
+  );
+}
 
 "use client";
 
