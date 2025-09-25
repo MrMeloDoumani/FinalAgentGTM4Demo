@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced File Processing Test - Jammy AI</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f7fafc;
+        }
+        .test-section h3 {
+            color: #4a5568;
+            margin-top: 0;
+        }
+        .file-input {
+            margin: 10px 0;
+            padding: 10px;
+            border: 2px dashed #cbd5e0;
+            border-radius: 6px;
+            text-align: center;
+            background: white;
+        }
+        .upload-btn {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .upload-btn:hover {
+            background: #3182ce;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border-left: 4px solid #48bb78;
+        }
+        .insight-item {
+            margin: 8px 0;
+            padding: 8px;
+            background: #edf2f7;
+            border-radius: 4px;
+            border-left: 3px solid #4299e1;
+        }
+        .analytics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .analytics-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+        .analytics-card h4 {
+            margin: 0 0 10px 0;
+            color: #2d3748;
+        }
+        .analytics-card .number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4299e1;
+        }
+        .query-section {
+            margin: 20px 0;
+        }
+        .query-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .search-btn {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .search-btn:hover {
+            background: #38a169;
+        }
+        .document-list {
+            margin: 15px 0;
+        }
+        .document-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .document-item h4 {
+            margin: 0 0 10px 0;
+            color: #2d3748;
+        }
+        .document-meta {
+            font-size: 14px;
+            color: #718096;
+            margin: 5px 0;
+        }
+        .insights-preview {
+            margin-top: 10px;
+        }
+        .insights-preview .insight {
+            background: #edf2f7;
+            padding: 5px 10px;
+            margin: 3px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Enhanced File Processing Test - Jammy AI</h1>
+        
+        <div class="test-section">
+            <h3>📁 Upload Files for Intelligent Processing</h3>
+            <div class="file-input">
+                <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.txt,.jpg,.png">
+                <p>Upload documents to test Jammy's enhanced file processing capabilities</p>
+            </div>
+            <button class="upload-btn" onclick="processFiles()">Process Files</button>
+            <button class="upload-btn" onclick="simulateFileUpload()">Simulate Upload</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Document Analytics</h3>
+            <div id="analytics" class="analytics">
+                <div class="analytics-card">
+                    <h4>Total Documents</h4>
+                    <div class="number" id="totalDocs">0</div>
+                </div>
+                <div class="analytics-card">
+                    <h4>Total Insights</h4>
+                    <div class="number" id="totalInsights">0</div>
+                </div>
+                <div class="analytics-card">
+                    <h4>Total Trends</h4>
+                    <div class="number" id="totalTrends">0</div>
+                </div>
+                <div class="analytics-card">
+                    <h4>Industries</h4>
+                    <div class="number" id="industries">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 Search Uploaded Documents</h3>
+            <div class="query-section">
+                <input type="text" id="searchQuery" class="query-input" placeholder="Search for insights, trends, or specific information...">
+                <button class="search-btn" onclick="searchDocuments()">Search Documents</button>
+            </div>
+            <div id="searchResults" class="results" style="display: none;">
+                <h4>Search Results:</h4>
+                <div id="searchResultsList"></div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📚 Uploaded Documents</h3>
+            <div id="documentList" class="document-list">
+                <p>No documents uploaded yet. Upload some files to see the intelligent processing in action!</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🧠 Recent Insights</h3>
+            <div id="recentInsights" class="results">
+                <p>Upload documents to see extracted insights and trends!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock Jammy AI instance for testing
+        class MockJammyAI {
+            constructor() {
+                this.memory = {
+                    conversations: [],
+                    learnedPatterns: [],
+                    knowledgeBase: [],
+                    userPreferences: {},
+                    uploadedDocuments: []
+                };
+            }
+
+            async processDocument(file) {
+                // Simulate intelligent document processing
+                const mockContent = this.generateMockContent(file.name, file.type);
+                
+                return {
+                    keyMetrics: this.extractKeyMetrics(mockContent),
+                    trends: this.extractTrends(mockContent),
+                    insights: this.extractInsights(mockContent),
+                    products: this.extractProducts(mockContent),
+                    pricing: this.extractPricing(mockContent),
+                    competitors: this.extractCompetitors(mockContent),
+                    dates: this.extractDates(mockContent),
+                    sectors: this.extractSectors(mockContent),
+                    rawText: mockContent,
+                    summary: this.generateSummary(mockContent)
+                };
+            }
+
+            generateMockContent(fileName, fileType) {
+                const baseContent = `This document contains market analysis and business insights for the UAE B2B sector. 
+                Key findings include digital transformation trends, competitive landscape analysis, and pricing strategies.
+                The report covers sectors including retail, healthcare, finance, and technology.
+                Recent data shows increased demand for cloud solutions and cybersecurity services.
+                Competitors include du, stc, and other regional providers.
+                Pricing ranges from AED 299 to AED 2,999 for various service tiers.
+                The analysis was conducted in Q4 2024 and covers the last 12 months of market data.`;
+                
+                return baseContent;
+            }
+
+            extractKeyMetrics(content) {
+                const metrics = {};
+                const priceMatches = content.match(/AED\s*(\d+(?:,\d{3})*(?:\.\d{2})?)/g);
+                if (priceMatches) {
+                    metrics.pricing = priceMatches.map(p => p.replace('AED', '').trim());
+                }
+                const percentMatches = content.match(/(\d+(?:\.\d+)?%)/g);
+                if (percentMatches) {
+                    metrics.percentages = percentMatches;
+                }
+                const timeMatches = content.match(/(Q[1-4]\s*\d{4}|last\s+\d+\s+months?)/gi);
+                if (timeMatches) {
+                    metrics.timePeriods = timeMatches;
+                }
+                return metrics;
+            }
+
+            extractTrends(content) {
+                const trends = [];
+                const lowerContent = content.toLowerCase();
+                
+                if (lowerContent.includes('digital transformation')) {
+                    trends.push('Accelerating digital transformation across UAE B2B sectors');
+                }
+                if (lowerContent.includes('cloud')) {
+                    trends.push('Increased adoption of cloud-based solutions');
+                }
+                if (lowerContent.includes('cybersecurity')) {
+                    trends.push('Growing focus on cybersecurity and data protection');
+                }
+                if (lowerContent.includes('ai') || lowerContent.includes('artificial intelligence')) {
+                    trends.push('Rising demand for AI-powered business solutions');
+                }
+                if (lowerContent.includes('mobile') || lowerContent.includes('5g')) {
+                    trends.push('5G and mobile-first business strategies gaining traction');
+                }
+                
+                return trends;
+            }
+
+            extractInsights(content) {
+                const insights = [];
+                const lowerContent = content.toLowerCase();
+                
+                if (lowerContent.includes('competition')) {
+                    insights.push('Competitive landscape is intensifying with new market entrants');
+                }
+                if (lowerContent.includes('pricing')) {
+                    insights.push('Pricing strategies are becoming more dynamic and value-based');
+                }
+                if (lowerContent.includes('customer')) {
+                    insights.push('Customer expectations are evolving towards integrated solutions');
+                }
+                if (lowerContent.includes('technology')) {
+                    insights.push('Technology adoption is accelerating across all business sectors');
+                }
+                
+                return insights;
+            }
+
+            extractProducts(content) {
+                const products = [];
+                const lowerContent = content.toLowerCase();
+                
+                if (lowerContent.includes('fiber') || lowerContent.includes('internet')) {
+                    products.push('Business Pro Fiber');
+                }
+                if (lowerContent.includes('mobile') || lowerContent.includes('5g')) {
+                    products.push('Business Mobile Plans');
+                }
+                if (lowerContent.includes('pos') || lowerContent.includes('payment')) {
+                    products.push('uTap Payment Solutions');
+                }
+                if (lowerContent.includes('security') || lowerContent.includes('sase')) {
+                    products.push('Cybersecurity Services');
+                }
+                if (lowerContent.includes('cloud') || lowerContent.includes('microsoft')) {
+                    products.push('Microsoft 365 Solutions');
+                }
+                
+                return products;
+            }
+
+            extractPricing(content) {
+                const pricing = {};
+                const priceMatches = content.match(/AED\s*(\d+(?:,\d{3})*(?:\.\d{2})?)/g);
+                
+                if (priceMatches) {
+                    pricing.mentionedPrices = priceMatches;
+                    pricing.priceRange = {
+                        min: Math.min(...priceMatches.map(p => parseInt(p.replace(/[^\d]/g, '')))),
+                        max: Math.max(...priceMatches.map(p => parseInt(p.replace(/[^\d]/g, ''))))
+                    };
+                }
+                
+                return pricing;
+            }
+
+            extractCompetitors(content) {
+                const competitors = [];
+                const lowerContent = content.toLowerCase();
+                
+                if (lowerContent.includes('du')) competitors.push('du');
+                if (lowerContent.includes('stc')) competitors.push('stc');
+                if (lowerContent.includes('virgin')) competitors.push('Virgin Mobile');
+                if (lowerContent.includes('etisalat')) competitors.push('Etisalat');
+                
+                return competitors;
+            }
+
+            extractDates(content) {
+                const dates = [];
+                const dateMatches = content.match(/(Q[1-4]\s*\d{4}|\d{4}|\d{1,2}\/\d{1,2}\/\d{4})/g);
+                
+                if (dateMatches) {
+                    dates.push(...dateMatches);
+                }
+                
+                return dates;
+            }
+
+            extractSectors(content) {
+                const sectors = [];
+                const lowerContent = content.toLowerCase();
+                
+                const sectorKeywords = ['retail', 'healthcare', 'finance', 'education', 'government', 'logistics', 'manufacturing', 'hospitality', 'technology', 'telecom'];
+                
+                sectorKeywords.forEach(sector => {
+                    if (lowerContent.includes(sector)) {
+                        sectors.push(sector);
+                    }
+                });
+                
+                return sectors;
+            }
+
+            generateSummary(content) {
+                const words = content.split(' ').slice(0, 50);
+                return words.join(' ') + '...';
+            }
+
+            detectIndustryFromContent(content) {
+                const lowerContent = content.toLowerCase();
+                
+                if (lowerContent.includes('retail')) return 'retail';
+                if (lowerContent.includes('healthcare')) return 'healthcare';
+                if (lowerContent.includes('finance')) return 'finance';
+                if (lowerContent.includes('education')) return 'education';
+                if (lowerContent.includes('government')) return 'government';
+                if (lowerContent.includes('logistics')) return 'logistics';
+                if (lowerContent.includes('manufacturing')) return 'manufacturing';
+                if (lowerContent.includes('hospitality')) return 'hospitality';
+                
+                return 'tech_telecom';
+            }
+
+            searchUploadedDocuments(query) {
+                const lowerQuery = query.toLowerCase();
+                return this.memory.uploadedDocuments.filter(doc => 
+                    doc.name.toLowerCase().includes(lowerQuery) ||
+                    doc.extractedData.rawText.toLowerCase().includes(lowerQuery) ||
+                    doc.extractedData.summary.toLowerCase().includes(lowerQuery) ||
+                    doc.extractedData.insights.some(insight => insight.toLowerCase().includes(lowerQuery)) ||
+                    doc.extractedData.trends.some(trend => trend.toLowerCase().includes(lowerQuery))
+                );
+            }
+
+            getDocumentAnalytics() {
+                const docs = this.memory.uploadedDocuments;
+                return {
+                    totalDocuments: docs.length,
+                    totalInsights: docs.reduce((sum, doc) => sum + doc.extractedData.insights.length, 0),
+                    totalTrends: docs.reduce((sum, doc) => sum + doc.extractedData.trends.length, 0),
+                    industries: [...new Set(docs.map(doc => doc.industry))],
+                    recentUploads: docs.slice(-5).map(doc => ({
+                        name: doc.name,
+                        uploadedAt: doc.uploadedAt,
+                        insights: doc.extractedData.insights.length
+                    }))
+                };
+            }
+
+            async learnFromFiles(files) {
+                console.log('📚 Learning from uploaded files:', files.length);
+                
+                for (const file of files) {
+                    try {
+                        const documentInsights = await this.processDocument(file);
+                        
+                        const uploadedDoc = {
+                            id: `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                            name: file.name,
+                            type: file.type,
+                            size: file.size,
+                            uploadedAt: new Date().toISOString(),
+                            processedAt: new Date().toISOString(),
+                            extractedData: documentInsights,
+                            industry: this.detectIndustryFromContent(documentInsights.rawText),
+                            confidence: 0.85
+                        };
+                        
+                        this.memory.uploadedDocuments.push(uploadedDoc);
+                        
+                        this.memory.learnedPatterns.push({
+                            pattern: `file_upload_${file.name}`,
+                            insight: `Learned from ${file.name}: ${documentInsights.summary}`,
+                            confidence: 0.9,
+                        });
+                        
+                        documentInsights.insights.forEach(insight => {
+                            this.memory.learnedPatterns.push({
+                                pattern: `insight_${insight.substring(0, 50)}`,
+                                insight: insight,
+                                confidence: 0.8,
+                            });
+                        });
+                        
+                        documentInsights.trends.forEach(trend => {
+                            this.memory.learnedPatterns.push({
+                                pattern: `trend_${trend.substring(0, 30)}`,
+                                insight: `Market trend: ${trend}`,
+                                confidence: 0.75,
+                            });
+                        });
+                        
+                        console.log(`✅ Processed ${file.name}: ${documentInsights.insights.length} insights, ${documentInsights.trends.length} trends`);
+                        
+                    } catch (error) {
+                        console.error(`❌ Error processing file ${file.name}:`, error);
+                    }
+                }
+            }
+        }
+
+        // Initialize mock Jammy AI
+        const jammyAI = new MockJammyAI();
+
+        // File processing function
+        async function processFiles() {
+            const fileInput = document.getElementById('fileInput');
+            const files = Array.from(fileInput.files);
+            
+            if (files.length === 0) {
+                alert('Please select files to upload');
+                return;
+            }
+
+            await jammyAI.learnFromFiles(files);
+            updateUI();
+        }
+
+        // Simulate file upload for testing
+        async function simulateFileUpload() {
+            const mockFiles = [
+                { name: 'UAE_Retail_Market_Report_Q4_2024.pdf', type: 'application/pdf', size: 2048000 },
+                { name: 'Competitor_Analysis_2024.docx', type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', size: 1024000 },
+                { name: 'e&_Product_Pricing_Guide.xlsx', type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', size: 512000 }
+            ];
+
+            await jammyAI.learnFromFiles(mockFiles);
+            updateUI();
+        }
+
+        // Search documents
+        function searchDocuments() {
+            const query = document.getElementById('searchQuery').value;
+            if (!query.trim()) {
+                alert('Please enter a search query');
+                return;
+            }
+
+            const results = jammyAI.searchUploadedDocuments(query);
+            displaySearchResults(results);
+        }
+
+        // Display search results
+        function displaySearchResults(results) {
+            const searchResults = document.getElementById('searchResults');
+            const searchResultsList = document.getElementById('searchResultsList');
+            
+            if (results.length === 0) {
+                searchResultsList.innerHTML = '<p>No documents found matching your search query.</p>';
+            } else {
+                searchResultsList.innerHTML = results.map(doc => `
+                    <div class="document-item">
+                        <h4>${doc.name}</h4>
+                        <div class="document-meta">
+                            Industry: ${doc.industry} | Uploaded: ${new Date(doc.uploadedAt).toLocaleDateString()}
+                        </div>
+                        <div class="insights-preview">
+                            <strong>Relevant Insights:</strong>
+                            ${doc.extractedData.insights.slice(0, 3).map(insight => 
+                                `<div class="insight">${insight}</div>`
+                            ).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            searchResults.style.display = 'block';
+        }
+
+        // Update UI with current state
+        function updateUI() {
+            const analytics = jammyAI.getDocumentAnalytics();
+            
+            // Update analytics
+            document.getElementById('totalDocs').textContent = analytics.totalDocuments;
+            document.getElementById('totalInsights').textContent = analytics.totalInsights;
+            document.getElementById('totalTrends').textContent = analytics.totalTrends;
+            document.getElementById('industries').textContent = analytics.industries.length;
+            
+            // Update document list
+            const documentList = document.getElementById('documentList');
+            if (analytics.totalDocuments === 0) {
+                documentList.innerHTML = '<p>No documents uploaded yet. Upload some files to see the intelligent processing in action!</p>';
+            } else {
+                documentList.innerHTML = jammyAI.memory.uploadedDocuments.map(doc => `
+                    <div class="document-item">
+                        <h4>${doc.name}</h4>
+                        <div class="document-meta">
+                            Industry: ${doc.industry} | Type: ${doc.type} | Size: ${(doc.size / 1024).toFixed(1)} KB
+                        </div>
+                        <div class="insights-preview">
+                            <strong>Extracted Insights:</strong>
+                            ${doc.extractedData.insights.slice(0, 2).map(insight => 
+                                `<div class="insight">${insight}</div>`
+                            ).join('')}
+                            <strong>Market Trends:</strong>
+                            ${doc.extractedData.trends.slice(0, 2).map(trend => 
+                                `<div class="insight">${trend}</div>`
+                            ).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            // Update recent insights
+            const recentInsights = document.getElementById('recentInsights');
+            if (analytics.totalInsights > 0) {
+                const allInsights = jammyAI.memory.uploadedDocuments.flatMap(doc => 
+                    doc.extractedData.insights.map(insight => ({ insight, source: doc.name }))
+                ).slice(-5);
+                
+                recentInsights.innerHTML = `
+                    <h4>Recent Insights from Uploaded Documents:</h4>
+                    ${allInsights.map(item => 
+                        `<div class="insight-item">
+                            <strong>From ${item.source}:</strong> ${item.insight}
+                        </div>`
+                    ).join('')}
+                `;
+            } else {
+                recentInsights.innerHTML = '<p>Upload documents to see extracted insights and trends!</p>';
+            }
+        }
+
+        // Initialize UI
+        updateUI();
+    </script>
+</body>
+</html>

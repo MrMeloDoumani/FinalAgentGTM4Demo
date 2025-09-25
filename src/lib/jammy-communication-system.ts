@@ -3,7 +3,7 @@
 
 export interface CommunicationContext {
   userMessage: string;
-  userIntent: 'greeting' | 'capability_query' | 'image_request' | 'market_insights' | 'general' | 'clarification';
+  userIntent: 'greeting' | 'capability_query' | 'image_request' | 'market_insights' | 'general' | 'clarification' | 'document_query';
   conversationStage: 'initial' | 'gathering_info' | 'processing' | 'executing' | 'complete';
   missingInfo: string[];
   chinchillaCommand?: string;
@@ -103,7 +103,7 @@ export class JammyCommunicationSystem {
     return context;
   }
 
-  private analyzeUserIntent(message: string): 'greeting' | 'capability_query' | 'image_request' | 'market_insights' | 'general' | 'clarification' {
+  private analyzeUserIntent(message: string): 'greeting' | 'capability_query' | 'image_request' | 'market_insights' | 'general' | 'clarification' | 'document_query' {
     const lowerMessage = message.toLowerCase();
     
     // Greeting patterns
@@ -137,6 +137,15 @@ export class JammyCommunicationSystem {
       return 'market_insights';
     }
     
+    // Document query detection
+    if (lowerMessage.includes('uploaded') || lowerMessage.includes('document') || lowerMessage.includes('file') ||
+        lowerMessage.includes('report') || lowerMessage.includes('analysis') || lowerMessage.includes('data') ||
+        lowerMessage.includes('insights from') || lowerMessage.includes('based on') || 
+        lowerMessage.includes('what does') || lowerMessage.includes('show me') ||
+        lowerMessage.includes('find') || lowerMessage.includes('search')) {
+      return 'document_query';
+    }
+    
     // Clarification responses
     if (lowerMessage.includes('yes') || lowerMessage.includes('no') ||
         lowerMessage.includes('sure') || lowerMessage.includes('okay') ||
@@ -164,6 +173,9 @@ export class JammyCommunicationSystem {
 
       case 'image_request':
         return this.generateImageRequestResponse(message, context);
+      
+      case 'document_query':
+        return this.generateDocumentQueryResponse(message, context);
       
       case 'clarification':
         return this.generateClarificationResponse(message, context);
@@ -340,6 +352,16 @@ Once I have these details, I'll ask Chinchilla to create the perfect visual repr
     }
     
     return this.generateGeneralResponse(message, context);
+  }
+
+  private generateDocumentQueryResponse(message: string, context: CommunicationContext): UserResponse {
+    return {
+      message: `I'd be happy to help you analyze your uploaded documents! I can search through your knowledge base for specific insights, trends, or data points. 
+
+What would you like to know about your uploaded files? I can provide insights on market trends, competitive analysis, pricing data, or any other information from your documents.`,
+      tone: 'collaborative',
+      nextAction: 'wait'
+    };
   }
 
   private generateGeneralResponse(message: string, context: CommunicationContext): UserResponse {
