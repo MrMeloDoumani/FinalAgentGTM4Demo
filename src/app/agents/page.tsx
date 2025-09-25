@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { ArrowLeft, Send, Upload, Save, Users, Calendar, X, FileText, Download } from "lucide-react";
+import { ArrowLeft, Send, Upload, Save, Users, Calendar, X, FileText, Download, Copy } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -38,6 +38,7 @@ const actionOptions = [
   { id: "send-team", label: "Send to Team", icon: Users },
   { id: "send-planner", label: "Send to Planner", icon: Calendar },
   { id: "download", label: "Download", icon: Download },
+  { id: "copy-image-link", label: "Copy Image Link", icon: Copy },
 ];
 
 export default function AgentsPage() {
@@ -48,6 +49,7 @@ export default function AgentsPage() {
   const [showFileUpload, setShowFileUpload] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [jammyStatus, setJammyStatus] = useState<{ conversations: number; learnedPatterns: number; knowledgeBase: number } | null>(null);
 
   // Initialize conversation with Jammy's greeting
   useEffect(() => {
@@ -91,6 +93,26 @@ export default function AgentsPage() {
     };
 
     initializeConversation();
+  }, []);
+
+  // Fetch Jammy status (conversations, learned patterns, KB size)
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const res = await fetch('/api/jammy');
+        if (!res.ok) return;
+        const data = await res.json();
+        const mem = data?.jammy?.memory;
+        if (mem) {
+          setJammyStatus({
+            conversations: mem.conversations ?? 0,
+            learnedPatterns: mem.learnedPatterns ?? 0,
+            knowledgeBase: mem.knowledgeBase ?? 0,
+          });
+        }
+      } catch {}
+    };
+    fetchStatus();
   }, []);
 
   const scrollToBottom = () => {
@@ -242,6 +264,26 @@ export default function AgentsPage() {
           timestamp: new Date(),
         };
         break;
+      case "copy-image-link": {
+        const lastImage = lastAIMessage.mediaAssets?.find(a => a.type === 'image');
+        if (lastImage) {
+          navigator.clipboard.writeText(lastImage.fileUrl);
+          actionMessage = {
+            id: Date.now().toString(),
+            type: "ai",
+            content: `🔗 Image link copied to clipboard.`,
+            timestamp: new Date(),
+          };
+          break;
+        }
+        actionMessage = {
+          id: Date.now().toString(),
+          type: "ai",
+          content: `No image available in the last response to copy.`,
+          timestamp: new Date(),
+        };
+        break;
+      }
         
       default:
         actionMessage = {
@@ -293,6 +335,9 @@ export default function AgentsPage() {
             <div className="h-6 w-px bg-gray-300" />
             <div>
               <h1 className="text-lg font-semibold text-gray-900">Jammy AI - Bi-lingual Sales Enablement Assistant</h1>
+              {jammyStatus && (
+                <p className="text-xs text-gray-400 mt-1">KB: {jammyStatus.knowledgeBase} • Learned: {jammyStatus.learnedPatterns} • Conv: {jammyStatus.conversations}</p>
+              )}
               <p className="text-sm text-gray-500">Yasser Omar Zaki Shaaban - DIRECTOR</p>
             </div>
           </div>
@@ -433,20 +478,31 @@ export default function AgentsPage() {
                               />
                             </div>
                             <div className="mt-3 flex space-x-2">
-                              <button 
-                                onClick={() => window.open(asset.fileUrl, '_blank')}
-                                className="flex items-center space-x-1 px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
-                              >
-                                <Download className="h-3 w-3" />
-                                <span>Download Image</span>
-                              </button>
-                              <button 
-                                onClick={() => navigator.clipboard.writeText(asset.fileUrl)}
-                                className="flex items-center space-x-1 px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700"
-                              >
-                                <FileText className="h-3 w-3" />
-                                <span>Copy Link</span>
-                              </button>
+                      <button 
+                        onClick={() => {
+                          fetch(asset.fileUrl).then(r => r.blob()).then(b => {
+                            const a = document.createElement('a');
+                            const url = URL.createObjectURL(b);
+                            a.href = url;
+                            a.download = (asset.title || 'jammy_image') + '.png';
+                            document.body.appendChild(a);
+                            a.click();
+                            a.remove();
+                            URL.revokeObjectURL(url);
+                          }).catch(() => window.open(asset.fileUrl, '_blank'));
+                        }}
+                        className="flex items-center space-x-1 px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+                      >
+                        <Download className="h-3 w-3" />
+                        <span>Download Image</span>
+                      </button>
+                      <button 
+                        onClick={() => navigator.clipboard.writeText(asset.fileUrl)}
+                        className="flex items-center space-x-1 px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-700"
+                      >
+                        <Copy className="h-3 w-3" />
+                        <span>Copy Link</span>
+                      </button>
                             </div>
                           </div>
                         ) : (
