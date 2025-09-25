@@ -92,9 +92,52 @@ class JammyAI {
       console.log('💬 Communication result:', communicationResult);
 
       console.log('🔍 Step 2: Starting web intelligence...');
-      // Step 2: Search for product information
+      // Step 2: Detect if this is a market insights request; else search product
+      const commIntent = (communicationResult as any).nextAction;
+      const isInsights = (this.communicationSystem as any).getConversationStatus?.(context.user || 'default')?.userIntent === 'market_insights'
+        || /insight|market|trend|analysis|intelligence/i.test(message);
       const webResult = await this.webIntelligence.searchProduct(message, context);
       console.log('🌐 Web intelligence result:', webResult);
+
+      // Optional: Generate sector insights when asked
+      if (isInsights) {
+        const sectorInsights = await (this.webIntelligence as any).getSectorInsights?.(message);
+        if (sectorInsights) {
+          const insightsText = [
+            `UAE ${sectorInsights.sector} market insights — ${sectorInsights.timeframe}:`,
+            '',
+            'Trends:',
+            ...sectorInsights.trends.map((t: string) => `• ${t}`),
+            '',
+            'Drivers:',
+            ...sectorInsights.drivers.map((d: string) => `• ${d}`),
+            '',
+            'Risks:',
+            ...sectorInsights.risks.map((r: string) => `• ${r}`),
+            '',
+            'Suggested GTM plays:',
+            ...sectorInsights.recommendedPlays.map((p: string) => `• ${p}`),
+            '',
+            'Sources:',
+            ...sectorInsights.sources.map((s: string) => `• ${s}`)
+          ].join('\n');
+
+          this.storeConversation(message, insightsText, webResult.industry || 'general', 0.85);
+
+          return {
+            message: insightsText,
+            mediaAssets: [],
+            industry: webResult.industry || 'general',
+            confidence: 0.85,
+            jammyId: `jammy_${Date.now()}`,
+            learningData: {
+              industry: webResult.industry || 'general',
+              confidence: 0.85,
+              insights: ['Provided sector insights']
+            }
+          };
+        }
+      }
 
       // Step 3: Generate response based on intent
       console.log('🔍 Step 3: Checking if image generation is needed...');

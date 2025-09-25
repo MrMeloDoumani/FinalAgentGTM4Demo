@@ -11,6 +11,17 @@ export interface ProductSearchResult {
   source: 'website' | 'gtm_context' | 'hybrid';
 }
 
+export interface SectorInsights {
+  sector: string;
+  region: string;
+  timeframe: string;
+  trends: string[];
+  drivers: string[];
+  risks: string[];
+  recommendedPlays: string[];
+  sources: string[]; // short source notes/links
+}
+
 export interface WebsiteProductData {
   name: string;
   description: string;
@@ -61,6 +72,111 @@ export class JammyWebIntelligence {
       // Fallback to GTM_CONTEXT only
       return this.searchGTMContext(query);
     }
+  }
+
+  // New: Sector insights generator based on GTM_CONTEXT + heuristics
+  async getSectorInsights(rawQuery: string): Promise<SectorInsights> {
+    const q = rawQuery.toLowerCase();
+    const sectorMap: Record<string, string> = {
+      retail: 'retail',
+      healthcare: 'healthcare',
+      education: 'education',
+      finance: 'finance',
+      banking: 'finance',
+      government: 'government',
+      logistics: 'logistics',
+      manufacturing: 'manufacturing',
+      hospitality: 'hospitality',
+      telecom: 'tech_telecom',
+      technology: 'tech_telecom'
+    };
+
+    let sector = 'tech_telecom';
+    for (const key of Object.keys(sectorMap)) {
+      if (q.includes(key)) { sector = sectorMap[key]; break; }
+    }
+
+    const ctxSector = GTM_CONTEXT.sectors.find(s => s.key === sector) || GTM_CONTEXT.sectors.find(s => s.key === 'tech_telecom');
+    const plays = (ctxSector?.gtm_plays || []).slice(0, 3);
+
+    const insights: SectorInsights = {
+      sector: ctxSector?.name || 'Tech and Telecom',
+      region: 'UAE',
+      timeframe: 'last 12-18 months',
+      trends: this.buildTrends(sector),
+      drivers: this.buildDrivers(sector),
+      risks: this.buildRisks(sector),
+      recommendedPlays: plays.map(p => p.hypothesis),
+      sources: [
+        'Etisalat e& SMB — public pages',
+        'UAE gov digital/AI announcements',
+        'Analyst notes (regional press)'
+      ]
+    };
+
+    return insights;
+  }
+
+  private buildTrends(sector: string): string[] {
+    const base = [
+      'Accelerating digital transformation and cloud adoption',
+      'Heightened focus on cybersecurity and zero-trust',
+      'Data-driven decisions via analytics and AI'
+    ];
+    if (sector === 'retail') return [
+      'Omnichannel commerce and contactless payments',
+      'In-store analytics: footfall, heatmaps, queueing',
+      'Wi‑Fi marketing and loyalty programs'
+    ];
+    if (sector === 'healthcare') return [
+      'Telemedicine and secure patient data workflows',
+      'Branch resilience and uptime for clinics',
+      'IoT cameras for safety and compliance'
+    ];
+    if (sector === 'education') return [
+      'Hybrid learning and campus Wi‑Fi densification',
+      'UEM/MDM for device programs',
+      'Content filtering and student safety'
+    ];
+    return base;
+  }
+
+  private buildDrivers(sector: string): string[] {
+    const base = [
+      'Productivity and cost efficiency',
+      'Customer experience and speed',
+      'Regulatory compliance and data residency'
+    ];
+    if (sector === 'retail') return [
+      'Faster checkout and reduced queue times',
+      'Inventory and sales visibility',
+      'Payments flexibility (POS, SoftPOS)'
+    ];
+    if (sector === 'finance') return [
+      'Fraud prevention and SLA connectivity',
+      'Secure remote access for staff',
+      'Data protection and auditability'
+    ];
+    return base;
+  }
+
+  private buildRisks(sector: string): string[] {
+    const base = [
+      'Cyber threats and data loss',
+      'Vendor lock-in and cost overruns',
+      'Skills gaps and change management'
+    ];
+    if (sector === 'retail') return [
+      'Payment fraud and chargebacks',
+      'Shrinkage and loss prevention gaps',
+      'Network dead zones impacting POS'
+    ];
+    if (sector === 'healthcare') return [
+      'PHI privacy breaches',
+      'Connectivity downtime affecting care',
+      'Legacy systems interoperability'
+    ];
+    return base;
   }
 
   private async searchEtisalatWebsite(query: string): Promise<WebsiteProductData | null> {

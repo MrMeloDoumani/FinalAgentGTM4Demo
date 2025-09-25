@@ -16,7 +16,10 @@ export interface OpenAIImageResult {
   styleApplied: string;
 }
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// Lazy client creation to avoid build-time errors when env is missing
+function createClient(): OpenAI {
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
+}
 
 export class OpenAIImageGenerator {
   async generatePng(spec: OpenAIImageSpec): Promise<OpenAIImageResult> {
@@ -33,6 +36,7 @@ export class OpenAIImageGenerator {
     }
     const basePrompt = `${spec.prompt}\nBrand: e& (Etisalat). Professional B2B hero visual. Color accent: #e30613. Clean grid, generous whitespace, corporate aesthetic, sharp icons, realistic lighting.`;
     try {
+      const client = createClient();
       let res = await client.images.generate({
         model: "gpt-image-1",
         prompt: basePrompt,
@@ -68,6 +72,7 @@ export class OpenAIImageGenerator {
 
       // Retry with dall-e-3 if gpt-image-1 returned nothing
       try {
+        const client2 = client; // reuse
         res = await client.images.generate({
           model: "dall-e-3",
           prompt: basePrompt,

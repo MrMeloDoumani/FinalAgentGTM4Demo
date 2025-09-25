@@ -3,7 +3,7 @@
 
 export interface CommunicationContext {
   userMessage: string;
-  userIntent: 'greeting' | 'capability_query' | 'image_request' | 'general' | 'clarification';
+  userIntent: 'greeting' | 'capability_query' | 'image_request' | 'market_insights' | 'general' | 'clarification';
   conversationStage: 'initial' | 'gathering_info' | 'processing' | 'executing' | 'complete';
   missingInfo: string[];
   chinchillaCommand?: string;
@@ -103,7 +103,7 @@ export class JammyCommunicationSystem {
     return context;
   }
 
-  private analyzeUserIntent(message: string): 'greeting' | 'capability_query' | 'image_request' | 'general' | 'clarification' {
+  private analyzeUserIntent(message: string): 'greeting' | 'capability_query' | 'image_request' | 'market_insights' | 'general' | 'clarification' {
     const lowerMessage = message.toLowerCase();
     
     // Greeting patterns
@@ -129,6 +129,13 @@ export class JammyCommunicationSystem {
         lowerMessage.includes('chart') || lowerMessage.includes('dashboard')) {
       return 'image_request';
     }
+
+    // Market insights / analysis intent
+    const insightKeywords = ['insight', 'insights', 'market', 'trend', 'trends', 'analysis', 'overview', 'intelligence'];
+    const sectorKeywords = ['uae', 'b2b', 'retail', 'healthcare', 'education', 'finance', 'bank', 'hospitality', 'logistics', 'manufacturing', 'government', 'real estate', 'telecom', 'technology'];
+    if (insightKeywords.some(k => lowerMessage.includes(k)) && sectorKeywords.some(k => lowerMessage.includes(k))) {
+      return 'market_insights';
+    }
     
     // Clarification responses
     if (lowerMessage.includes('yes') || lowerMessage.includes('no') ||
@@ -148,6 +155,13 @@ export class JammyCommunicationSystem {
       case 'capability_query':
         return this.generateCapabilityResponse(message, context);
       
+      case 'market_insights':
+        return {
+          message: 'I will compile UAE B2B market insights with trends, drivers, and risks for the specified sector.',
+          tone: 'expert',
+          nextAction: 'execute'
+        };
+
       case 'image_request':
         return this.generateImageRequestResponse(message, context);
       

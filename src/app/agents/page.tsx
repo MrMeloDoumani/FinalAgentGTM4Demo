@@ -30,6 +30,13 @@ interface Message {
   }>;
   jammyId?: string;
   confidence?: number;
+  insights?: {
+    sector: string;
+    trends: string[];
+    drivers: string[];
+    risks: string[];
+    sources: string[];
+  };
 }
 
 const actionOptions = [
@@ -524,6 +531,41 @@ export default function AgentsPage() {
                             </button>
                           </div>
                         )}
+
+                  {/* Display structured market insights if present */}
+                  {message.insights && (
+                    <div className="mt-4 bg-white rounded-lg p-4 border border-gray-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <h5 className="font-medium text-gray-900">UAE {message.insights.sector} Market Insights</h5>
+                        <span className="text-xs text-gray-500 bg-red-100 px-2 py-1 rounded">INSIGHTS</span>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <h6 className="font-semibold text-gray-800 mb-1">Trends</h6>
+                          <ul className="list-disc list-inside text-gray-700 space-y-1">
+                            {message.insights.trends.map((t, i) => (<li key={i}>{t}</li>))}
+                          </ul>
+                        </div>
+                        <div>
+                          <h6 className="font-semibold text-gray-800 mb-1">Drivers</h6>
+                          <ul className="list-disc list-inside text-gray-700 space-y-1">
+                            {message.insights.drivers.map((d, i) => (<li key={i}>{d}</li>))}
+                          </ul>
+                        </div>
+                        <div>
+                          <h6 className="font-semibold text-gray-800 mb-1">Risks</h6>
+                          <ul className="list-disc list-inside text-gray-700 space-y-1">
+                            {message.insights.risks.map((r, i) => (<li key={i}>{r}</li>))}
+                          </ul>
+                        </div>
+                      </div>
+                      {message.insights.sources?.length ? (
+                        <div className="mt-3 text-xs text-gray-500">
+                          Sources: {message.insights.sources.join('; ')}
+                        </div>
+                      ) : null}
+                    </div>
+                  )}
                       </div>
                     ))}
                   </div>
