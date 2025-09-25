@@ -91,9 +91,9 @@ export default function AgentsPage() {
         console.error('Failed to initialize conversation:', error);
         // Fallback greeting
         if (messages.length === 0) setMessages([{
-          id: `jammy_${Date.now()}`,
+          id: `jammi_${Date.now()}`,
           type: "ai",
-          content: "Hello! I'm Jammy, your expert AI assistant for e& GTM team. It's wonderful to meet you!",
+          content: "Hello! I'm JAMMI (Just Ask Me Marketing Intelligence), your expert AI assistant for e& GTM team. It's wonderful to meet you!",
           timestamp: new Date(),
         }]);
       }
@@ -341,7 +341,7 @@ export default function AgentsPage() {
             </Link>
             <div className="h-6 w-px bg-gray-300" />
             <div>
-              <h1 className="text-lg font-semibold text-gray-900">Jammy AI - Bi-lingual Sales Enablement Assistant</h1>
+              <h1 className="text-lg font-semibold text-gray-900">JAMMI AI - Just Ask Me Marketing Intelligence</h1>
               {jammyStatus && (
                 <p className="text-xs text-gray-400 mt-1">KB: {jammyStatus.knowledgeBase} • Learned: {jammyStatus.learnedPatterns} • Conv: {jammyStatus.conversations}</p>
               )}
@@ -576,7 +576,7 @@ export default function AgentsPage() {
               {message.jammyId && (
                 <div className="mt-2 text-xs text-gray-500">
                   <span className="bg-green-100 text-green-800 px-2 py-1 rounded mr-2">
-                    Jammy AI
+                    JAMMI AI
                   </span>
                   {message.confidence && (
                     <span className="bg-red-100 text-red-800 px-2 py-1 rounded mr-2">
@@ -618,7 +618,7 @@ export default function AgentsPage() {
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Hello! I'm Jammy, your expert AI assistant. Ask me anything about sales enablement, visual creation, or market analysis..."
+              placeholder="Hello! I'm JAMMI (Just Ask Me Marketing Intelligence), your expert AI assistant. Ask me anything about sales enablement, visual creation, or market analysis..."
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none text-black placeholder-gray-500"
               rows={3}
             />

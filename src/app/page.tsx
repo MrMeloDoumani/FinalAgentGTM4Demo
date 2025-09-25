@@ -46,6 +46,13 @@ const teamMembers = [
   
   // Managers (alphabetically)
   {
+    name: "Fadhal Abuld Majeed",
+    role: "MANAGER",
+    status: "AI AVAILABLE",
+    color: "bg-blue-100 text-blue-800",
+    avatar: "FM",
+  },
+  {
     name: "Sara Mostafa",
     role: "MANAGER",
     status: "AI AVAILABLE",
@@ -103,7 +110,7 @@ const navigationItems = [
     iconColor: "text-purple-600",
   },
   {
-    title: "Melo Method",
+    title: "Templates",
     description: "Copywriting Templates & Content",
     icon: FileText,
     href: "/method",

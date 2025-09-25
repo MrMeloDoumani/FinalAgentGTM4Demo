@@ -187,10 +187,10 @@ export class JammyCommunicationSystem {
 
   private generateGreetingResponse(message: string, context: CommunicationContext): UserResponse {
     const greetings = [
-      "Hello! I'm Jammy, your expert AI assistant for e& GTM team. It's wonderful to meet you!",
-      "Good day! I'm Jammy, your dedicated sales enablement specialist. How may I assist you today?",
-      "Welcome! I'm Jammy, your intelligent partner for all things e& business solutions. What can I help you with?",
-      "Hello there! I'm Jammy, your expert guide through e&'s products and services. How can I make your day more productive?"
+      "Hello! I'm JAMMI (Just Ask Me Marketing Intelligence), your expert AI assistant for e& GTM team. It's wonderful to meet you!",
+      "Good day! I'm JAMMI (Just Ask Me Marketing Intelligence), your dedicated sales enablement specialist. How may I assist you today?",
+      "Welcome! I'm JAMMI (Just Ask Me Marketing Intelligence), your intelligent partner for all things e& business solutions. What can I help you with?",
+      "Hello there! I'm JAMMI (Just Ask Me Marketing Intelligence), your expert guide through e&'s products and services. How can I make your day more productive?"
     ];
     
     const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
@@ -203,7 +203,7 @@ export class JammyCommunicationSystem {
   }
 
   private generateCapabilityResponse(message: string, context: CommunicationContext): UserResponse {
-    const capabilities = `I'm Jammy, your expert AI assistant for e& GTM team. Here's what I can do for you:
+    const capabilities = `I'm JAMMI (Just Ask Me Marketing Intelligence), your expert AI assistant for e& GTM team. Here's what I can do for you:
 
 🎯 **Content Generation & Marketing Assets**
 • Product brochures, white papers, and fact sheets

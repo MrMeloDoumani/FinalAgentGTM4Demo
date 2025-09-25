@@ -44,12 +44,12 @@ function MeloMethodPage() {
               <span className="ml-2">Back to Directory</span>
             </Link>
           </div>
-          <h1 className="text-lg font-semibold text-gray-900">Melo Method — Copywriting Templates</h1>
+          <h1 className="text-lg font-semibold text-gray-900">Templates — Copywriting Templates</h1>
         </div>
       </header>
 
       <main className="mx-auto max-w-5xl px-6 py-8">
-        <p className="text-sm text-gray-600 mb-6">Use these proven templates for fast, on‑brand GTM content. Click copy to paste into Jammy or your docs.</p>
+        <p className="text-sm text-gray-600 mb-6">Use these proven templates for fast, on‑brand GTM content. Click copy to paste into JAMMI or your docs.</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {templates.map((t, idx) => (
@@ -217,7 +217,7 @@ export default function MethodPage() {
               </Link>
               <div className="h-6 w-px bg-gray-300" />
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Melo Method</h1>
+                <h1 className="text-xl font-bold text-gray-900">Templates</h1>
                 <p className="text-sm text-gray-500">Copywriting Templates & Industry-Specific Content</p>
               </div>
             </div>
@@ -316,7 +316,7 @@ export default function MethodPage() {
 
         {/* How-to Guide */}
         <div className="mt-12 bg-white rounded-lg p-8 shadow-sm border border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">How to Use Melo Method</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">How to Use Templates</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
